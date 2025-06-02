@@ -2,6 +2,10 @@
 #define LNOT_LANCZOS_TRS_SOLVER_IMPL_HPP
 
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
+#include <LNOT/BasicLinalg.hpp>
+
+#include <fmt/core.h>
+#include <fmt/format.h>
 
 namespace LNOT
 {

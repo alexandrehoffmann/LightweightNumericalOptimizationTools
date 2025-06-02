@@ -33,7 +33,6 @@ int main()
        0.03227012, 0.26467142, 0.43539253, 0.83558561, 0.16021716};
   
 	double x[N];
-	
 	std::span<const double> x_view(x, N);
 	
 	LNOT::DenseMatrixOp<double> Aop(A, N, N);

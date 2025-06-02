@@ -36,7 +36,6 @@ int main()
   const double delta = 1;
   
 	double x[N];
-	
 	std::span<const double> x_view(x, N);
 	
 	LNOT::DenseMatrixOp<double> Aop(A, N, N);
@@ -88,5 +87,6 @@ int main()
 	Aop(x, r); 
 	fmt::print("Predicted model reduction : {}\n", tcg.getModelReduction());
 	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));
+	
 	return EXIT_SUCCESS;
 }

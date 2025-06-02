@@ -1,6 +1,12 @@
 #ifndef LNOT_COUPLED_LANCZOS_SOLVER_IMPL_HPP
 #define LNOT_COUPLED_LANCZOS_SOLVER_IMPL_HPP
 
+#include <LNOT/LinearSolvers/CoupledLanczosSolver.hpp>
+#include <LNOT/BasicLinalg.hpp>
+
+#include <fmt/core.h>
+#include <fmt/format.h>
+
 namespace LNOT
 {
 	
@@ -56,8 +62,8 @@ void CoupledLanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__
 	{
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e}\n", Base::m_nIt, m_normR, tol); }
 		if (m_normR < tol) { Base::m_info = Info::SUCCESS; break; }
-		H(m_q, m_w);
 		
+		H(m_q, m_w);
 		const Scalar tau   = BasicLinalg::inner(m_q, m_w, size);
 		const Scalar alpha = tau + tau_old*l_old*l_old;
 		// solve T_k h_k = -\|r_0\|e_1

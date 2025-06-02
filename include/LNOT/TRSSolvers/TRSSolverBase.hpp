@@ -44,8 +44,7 @@ public:
 	void setTol   (const Scalar& tol)   { m_tol   = tol;   }
 	void setTolTR (const Scalar& tolTr) { m_tolTr = tolTr; }
 	
-	void setOutput(std::FILE* out)    { m_out = out; }
-	void setOutput(const char* fname) { m_out = std::fopen(fname, "w"); }
+	void setOutput(std::FILE* out) { m_out = out; }
 protected:
 	Size   m_maxIt;
 	Scalar m_tol;
@@ -59,6 +58,10 @@ protected:
 	
 	std::FILE* m_out = nullptr;
 };
+
+template<class T> struct IsTRSSolver : std::bool_constant< std::is_base_of<TRSSolverBase<T>, T>::value > {};
+
+template<class T> concept TRSSolver_concept = IsTRSSolver<T>::value;
 	
 } // namespace LNOT
 

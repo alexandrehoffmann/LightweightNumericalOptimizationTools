@@ -1,7 +1,11 @@
 #ifndef LNOT_COUPLED_LANCZOS_TRS_SOLVER_IMPL_HPP
 #define LNOT_COUPLED_LANCZOS_TRS_SOLVER_IMPL_HPP
 
-#include <span>
+#include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
+#include <LNOT/BasicLinalg.hpp>
+
+#include <fmt/core.h>
+#include <fmt/format.h>
 
 namespace LNOT
 {

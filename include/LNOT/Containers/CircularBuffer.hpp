@@ -95,6 +95,6 @@ private:
 	
 } // namespace LightOptim
 
-#include <LNOT/CircularBuffer/CircularBuffer_impl.hpp>
+#include <LNOT/Containers/CircularBuffer_impl.hpp>
 
 #endif // LNOT_CIRCULAR_BUFFER_HPP

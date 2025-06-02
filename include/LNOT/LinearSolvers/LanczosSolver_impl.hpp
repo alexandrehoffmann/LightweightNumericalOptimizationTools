@@ -4,6 +4,9 @@
 #include <LNOT/LinearSolvers/LanczosSolver.hpp>
 #include <LNOT/BasicLinalg.hpp>
 
+#include <fmt/core.h>
+#include <fmt/format.h>
+
 namespace LNOT
 {
 

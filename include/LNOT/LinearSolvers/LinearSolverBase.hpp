@@ -36,7 +36,7 @@ public:
 	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { std::copy(x0, x0 + size, x); derived_cast().solve_impl(H, g, size, std::true_type{}, x);  }
 	
 	template<typename Op, bool solveInPlace> 
-	void solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsHessianOp<Op>::value) { derived_cast().solve(H, g, size, bc, x); }
+	void solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsHessianOp<Op>::value) { derived_cast().solve_impl(H, g, size, bc, x); }
 	
 	Scalar getError        () const { return derived_cast().getError();        }
 	Scalar getSquaredError () const { return derived_cast().getSquaredError(); }
@@ -49,8 +49,7 @@ public:
 	void setMaxIt (const Size    maxIt) { m_maxIt = maxIt; }
 	void setTol   (const Scalar& tol)   { m_tol   = tol;   }
 	
-	void setOutput(std::FILE* out)    { m_out = out; }
-	void setOutput(const char* fname) { m_out = std::fopen(fname, "w"); }
+	void setOutput(std::FILE* out) { m_out = out; }
 protected:
 	Size   m_maxIt;
 	Scalar m_tol;

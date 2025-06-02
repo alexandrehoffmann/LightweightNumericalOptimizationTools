@@ -18,12 +18,13 @@ template<typename T, class Function, class Gradient, class HessianOp>  class Ora
 template<typename T, class Function, class Gradient, class HessianOp> 
 struct OracleTraits< OracleWrapper<T, Function, Gradient, HessianOp> > 
 {
-	static_assert(not IsVoidFunctor<Function>::value  and std::is_invocable<Function, const T*>::value and std::is_same<std::invoke_result_t<Function, T*>, T>::value);
-	static_assert(    IsVoidFunctor<Gradient>::value   or std::is_invocable<Gradient, const T*, T*>::value);
-	static_assert(    IsVoidFunctor<HessianOp>::value  or std::is_invocable<HessianOp, const T*, const T*, T*>::value);
-
 	using Size   = unsigned int; 
 	using Scalar = T; 
+
+	static_assert(not IsVoidFunctor<Function>::value  and std::is_invocable<Function, const Scalar*>::value and std::is_same<std::invoke_result_t<Function, Scalar*>, Scalar>::value);
+	static_assert(    IsVoidFunctor<Gradient>::value   or std::is_invocable<Gradient, const Scalar*, Scalar*>::value);
+	static_assert(    IsVoidFunctor<HessianOp>::value  or std::is_invocable<HessianOp, const Scalar*, const Scalar*, Scalar*>::value);
+
 	static constexpr bool hasGradient    = (not IsVoidFunctor<Gradient>::value);
 	static constexpr bool hasHessianProd = (not IsVoidFunctor<HessianOp>::value);
 };
@@ -43,9 +44,9 @@ public:
 	static constexpr bool hasHessianProd = Base::hasHessianProd;
 
 	OracleWrapper() = delete;
-	OracleWrapper(const Size nDims, Function func)                                  requires (not hasGradient and not hasHessianProd) : m_nDims(nDims), m_x(x), m_function(func) {}
-	OracleWrapper(const Size nDims, Function func, Gradient grad)                   requires (    hasGradient and not hasHessianProd) : m_nDims(nDims), m_x(x), m_function(func), m_gradient(grad) {}
-	OracleWrapper(const Size nDims, Function func, Gradient grad, HessianOp hessOp) requires (    hasGradient and     hasHessianProd) : m_nDims(nDims), m_x(x), m_function(func), m_gradient(grad), m_hessianOp(hessOp) {}
+	OracleWrapper(const Size nDims, Function func)                                  requires (not hasGradient and not hasHessianProd) : m_nDims(nDims), m_function(func) {}
+	OracleWrapper(const Size nDims, Function func, Gradient grad)                   requires (    hasGradient and not hasHessianProd) : m_nDims(nDims), m_function(func), m_gradient(grad) {}
+	OracleWrapper(const Size nDims, Function func, Gradient grad, HessianOp hessOp) requires (    hasGradient and     hasHessianProd) : m_nDims(nDims), m_function(func), m_gradient(grad), m_hessianOp(hessOp) {}
 	
 	Size getNDims() const { return m_nDims; }
 
@@ -58,12 +59,13 @@ public:
 	void getHessianProd(const Scalar* d, Scalar* Hd) const requires (hasHessianProd) { m_hessianOp(m_x, d, Hd); }
 private:
 	Size    m_nDims;
-	Scalar* m_x;
+	const Scalar* m_x = nullptr;
 	
 	Function  m_function;
 	Gradient  m_gradient;
 	HessianOp m_hessianOp;
 };
+
 
 } // namespace LNOT
 

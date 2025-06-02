@@ -55,7 +55,6 @@ void ConjugateGradient<T>::solve_impl(const Op& H, const Scalar* __restrict__ g,
 	{
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e}\n", Base::m_nIt, std::sqrt(m_sqNormR), std::sqrt(tol2)); }
 		if (m_sqNormR < tol2) { Base::m_info = Info::SUCCESS; break; }
-		
 		H(m_p, m_Hp);
 		const Scalar alpha = m_sqNormR / BasicLinalg::inner(m_p, m_Hp, size);
 		

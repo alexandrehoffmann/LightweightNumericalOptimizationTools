@@ -2,6 +2,10 @@
 #define LNOT_TRUNCATED_CONJUGATE_GRADIENT_IMPL_HPP
 
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
+#include <LNOT/BasicLinalg.hpp>
+
+#include <fmt/core.h>
+#include <fmt/format.h>
 
 namespace LNOT
 {
@@ -20,6 +24,7 @@ void TruncatedConjugateGradient<T>::solve(const Op& H, const Scalar* g, const Si
 {
 	if (Base::m_workCapacity < size)
 	{
+		clearWorkSpace();
 		Base::m_workCapacity = size;
 		m_r  = new Scalar[Base::m_workCapacity];
 		m_p  = new Scalar[Base::m_workCapacity];
