@@ -14,8 +14,6 @@ void LBFGS<LineSearch>::clearWorkSpace()
 {
 	if (m_gk   != nullptr) { delete[] m_gk;   m_gk   = nullptr; }
 	if (m_gkp1 != nullptr) { delete[] m_gkp1; m_gkp1 = nullptr; }
-	if (m_sk   != nullptr) { delete[] m_sk;   m_sk   = nullptr; }
-	if (m_yk   != nullptr) { delete[] m_yk;   m_yk   = nullptr; }
 	if (m_dk   != nullptr) { delete[] m_dk;   m_dk   = nullptr; }
 	if (m_S    != nullptr) { delete[] m_S;    m_S    = nullptr; }
 	if (m_Y    != nullptr) { delete[] m_Y;    m_Y    = nullptr; }
@@ -36,8 +34,6 @@ void LBFGS<LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPla
 
 		m_gk   = new Scalar[Base::m_workCapacity];
 		m_gkp1 = new Scalar[Base::m_workCapacity];
-		m_sk   = new Scalar[Base::m_workCapacity];
-		m_yk   = new Scalar[Base::m_workCapacity];
 		m_dk   = new Scalar[Base::m_workCapacity];
 		m_S    = new Scalar[m_memory*Base::m_workCapacity];
 		m_Y    = new Scalar[m_memory*Base::m_workCapacity];
@@ -60,6 +56,7 @@ void LBFGS<LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPla
 	
 	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#L-BFGS method\n#Iteration f(x) residual tol\n"); }
 	
+	Size curr_i = 0;
 	Base::m_info = Info::FAILURE;
 	for (Base::m_nIt=0;Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
 	{
@@ -95,17 +92,16 @@ void LBFGS<LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPla
 		#pragma omp simd
 		for (Size j=0; j!=size; ++j) 
 		{ 
-			m_sk[j] = step_len*m_dk[j];
-			m_yk[j] = m_gkp1[j] - m_gk[j];
+			m_S[j + curr_i*size] = step_len*m_dk[j];
+			m_Y[j + curr_i*size] = m_gkp1[j] - m_gk[j];
 		};
 		
-		const Scalar yk_dot_sk = BasicLinalg::inner(m_yk, m_sk, size);
+		const Scalar yk_dot_sk = BasicLinalg::inner(m_Y + curr_i*size, m_S + curr_i*size, size);
 		
 		if (yk_dot_sk > yk_dot_sk*std::numeric_limits<Scalar>::epsilon())
 		{
-			const Size curr_i = Size(rho.push(1. / yk_dot_sk));	
-			std::copy(m_sk, m_sk + size, m_S + curr_i*size);
-			std::copy(m_yk, m_yk + size, m_Y + curr_i*size);
+			++curr_i; if (curr_i == m_memory) { curr_i = 0; }
+			rho.push(1. / yk_dot_sk);	
 		}
 		
 		////

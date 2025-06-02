@@ -35,8 +35,6 @@ public:
 private:
 	Scalar* m_gk   = nullptr;
 	Scalar* m_gkp1 = nullptr;
-	Scalar* m_sk   = nullptr;
-	Scalar* m_yk   = nullptr;
 	Scalar* m_S    = nullptr;
 	Scalar* m_Y    = nullptr;
 	Scalar* m_dk   = nullptr;
