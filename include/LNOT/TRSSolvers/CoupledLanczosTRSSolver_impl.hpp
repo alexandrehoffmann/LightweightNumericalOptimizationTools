@@ -66,7 +66,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 	const Scalar deltaTol2 = (delta + Base::m_tolTr)*(delta + Base::m_tolTr);
 	
 	Base::m_info = Info::FAILURE;
-	if (Base::m_out) { fmt::print(Base::m_out, "Coupled recurrence Lanczos TRS solver : \n#Iteration residual lambda tol\n"); }
+	if (Base::m_out) { fmt::print(Base::m_out, "#Coupled recurrence Lanczos TRS solver : \n#Iteration residual lambda tol\n"); }
 	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt and isInterior; ++Base::m_nIt)
 	{
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, m_normR, m_lambda, tol); }
@@ -181,6 +181,8 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		}
 		
 		BasicLinalg::axpy(m_h.back(), m_v, size, x);
+		
+		++Base::m_nIt;
 	}
 }
 

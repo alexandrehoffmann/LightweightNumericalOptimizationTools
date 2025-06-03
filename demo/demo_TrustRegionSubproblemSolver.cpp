@@ -5,7 +5,6 @@
 
 #include <span>
 
-
 int main()
 {
 	constexpr unsigned int N = 10;
@@ -38,7 +37,7 @@ int main()
 	double x[N];
 	std::span<const double> x_view(x, N);
 	
-	LNOT::DenseMatrixOp<double> Aop(A, N, N);
+	LNOT::SymmetricDenseMatrixOp<double> Aop(A, N);
 	LNOT::LanczosTRSSolver<double> lanczosTrs;
 	lanczosTrs.setOutput(stdout);
 	lanczosTrs.solve(Aop, b, N, delta, x);

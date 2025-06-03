@@ -33,7 +33,7 @@ auto BacktrackingLineSearch<T>::solve(const Scalar* x, const Scalar fx, const Sc
 	Scalar alpha = 1;
 	
 	Base::m_info = Info::FAILURE;
-	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "Backtracking LineSearch : \n#Iteration alpha f(x+alpha s) f(x) tol\n"); }
+	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#Backtracking LineSearch : \n#Iteration alpha f(x+alpha s) f(x) tol\n"); }
 	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
 	{
 		if (alpha < std::numeric_limits<Scalar>::epsilon()) { break; }

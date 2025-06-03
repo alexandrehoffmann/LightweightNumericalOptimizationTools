@@ -53,34 +53,51 @@ int main()
 	LNOT::BisectionLineSearch<double> bisectLs;
 	LNOT::BacktrackingLineSearch<double> backtrackLs;
 	
-	std::FILE* bisectLsOut = std::fopen("bisectLs.log", "w");
-	std::FILE* backtrackLsOut = std::fopen("backtrackLs.log", "w");
+	LNOT::TruncatedConjugateGradient<double> tcg;
+	LNOT::LanczosTRSSolver<double> lanczosTrs;
+	LNOT::CoupledLanczosTRSSolver<double> coupledLanczosTrs;
 	
-	bisectLs.setOutput(bisectLsOut);
-	backtrackLs.setOutput(backtrackLsOut);
+	std::FILE* newtonBisectLsOut       = std::fopen("newton_bisect_ls.log", "w");
+	std::FILE* newtonBacktrackLsOut    = std::fopen("newton_backtrack_ls.log", "w");
+	std::FILE* newtonTCGOut            = std::fopen("newton_tcg.log", "w");
+	std::FILE* newtonLanczosOut        = std::fopen("newton_lanczos.log", "w");
+	std::FILE* newtonCoupledLanczosOut = std::fopen("newton_coupled_lanczos.log", "w");
 	
 	auto newtonSolver1 = LNOT::makeNewtonSolver(cg, bisectLs);
-	newtonSolver1.setOutput(stdout);
+	newtonSolver1.setOutput(newtonBisectLsOut);
 	newtonSolver1.solve(func, grad, hessOp, N, x);
 	
-	fmt::print("Newton found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver1.getIterations(), newtonSolver1.getError(), newtonSolver1.getValue());
-	for (Size it=0; it!=newtonSolver1.getIterations(); ++it)
-	{
-		fmt::print("  * Iteration {} computed in {} CG steps\n", it, newtonSolver1.getInnerIterations(it));
-	}
+	fmt::print("Newton with Bisection LineSrearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver1.getIterations(), newtonSolver1.getError(), newtonSolver1.getValue());
 	
 	auto newtonSolver2 = LNOT::makeNewtonSolver(cg, backtrackLs);
-	newtonSolver2.setOutput(stdout);
+	newtonSolver2.setOutput(newtonBacktrackLsOut);
 	newtonSolver2.solve(func, grad, hessOp, N, x);
 	
-	fmt::print("Newton found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver2.getIterations(), newtonSolver2.getError(), newtonSolver2.getValue());
-	for (Size it=0; it!=newtonSolver2.getIterations(); ++it)
-	{
-		fmt::print("  * Iteration {} computed in {} CG steps\n", it, newtonSolver2.getInnerIterations(it));
-	}
+	fmt::print("Newton with Bisection Backtracking LineSearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver2.getIterations(), newtonSolver2.getError(), newtonSolver2.getValue());
 	
-	std::fclose(bisectLsOut);
-	std::fclose(backtrackLsOut);
+	auto newtonSolver3 = LNOT::makeNewtonSolver(tcg);
+	newtonSolver3.setOutput(newtonTCGOut);
+	newtonSolver3.solve(func, grad, hessOp, N, x);
+	
+	fmt::print("Trut Region Newton with TCG found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver3.getIterations(), newtonSolver3.getError(), newtonSolver3.getValue());
+	
+	auto newtonSolver4 = LNOT::makeNewtonSolver(lanczosTrs);
+	newtonSolver4.setOutput(newtonLanczosOut);
+	newtonSolver4.solve(func, grad, hessOp, N, x);
+	
+	fmt::print("Trut Region Newton with Lanczos solver found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver4.getIterations(), newtonSolver4.getError(), newtonSolver4.getValue());
+	
+	auto newtonSolver5 = LNOT::makeNewtonSolver(coupledLanczosTrs);
+	newtonSolver5.setOutput(newtonCoupledLanczosOut);
+	newtonSolver5.solve(func, grad, hessOp, N, x);
+	
+	fmt::print("Trut Region Newton with coupled Lanczos solver found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver5.getIterations(), newtonSolver5.getError(), newtonSolver5.getValue());
 
+	std::fclose(newtonBisectLsOut);
+	std::fclose(newtonBacktrackLsOut);
+	std::fclose(newtonTCGOut);
+	std::fclose(newtonLanczosOut);
+  std::fclose(newtonCoupledLanczosOut);
+  
 	return EXIT_SUCCESS;
 }

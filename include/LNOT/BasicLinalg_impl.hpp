@@ -3,10 +3,6 @@
 
 #include <LNOT/BasicLinalg.hpp>
 
-#ifdef LNOT_WITH_BLAS
-#include <cblas.h>
-#endif // LNOT_WITH_BLAS
-
 namespace LNOT
 {
 namespace BasicLinalg
@@ -61,7 +57,7 @@ Scalar weightedInner(const Scalar* __restrict__ x, const Scalar* __restrict__ y,
 }
 
 template<typename Scalar, typename Size>
-void axpy(const Scalar& __restrict__ alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ y)
+void axpy(const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ y)
 {
 	#pragma omp simd 
 	for (Size i=0; i!=N; ++i)
@@ -76,7 +72,7 @@ template<typename Size> void axpy(const double& alpha, const double* x, const Si
 #endif // LNOT_WITH_BLAS 
 
 template<typename Scalar, typename Size>
-void scal(const Scalar& __restrict__ alpha, const Size N, Scalar* __restrict__ x)
+void scal(const Scalar alpha, const Size N, Scalar* __restrict__ x)
 {
 	#pragma omp simd 
 	for (Size i=0; i!=N; ++i)
@@ -86,22 +82,29 @@ void scal(const Scalar& __restrict__ alpha, const Size N, Scalar* __restrict__ x
 }
 
 #ifdef LNOT_WITH_BLAS
-template<typename Size> void scal(const float&  alpha, const Size N, float*  x) { cblas_sscal(blasint(N), alpha, x, 1); }
-template<typename Size> void scal(const double& alpha, const Size N, double* x) { cblas_dscal(blasint(N), alpha, x, 1); }
+template<typename Size> void scal(const float  alpha, const Size N, float*  x) { cblas_sscal(blasint(N), alpha, x, 1); }
+template<typename Size> void scal(const double alpha, const Size N, double* x) { cblas_dscal(blasint(N), alpha, x, 1); }
 #endif // LNOT_WITH_BLAS 
 
 template<typename Scalar, typename Size>
-void symRk1Update(const Scalar& __restrict__ alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ A)
+void symRk1Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ A)
 {
-	#pragma omp simd collapse(2)
+	const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
+	const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
+
 	for (Size i=0; i!=N; ++i)
 	{
-		for (Size j=0; j!=N; ++j)
+		for (Size j=0; j!=(i+1); ++j)
 		{
-			A[i*N + j] += alpha*x[i]*x[j];
+			A[i*iStride + j*jStride] += alpha*x[i]*x[j];
 		}
 	}
 }
+
+#ifdef LNOT_WITH_BLAS
+template<typename Size> void symRk1Update(StorageOrder layout, UpLo uplo, const float  alpha, const float*  x, const Size N, float*  A) { cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+template<typename Size> void symRk1Update(StorageOrder layout, UpLo uplo, const double alpha, const double* x, const Size N, double* A) { cblas_dsyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+#endif // LNOT_WITH_BLAS 
 
 namespace Tridiag
 {
@@ -148,7 +151,7 @@ bool compute(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, 
 }
 
 template<typename Scalar, typename Size>
-void solve_L_e1(const Scalar* __restrict__ l, const Size size, const Scalar& __restrict__ b1, Scalar* __restrict__ x)
+void solve_L_e1(const Scalar* __restrict__ l, const Size size, const Scalar b1, Scalar* __restrict__ x)
 {
 	x[0] = b1;
 	for (Size i=1; i!=size; ++i) { x[i] = -l[i-1]*x[i-1]; }

@@ -4,6 +4,8 @@
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
 #include <LNOT/BasicLinalg.hpp>
 
+#include <algorithm>
+
 #include <fmt/core.h>
 #include <fmt/format.h>
 
@@ -70,7 +72,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 	const Scalar deltaTol2 = (delta + Base::m_tolTr)*(delta + Base::m_tolTr);
 	
 	Base::m_info = Info::FAILURE;
-	if (Base::m_out) { fmt::print(Base::m_out, "Lanczos TRS solver : \n#Iteration residual lambda tol\n"); }
+	if (Base::m_out) { fmt::print(Base::m_out, "#Lanczos TRS solver : \n#Iteration residual lambda tol\n"); }
 	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt and isInterior; ++Base::m_nIt)
 	{
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, m_normR, m_lambda, tol); }

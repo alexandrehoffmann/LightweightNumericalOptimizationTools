@@ -1,5 +1,5 @@
 #include <LNOT/BasicLinalg.hpp>
-#include <LNOT/DenseMatrixOp.hpp>
+#include <LNOT/SymmetricDenseMatrixOp.hpp>
 
 #include <LNOT/LinearSolvers/ConjugateGradient.hpp>
 #include <LNOT/LinearSolvers/LanczosSolver.hpp>
@@ -13,4 +13,7 @@
 #include <LNOT/LineSearch/BisectionLineSearch.hpp>
 
 #include <LNOT/GeneralSolvers/NewtonSolver.hpp>
+#include <LNOT/GeneralSolvers/NewtonTrustRegionSolver.hpp>
 #include <LNOT/GeneralSolvers/LBFGS.hpp>
+#include <LNOT/GeneralSolvers/SR1TrustRegionSolver.hpp>
+#include <LNOT/GeneralSolvers/LSR1TrustRegionSolver.hpp>

@@ -50,7 +50,7 @@ void ConjugateGradient<T>::solve_impl(const Op& H, const Scalar* __restrict__ g,
 	const Scalar tol2 = Base::m_tol*Base::m_tol*m_sqNormR;
 	
 	Base::m_info = Info::FAILURE;
-	if (Base::m_out) { fmt::print(Base::m_out, "CG solver : \n#Iteration residual tol\n"); }
+	if (Base::m_out) { fmt::print(Base::m_out, "#CG solver : \n#Iteration residual tol\n"); }
 	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
 	{
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e}\n", Base::m_nIt, std::sqrt(m_sqNormR), std::sqrt(tol2)); }

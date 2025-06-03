@@ -45,7 +45,7 @@ auto BisectionLineSearch<T>::solve(const Scalar* x, const Scalar& fx, const Scal
 	Scalar alpha_max = std::numeric_limits<Scalar>::infinity();
 	
 	Base::m_info = Info::FAILURE;
-	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "Bisection LineSearch : \n#Iteration alpha\n"); }
+	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#Bisection LineSearch : \n#Iteration alpha\n"); }
 	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
 	{		
 		if (Base::m_out != nullptr) { fmt::print(Base::m_out, "{} {:10.2e}\n", Base::m_nIt, alpha); }

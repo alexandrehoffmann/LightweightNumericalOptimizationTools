@@ -32,6 +32,7 @@ void TruncatedConjugateGradient<T>::solve(const Op& H, const Scalar* g, const Si
 	}
 	
 	std::fill(x, x+size, 0);
+	Base::m_modelReduction = 0;
 	Scalar sqNormX = 0;
 	#pragma omp simd
 	for (Size i=0; i!=size; ++i) { m_r[i] = -g[i]; } 
@@ -44,7 +45,7 @@ void TruncatedConjugateGradient<T>::solve(const Op& H, const Scalar* g, const Si
 	const Scalar deltaTol2 = (delta + Base::m_tolTr)*(delta + Base::m_tolTr);
 	
 	Base::m_info = Info::FAILURE;
-	if (Base::m_out) { fmt::print(Base::m_out, "Truncated CG solver : \n#Iteration residual tol\n"); }
+	if (Base::m_out) { fmt::print(Base::m_out, "#Truncated CG solver : \n#Iteration residual tol\n"); }
 	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
 	{
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e}\n", Base::m_nIt, std::sqrt(m_sqNormR), std::sqrt(tol2)); }
@@ -59,6 +60,7 @@ void TruncatedConjugateGradient<T>::solve(const Op& H, const Scalar* g, const Si
 		{ 
 			// we need to find tau > 0 such that |x + tau*p|^2 = delta^2
 			const Scalar tau = getPolyMaxRoot(BasicLinalg::squaredNorm(m_p, size), 2*BasicLinalg::inner(x, m_p, size), sqNormX - delta*delta);
+
 			if (tau < 0) { Base::m_info = Info::BREAKDOWN; break; } 
 			
 			#pragma omp simd reduction(+:Base::m_modelReduction)
@@ -91,9 +93,9 @@ template<typename T>
 auto TruncatedConjugateGradient<T>::getPolyMaxRoot(const Scalar a, const Scalar b, const Scalar c) -> Scalar
 { // solve for x > 0 a*x*x + b*x + c
 	const Scalar delta = b*b - 4*a*c;
+	if (delta < std::numeric_limits<Scalar>::epsilon()) { return -b / (2*a); }
 	const Scalar x1 = (-b + std::sqrt(delta)) / (2*a);
 	const Scalar x2 = (-b - std::sqrt(delta)) / (2*a);
-
 	return std::max(x1, x2);
 }
 	

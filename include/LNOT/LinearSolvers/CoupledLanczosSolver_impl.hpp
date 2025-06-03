@@ -57,7 +57,7 @@ void CoupledLanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__
 	
 	const Scalar tol = Base::m_tol*m_normR;
 	Base::m_info = Info::FAILURE;
-	if (Base::m_out) { fmt::print(Base::m_out, "Coupled recurrence Lanczos solver : \n#Iteration residual tol\n"); }
+	if (Base::m_out) { fmt::print(Base::m_out, "#Coupled recurrence Lanczos solver : \n#Iteration residual tol\n"); }
 	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
 	{
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e}\n", Base::m_nIt, m_normR, tol); }

@@ -35,7 +35,7 @@ int main()
 	double x[N];
 	std::span<const double> x_view(x, N);
 	
-	LNOT::DenseMatrixOp<double> Aop(A, N, N);
+	LNOT::SymmetricDenseMatrixOp<double> Aop(A, N);
 	
 	LNOT::ConjugateGradient<double> cg;
 	cg.setOutput(stdout);
