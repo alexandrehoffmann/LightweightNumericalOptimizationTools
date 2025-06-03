@@ -39,61 +39,79 @@ int main()
 	LNOT::LanczosTRSSolver<double> lanczosTrs;
 	LNOT::CoupledLanczosTRSSolver<double> coupledLanczosTrs;
 	
+	std::FILE* lbfgsBisectLsOut      = std::fopen("lbfgs_bisect_ls.log", "w");
+	std::FILE* lbfgsBacktrackLsOut   = std::fopen("lbfgs_backtrack_ls.log", "w");
+	std::FILE* sr1TCGOut             = std::fopen("sr1_tcg.log", "w");
+	std::FILE* sr1LanczosOut         = std::fopen("sr1_lanczos.log", "w");
+	std::FILE* sr1CoupledLanczosOut  = std::fopen("sr1_coupled_lanczos.log", "w");
+	std::FILE* lsr1TCGOut            = std::fopen("lsr1_tcg.log", "w");
+	std::FILE* lsr1LanczosOut        = std::fopen("lsr1_lanczos.log", "w");
+	std::FILE* lsr1CoupledLanczosOut = std::fopen("lsr1_coupled_lanczos.log", "w");
+	
 	auto lbfgs1 = LNOT::makeLBFGS(bisectLs, 5);
 	lbfgs1.setTol(1.0e-11);
-	lbfgs1.setOutput(stdout);
+	lbfgs1.setOutput(lbfgsBisectLsOut);
 	lbfgs1.solve(func, grad, N, x);
 	
 	fmt::print("LBFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs1.getIterations(), lbfgs1.getError(), lbfgs1.getValue());
 
 	auto lbfgs2 = LNOT::makeLBFGS(backtrackLs, 5);
 	lbfgs2.setTol(1.0e-11);
-	lbfgs2.setOutput(stdout);
+	lbfgs2.setOutput(lbfgsBacktrackLsOut);
 	lbfgs2.solve(func, grad, N, x);
 	
 	fmt::print("LBFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs2.getIterations(), lbfgs2.getError(), lbfgs2.getValue());
 
 	auto sr1TR1 = LNOT::makeSR1Solver(tcg);
 	sr1TR1.setTol(1.0e-11);
-	sr1TR1.setOutput(stdout);
+	sr1TR1.setOutput(sr1TCGOut);
 	sr1TR1.solve(func, grad, N, x);
 	
 	fmt::print("TR-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), sr1TR1.getIterations(), sr1TR1.getError(), sr1TR1.getValue());
 
 	auto sr1TR2 = LNOT::makeSR1Solver(lanczosTrs);
 	sr1TR2.setTol(1.0e-11);
-	sr1TR2.setOutput(stdout);
+	sr1TR2.setOutput(sr1LanczosOut);
 	sr1TR2.solve(func, grad, N, x);
 	
 	fmt::print("TR-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), sr1TR2.getIterations(), sr1TR2.getError(), sr1TR2.getValue());
 
 	auto sr1TR3 = LNOT::makeSR1Solver(coupledLanczosTrs);
 	sr1TR3.setTol(1.0e-11);
-	sr1TR3.setOutput(stdout);
+	sr1TR3.setOutput(sr1CoupledLanczosOut);
 	sr1TR3.solve(func, grad, N, x);
 	
 	fmt::print("TR-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), sr1TR3.getIterations(), sr1TR3.getError(), sr1TR3.getValue());
 
 	auto lsr1TR1 = LNOT::makeLSR1Solver(tcg, 5);
 	lsr1TR1.setTol(1.0e-11);
-	lsr1TR1.setOutput(stdout);
+	lsr1TR1.setOutput(lsr1TCGOut);
 	lsr1TR1.solve(func, grad, N, x);
 	
 	fmt::print("TR-L-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lsr1TR1.getIterations(), lsr1TR1.getError(), lsr1TR1.getValue());
 
 	auto lsr1TR2 = LNOT::makeLSR1Solver(lanczosTrs, 5);
 	lsr1TR2.setTol(1.0e-11);
-	lsr1TR2.setOutput(stdout);
+	lsr1TR2.setOutput(lsr1LanczosOut);
 	lsr1TR2.solve(func, grad, N, x);
 	
 	fmt::print("TR-L-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lsr1TR2.getIterations(), lsr1TR2.getError(), lsr1TR2.getValue());
 
 	auto lsr1TR3 = LNOT::makeLSR1Solver(coupledLanczosTrs, 5);
 	lsr1TR3.setTol(1.0e-11);
-	lsr1TR3.setOutput(stdout);
+	lsr1TR3.setOutput(lsr1CoupledLanczosOut);
 	lsr1TR3.solve(func, grad, N, x);
 	
 	fmt::print("TR-L-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lsr1TR3.getIterations(), lsr1TR3.getError(), lsr1TR3.getValue());
 
+	std::fclose(lbfgsBisectLsOut);
+	std::fclose(lbfgsBacktrackLsOut);
+	std::fclose(sr1TCGOut);
+	std::fclose(sr1LanczosOut);
+	std::fclose(sr1CoupledLanczosOut);
+	std::fclose(lsr1TCGOut);
+	std::fclose(lsr1LanczosOut);
+	std::fclose(lsr1CoupledLanczosOut);
+	
 	return EXIT_SUCCESS;
 }

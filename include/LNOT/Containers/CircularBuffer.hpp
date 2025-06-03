@@ -70,6 +70,8 @@ public:
 
 	size_type size() const { return size_type(m_data_end - m_data_begin); }
 
+	bool allFilled() const { return m_allFilled; }
+
 	template<typename... Args> 
 	size_type push(Args &&...args);
 	size_type push(const_reference value) { return push(value); }

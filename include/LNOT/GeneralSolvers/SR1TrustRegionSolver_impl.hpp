@@ -83,16 +83,17 @@ void SR1TrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_const
 			BasicLinalg::symRk1Update(BkOp.getStorageOrder(), BkOp.getUplo(), 1. / invRho, m_uk, size, m_Bk);
 		}
 		
-		const Scalar fxTrial = oracle.getValue();
-		const Scalar pred     = -m_trsSolver.getModelReduction();
-		const Scalar ared     = Base::m_fx - fxTrial;
-		const Scalar normS    = BasicLinalg::norm(m_sk, size);
+		const Scalar fxTrial   = oracle.getValue();
+		const Scalar pred      = -m_trsSolver.getModelReduction();
+		const Scalar ared      = Base::m_fx - fxTrial;
+		const Scalar normS     = BasicLinalg::norm(m_sk, size);
+		const Scalar tol_delta = std::max(delta*m_trsSolver.getTolTR(), std::numeric_limits<Scalar>::epsilon());
 		
 		const bool isStepFeasible       = std::isfinite(fxTrial);
 		const bool isStepSuccessful     = ared > 0 and ared > pred*TRSBase::m_etaSuccessful;
 		const bool isStepVerySuccessful = ared > 0 and ared > pred*TRSBase::m_etaVerySuccessful;
 		const bool isStepAccepted       = isStepFeasible and ared > 0 and ared > pred*TRSBase::m_etaAccept;
-		const bool normS_eq_delta       = (std::abs(normS - delta) <= m_trsSolver.getTolTR()*std::max(normS, delta));
+		const bool normS_eq_delta       = std::abs(normS - delta) < tol_delta;
 		
 		if      (not (isStepSuccessful and isStepFeasible)) { delta *= TRSBase::m_gammaDecrease; }
 		else if (isStepVerySuccessful and normS_eq_delta)   { delta *= TRSBase::m_gammaIncrease; }

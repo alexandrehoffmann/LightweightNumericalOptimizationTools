@@ -42,9 +42,8 @@ private:
 	
 	Scalar* m_gk     = nullptr;
 	Scalar* m_gkp1   = nullptr;
-	Scalar* m_Bksk   = nullptr;
 	Scalar* m_xTrial = nullptr;
-	Scalar* m_U      = nullptr;
+	Scalar* m_P      = nullptr;
 	Scalar* m_Y      = nullptr;
 	Scalar* m_S      = nullptr;
 };
