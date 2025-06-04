@@ -119,18 +119,33 @@ The solver will wrap theses three functors in an *OracleWrapper*.
 
 ### Solving the problem with a Newton/quasi-Newton method
 
-A quasi-Newton method first computes a descent direction as $d_k = -B_k \nabla J(x_k)$, where $B_k$ is an approximation of the Hessian of $J$, and then computes the step lenght $\alpha_k\in\mathbb{R}$ with a *LineSearch* method.
+A Newton/quasi-Newton method first computes a descent direction as $d_k = -B_k \nabla J(x_k)$, where $B_k$ is an approximation of the Hessian of $J$, and then computes the step lenght $\alpha_k\in\mathbb{R}$ with a *LineSearch* method.
 
 Lets solve our problem with Newton's method:
 ```cpp
 LNOT::ConjugateGradient<double> cg; // we will compute $d_k$ with the Conjgate Gradient 
 LNOT::BacktrackingLineSearch<double> ls; // we will compute $\alpha_k$ with a Backtracking Linesearch
-auto newtonSolver = LNOT::makeNewtonSolver(cg, bisectLs);
+auto newtonSolver = LNOT::makeNewtonSolver(cg, ls);
 newtonSolver1.solve(func, grad, hessOp, N, x);
 ```
+We can also solve the problem witn the L-BFGS method [5]:
+```cpp
+auto lbfgs1 = LNOT::makeLBFGS(ls, 5); // 5 is the number of steps used to estimate $B_k^{-1}$
+lbfgs1.solve(func, grad, N, x); // here we do not need hessOp
+```
+
+Available LineSearches:
+
+- `BacktrackingLineSearch` $\alpha$ is multiplied repeatedly $\tau<1$ ultil $\alpha$ satisfies the Armijo-Goldstein condition
+- `BisectionLineSearch`Use a bisection method to compute an $\alpha$ that satifies Wolfe's conditions
+
+### Solving the problem with a Trust Region Method (TRM)
+
+A TRM first fixes the step length, and searches a step $s_k$ within an *trust region* : $s_k = \arg\min_{s\in\mathbb{R}^n} (s, Hs) + (g,s) \text{s.t.} \|s\|\leq\Delta_k$. 
 
 # Reference
 [1] 4. Basic Iterative Methods. (2003). In Other Titles in Applied Mathematics. Iterative Methods for Sparse Linear Systems (pp. 103–128). doi:10.1137/1.9780898718003.ch4
 [2] Gould, N. I. M., Lucidi, S., Roma, M., & Toint, P. L. (1999). Solving the Trust-Region Subproblem using the Lanczos Method. SIAM Journal on Optimization, 9(2), 504–525. doi:10.1137/S1052623497322735
 [3] Steihaug, T. (1983). The Conjugate Gradient Method and Trust Regions in Large Scale Optimization. SIAM Journal on Numerical Analysis, 20(3), 626–637. doi:10.1137/0720042
 [4] H. H. Rosenbrock, An Automatic Method for Finding the Greatest or Least Value of a Function, The Computer Journal, Volume 3, Issue 3, 1960, Pages 175–184, https://doi.org/10.1093/comjnl/3.3.175
+[5] Liu, D.C., Nocedal, J. On the limited memory BFGS method for large scale optimization. Mathematical Programming 45, 503–528 (1989). https://doi.org/10.1007/BF01589116
