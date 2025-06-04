@@ -31,8 +31,9 @@ Each linear solver implements both a `solve` and a `solveWithGuess` methods that
 
 Available solvers : 
 
-- Conjugate Gradient
-- Lanczos *c.f.* Saad [1]
+- `ConjugateGradient`
+- `LanczosSolver` *c.f.* Saad [1]
+- `CoupledLanczosSolver` derived from Saad [1]
 
 ## Solving a Trust Region Subproblem (TRS)
 
@@ -50,6 +51,12 @@ lanczosTrs.solve(Aop, b, N, delta, x);
 ```
 Note that TRS solvers do not have a `solveWithGuess` method. The inputs are essentially the same than linear solvers but with an additional parameter delta, the size of the TR.
 
+Available solvers : 
+
+- `TruncatedConjugateGradient`[3]
+- `LanczosTRSSolver` [2]
+- `CoupledLanczosSolver` addapted from [2] 
+
 ## Solving a general unconstrained problem
 
 We now want to solve the following problem $\min_{x\in\mathbb{R}^n} J(x)$ where $J$ is our cost function.
@@ -66,7 +73,7 @@ An oracle provides the following functions:
 - `void getHessianProd(const Scalar* d, Scalar* Hd) const ` [optional] writes $\nabla J(x)d$ in `Hd`
 
 If a large amout of pre-computation is required to evaluate $J$ and its derivatives, we strongly recommand to write a custom Oracle. 
-On the other hand, for a functions such as Rosenbrok's function [3], we can simply define three functors:
+On the other hand, for a functions such as Rosenbrok's function [4], we can simply define three functors:
 
 ```cpp
 constexpr Size N = 10;
@@ -125,4 +132,5 @@ newtonSolver1.solve(func, grad, hessOp, N, x);
 # Reference
 [1] 4. Basic Iterative Methods. (2003). In Other Titles in Applied Mathematics. Iterative Methods for Sparse Linear Systems (pp. 103–128). doi:10.1137/1.9780898718003.ch4
 [2] Gould, N. I. M., Lucidi, S., Roma, M., & Toint, P. L. (1999). Solving the Trust-Region Subproblem using the Lanczos Method. SIAM Journal on Optimization, 9(2), 504–525. doi:10.1137/S1052623497322735
-[3] H. H. Rosenbrock, An Automatic Method for Finding the Greatest or Least Value of a Function, The Computer Journal, Volume 3, Issue 3, 1960, Pages 175–184, https://doi.org/10.1093/comjnl/3.3.175
+[3] Steihaug, T. (1983). The Conjugate Gradient Method and Trust Regions in Large Scale Optimization. SIAM Journal on Numerical Analysis, 20(3), 626–637. doi:10.1137/0720042
+[4] H. H. Rosenbrock, An Automatic Method for Finding the Greatest or Least Value of a Function, The Computer Journal, Volume 3, Issue 3, 1960, Pages 175–184, https://doi.org/10.1093/comjnl/3.3.175
