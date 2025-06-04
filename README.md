@@ -155,9 +155,15 @@ sr1TR2.solve(func, grad, N, x);
 
 # Reference
 [1] 4. Basic Iterative Methods. (2003). In Other Titles in Applied Mathematics. Iterative Methods for Sparse Linear Systems (pp. 103–128). doi:10.1137/1.9780898718003.ch4
+
 [2] Gould, N. I. M., Lucidi, S., Roma, M., & Toint, P. L. (1999). Solving the Trust-Region Subproblem using the Lanczos Method. SIAM Journal on Optimization, 9(2), 504–525. doi:10.1137/S1052623497322735
+
 [3] Steihaug, T. (1983). The Conjugate Gradient Method and Trust Regions in Large Scale Optimization. SIAM Journal on Numerical Analysis, 20(3), 626–637. doi:10.1137/0720042
+
 [4] H. H. Rosenbrock, An Automatic Method for Finding the Greatest or Least Value of a Function, The Computer Journal, Volume 3, Issue 3, 1960, Pages 175–184, https://doi.org/10.1093/comjnl/3.3.175
+
 [5] Liu, D.C., Nocedal, J. On the limited memory BFGS method for large scale optimization. Mathematical Programming 45, 503–528 (1989). https://doi.org/10.1007/BF01589116
+
 [6] (2006). Quasi-Newton Methods. In: Numerical Optimization. Springer Series in Operations Research and Financial Engineering. Springer, New York, NY. https://doi.org/10.1007/978-0-387-40065-5_6
+
 [7] Lu, X. (1996). A study of the limited memory SR1 method in practice. University of Colorado at Boulder.
