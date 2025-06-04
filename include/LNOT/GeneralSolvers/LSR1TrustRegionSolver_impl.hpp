@@ -3,9 +3,24 @@
 
 #include <LNOT/GeneralSolvers/LSR1TrustRegionSolver.hpp>
 #include <LNOT/Containers/CircularBuffer.hpp>
+#include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
+#include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
+#include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
 
 namespace LNOT
 {
+	
+//// explicit template instanciations ////
+
+extern template class LSR1TrustRegionSolver< TruncatedConjugateGradient<float> >;
+extern template class LSR1TrustRegionSolver< LanczosTRSSolver<float> >;
+extern template class LSR1TrustRegionSolver< CoupledLanczosTRSSolver<float> >;
+
+extern template class LSR1TrustRegionSolver< TruncatedConjugateGradient<double> >;
+extern template class LSR1TrustRegionSolver< LanczosTRSSolver<double> >;
+extern template class LSR1TrustRegionSolver< CoupledLanczosTRSSolver<double> >;
+
+//// method implementations ////
 
 template<typename TRSSolver>
 void LSR1TrustRegionSolver<TRSSolver>::clearWorkSpace()
@@ -85,7 +100,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_cons
 		// building the Bk matrix from the last saved vectors
 		// c.f. https://optimization-online.org/wp-content/uploads/2015/10/5167.pdf
 		std::fill(isVectorKept.begin(), isVectorKept.end(), false);
-		invRho.foreach([this, &BkOp, &invRho, &isVectorKept, &sr1DropTol, size](CircularBuffer_size i, Scalar& invRho_i)
+		invRho.foreach([this, &BkOp, &isVectorKept, &sr1DropTol, size](CircularBuffer_size i, Scalar& invRho_i)
 		{
 			const Scalar* si = m_S + i*size;
 			const Scalar* yi = m_Y + i*size;

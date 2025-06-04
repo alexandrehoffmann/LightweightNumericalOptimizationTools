@@ -31,6 +31,9 @@ private:
 	
 	Scalar* m_newX = nullptr;
 };
+
+extern template class BacktrackingLineSearch<float>;
+extern template class BacktrackingLineSearch<double>;
 	
 } // namespace LNOT
 

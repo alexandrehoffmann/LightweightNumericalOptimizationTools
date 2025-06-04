@@ -67,7 +67,7 @@ if(LNOT_BUILD_DOC)
 
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in ${DOXYGEN_FILE} @ONLY)
 
-    add_custom_target(doc_doxygen
+    add_custom_target(doc
         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating API documentation with Doxygen"
@@ -81,23 +81,46 @@ if(LNOT_BUILD_DEMO)
 endif()
 
 # === Library Target ===
-add_library(LNOT INTERFACE)
+set(LNOT_SRC
+	src/LNOT/Containers/CircularBuffer.cpp
+	#
+	src/LNOT/SymmetricDenseMatrixOp.cpp
+	#
+	src/LNOT/LinearSolvers/ConjugateGradient.cpp
+	src/LNOT/LinearSolvers/LanczosSolver.cpp
+	src/LNOT/LinearSolvers/CoupledLanczosSolver.cpp
+	#
+	src/LNOT/TRSSolvers/TruncatedConjugateGradient.cpp
+	src/LNOT/TRSSolvers/LanczosTRSSolver.cpp
+	src/LNOT/TRSSolvers/CoupledLanczosTRSSolver.cpp
+	#
+	src/LNOT/LineSearch/BacktrackingLineSearch.cpp
+	src/LNOT/LineSearch/BisectionLineSearch.cpp
+	#
+	src/LNOT/GeneralSolvers/NewtonSolver.cpp
+	src/LNOT/GeneralSolvers/LBFGS.cpp
+	src/LNOT/GeneralSolvers/NewtonTrustRegionSolver.cpp
+	src/LNOT/GeneralSolvers/SR1TrustRegionSolver.cpp
+	src/LNOT/GeneralSolvers/LSR1TrustRegionSolver.cpp
+)
+
+add_library(LNOT STATIC ${LNOT_SRC})
 
 target_include_directories(LNOT
-    INTERFACE
+    PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(LNOT INTERFACE fmt::fmt)
+target_link_libraries(LNOT PUBLIC fmt::fmt)
 
 if(LNOT_WITH_BLAS)
-    target_include_directories(LNOT INTERFACE ${OpenBLAS_INCLUDE_DIRS})
-    target_link_libraries(LNOT INTERFACE ${OpenBLAS_LIBRARIES})
-    target_compile_definitions(LNOT INTERFACE LNOT_WITH_BLAS)
+    target_include_directories(LNOT PUBLIC ${OpenBLAS_INCLUDE_DIRS})
+    target_link_libraries(LNOT PUBLIC ${OpenBLAS_LIBRARIES})
+    target_compile_definitions(LNOT PUBLIC LNOT_WITH_BLAS)
 endif()
 
-target_compile_options(LNOT INTERFACE
+target_compile_options(LNOT PUBLIC
     $<$<COMPILE_LANGUAGE:CXX>:${LNOT_COMPILE_WARNINGS}>
 )
 

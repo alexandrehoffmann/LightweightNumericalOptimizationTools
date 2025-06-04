@@ -59,6 +59,9 @@ private:
 	std::vector<Scalar> m_h;
 };
 
+using LanczosTRSSolverF = LanczosTRSSolver<float>;
+using LanczosTRSSolverD = LanczosTRSSolver<double>;
+
 } // namespace LNOT
 
 #include <LNOT/TRSSolvers/LanczosTRSSolver_impl.hpp>

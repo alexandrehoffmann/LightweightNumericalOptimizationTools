@@ -1,8 +1,11 @@
 #ifndef LNOT_LINEAR_SOLVER_BASE_HPP
 #define LNOT_LINEAR_SOLVER_BASE_HPP
 
-#include <type_traits>
 #include <cstdio>
+
+#include <type_traits>
+#include <limits>
+#include <algorithm>
 
 namespace LNOT
 {

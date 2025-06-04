@@ -58,6 +58,9 @@ private:
 	std::vector<Scalar> m_h;
 };
 
+using CoupledLanczosTRSSolverF = CoupledLanczosTRSSolver<float>;
+using CoupledLanczosTRSSolverD = CoupledLanczosTRSSolver<double>;
+
 } // namespace LNOT
 
 #include <LNOT/TRSSolvers/CoupledLanczosTRSSolver_impl.hpp>

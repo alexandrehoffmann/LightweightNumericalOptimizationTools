@@ -3,6 +3,7 @@
 
 #include <LNOT/GeneralSolvers/SecondOrderSolverBase.hpp>
 #include <LNOT/GeneralSolvers/TrustRegionMethodBase.hpp>
+#include <LNOT/TRSSolvers/TRSSolverBase.hpp>
 
 namespace LNOT
 {

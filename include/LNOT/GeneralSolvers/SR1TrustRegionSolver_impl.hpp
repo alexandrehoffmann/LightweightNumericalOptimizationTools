@@ -3,9 +3,24 @@
 
 #include <LNOT/GeneralSolvers/SR1TrustRegionSolver.hpp>
 #include <LNOT/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
+#include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
+#include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
 
 namespace LNOT
 {
+
+//// explicit template instanciations ////
+
+extern template class SR1TrustRegionSolver< TruncatedConjugateGradient<float> >;
+extern template class SR1TrustRegionSolver< LanczosTRSSolver<float> >;
+extern template class SR1TrustRegionSolver< CoupledLanczosTRSSolver<float> >;
+
+extern template class SR1TrustRegionSolver< TruncatedConjugateGradient<double> >;
+extern template class SR1TrustRegionSolver< LanczosTRSSolver<double> >;
+extern template class SR1TrustRegionSolver< CoupledLanczosTRSSolver<double> >;
+
+//// method implementations ////
 
 template<typename TRSSolver>
 void SR1TrustRegionSolver<TRSSolver>::clearWorkSpace()

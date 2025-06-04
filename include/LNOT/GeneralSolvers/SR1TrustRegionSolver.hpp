@@ -2,6 +2,8 @@
 #define LNOT_SR1_TRUST_REGION_SOLVER_HPP
 
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
+#include <LNOT/GeneralSolvers/TrustRegionMethodBase.hpp>
+#include <LNOT/TRSSolvers/TRSSolverBase.hpp>
 
 namespace LNOT
 {

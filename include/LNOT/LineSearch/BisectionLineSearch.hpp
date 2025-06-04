@@ -34,6 +34,9 @@ private:
 	Scalar* m_newGrad = nullptr;
 };
 
+extern template class BisectionLineSearch<float>;
+extern template class BisectionLineSearch<double>;
+
 }
 
 #include <LNOT/LineSearch/BisectionLineSearch_impl.hpp>

@@ -129,7 +129,7 @@ bool compute(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, 
 {
 	if ((alpha[0] + shift) < std::numeric_limits<Scalar>::epsilon()) { return false; }
 	
-	invDelta[0] = 1. / (alpha[0] + shift);
+	invDelta[0] = Scalar(1) / (alpha[0] + shift);
 	if (size == 1) { return true; } 
 	l[0] = beta[0]*invDelta[0];
 	
@@ -137,14 +137,14 @@ bool compute(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, 
 	{
 		const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
 		if (delta_i < std::numeric_limits<Scalar>::epsilon()) { return false; }
-		invDelta[i] = 1. / delta_i;
+		invDelta[i] = Scalar(1) / delta_i;
 		l[i] = beta[i]*invDelta[i];
 	}
 	{ 
 		const Size i = Size(size-1);
 		const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
 		if (delta_i < std::numeric_limits<Scalar>::epsilon()) { return false; }
-		invDelta[i] = 1. / delta_i;
+		invDelta[i] = Scalar(1) / delta_i;
 	}
 	
 	return true;

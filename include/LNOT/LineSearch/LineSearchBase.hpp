@@ -3,6 +3,8 @@
 
 #include <LNOT/Oracle/OracleBase.hpp>
 
+#include <cstdio>
+
 namespace LNOT
 {
 

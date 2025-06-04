@@ -2,6 +2,7 @@
 #define LNOT_COUPLED_LANCZOS_TRS_SOLVER_IMPL_HPP
 
 #include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
+#include <LNOT/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg.hpp>
 
 #include <fmt/core.h>
@@ -9,6 +10,25 @@
 
 namespace LNOT
 {
+
+//// explicit template instanciations ////
+
+extern template class CoupledLanczosTRSSolver<float>;
+extern template class CoupledLanczosTRSSolver<double>;
+
+// explicit instanciation for float
+extern template void CoupledLanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void CoupledLanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void CoupledLanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void CoupledLanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+
+// explicit instanciation for double
+extern template void CoupledLanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void CoupledLanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void CoupledLanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void CoupledLanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+	
+//// method implementations ////
 	
 template<typename T>
 CoupledLanczosTRSSolver<T>::CoupledLanczosTRSSolver(const Size maxIt, const Scalar tol, const Size maxItTr, const Scalar tolTr) 
@@ -57,7 +77,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 	Scalar eta = -normR0;
 	Scalar tau_old = 0;
 	
-	BasicLinalg::scal(1. / eta, size, m_v);
+	BasicLinalg::scal(Scalar(1. / eta), size, m_v);
 	std::copy(m_v, m_v + size, m_q);
 	
 	m_normR = normR0;
@@ -77,7 +97,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		m_alpha.push_back(tau + tau_old*l_old*l_old);
 		// solve T_k h_k = -\|r_0\|e_1
 		const Scalar d = m_alpha.back() - m_beta.back()*l_old;
-		const Scalar invD = 1. / d;
+		const Scalar invD = Scalar(1) / d;
 		if (d < std::numeric_limits<Scalar>::epsilon()) 
 		{ 
 			isInterior = false; 
@@ -86,7 +106,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		else
 		{
 			#pragma omp simd reduction(+:Base::m_modelReduction)
-			for (Size i=0; i!=size; ++i) { Base::m_modelReduction += invD*eta*(x[i]*m_w[i] + 0.5*invD*eta*m_q[i]*m_w[i] + m_q[i]*g[i]); }
+			for (Size i=0; i!=size; ++i) { Base::m_modelReduction += invD*eta*(x[i]*m_w[i] + Scalar(0.5)*invD*eta*m_q[i]*m_w[i] + m_q[i]*g[i]); }
 			BasicLinalg::axpy(invD*eta, m_q, size, x);
 			if (BasicLinalg::squaredNorm(x, size) > deltaTol2)
 			{
@@ -104,7 +124,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		m_normR  = isInterior ? std::abs(eta) : std::abs(m_beta.back()*m_h.back()); 
 		l_old    = l;
 		tau_old  = tau;
-		const Scalar invBeta = 1. / m_beta.back();
+		const Scalar invBeta = Scalar(1) / m_beta.back();
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_v[i] = invBeta*m_w[i]; m_q[i] = m_v[i] - l*m_q[i]; } 
 	}
@@ -129,7 +149,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		l_old    = l;
 		tau_old  = tau;
 		m_normR  = std::abs(m_beta.back()*m_h.back());
-		const Scalar invBeta = 1. / m_beta.back();
+		const Scalar invBeta = Scalar(1) / m_beta.back();
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_v[i] = invBeta*m_w[i]; m_q[i] = m_v[i] - l*m_q[i]; } 
 	}
@@ -156,7 +176,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		for (Size i=0; i!=size; ++i) 
 		{ 
 			const Scalar Hv_i = m_w[i] + l_old*m_w_old[i];
-			Base::m_modelReduction += (*it_h)*(x[i]*Hv_i + 0.5*(*it_h)*m_v[i]*Hv_i + m_v[i]*g[i]); 
+			Base::m_modelReduction += (*it_h)*(x[i]*Hv_i + Scalar(0.5)*(*it_h)*m_v[i]*Hv_i + m_v[i]*g[i]); 
 		}
 		
 		BasicLinalg::axpy(*it_h, m_v, size, x);
@@ -165,7 +185,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		const Scalar d = (*it_alpha) - (*it_beta)*l_old;
 		const Scalar l = (*std::next(it_beta)) / d;
 		l_old = l;
-		const Scalar invNextBeta = 1. / *std::next(it_beta);
+		const Scalar invNextBeta = Scalar(1) / *std::next(it_beta);
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_v[i] = invNextBeta*(m_w[i] - tau*m_v[i]); m_q[i] = m_v[i] - l*m_q[i]; }
 		std::copy(m_w, m_w + size, m_w_old);
@@ -177,7 +197,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		for (Size i=0; i!=size; ++i) 
 		{ 
 			const Scalar Hv_i = m_w[i] + l_old*m_w_old[i];
-			Base::m_modelReduction += m_h.back()*(x[i]*Hv_i + 0.5*m_h.back()*m_v[i]*Hv_i + m_v[i]*g[i]); 
+			Base::m_modelReduction += m_h.back()*(x[i]*Hv_i + Scalar(0.5)*m_h.back()*m_v[i]*Hv_i + m_v[i]*g[i]); 
 		}
 		
 		BasicLinalg::axpy(m_h.back(), m_v, size, x);
@@ -230,13 +250,13 @@ bool CoupledLanczosTRSSolver<T>::solveBoundary(const Scalar& __restrict__ gamma,
 			if (sqNormH < delta2) { lambdaMax = m_lambda; }
 			else                  { lambdaMin = m_lambda; }
 			
-			const Scalar gap = (lambdaMax - lambdaMin)*0.005;
+			const Scalar gap = (lambdaMax - lambdaMin)*Scalar(0.005);
 			m_lambda = std::max(lambdaMin + gap, std::min(m_lambda + deltaLambda, lambdaMax - gap));
 		}
 		else
 		{
 			lambdaMin = m_lambda;
-			m_lambda  = 0.5*(lambdaMax + lambdaMin); 
+			m_lambda  = Scalar(0.5)*(lambdaMax + lambdaMin); 
 		}
 	}
 	// hard case cannot occur, we did not converge due to numerical errors

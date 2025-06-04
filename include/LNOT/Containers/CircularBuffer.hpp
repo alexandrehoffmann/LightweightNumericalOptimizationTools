@@ -73,8 +73,7 @@ public:
 	bool allFilled() const { return m_allFilled; }
 
 	template<typename... Args> 
-	size_type push(Args &&...args);
-	size_type push(const_reference value) { return push(value); }
+	size_type push(Args&&...args);
 	
 	size_type firstInsertedIndex() const { return (m_allFilled and m_range_end!=m_data_end) ? size_type(m_range_end - m_data_begin) : 0u; }
 	
@@ -94,6 +93,9 @@ private:
 	pointer   m_range_end  = nullptr;
 	bool      m_allFilled  = false;
 };
+
+using CircularBufferF = CircularBuffer<float>;
+using CircularBufferD = CircularBuffer<double>;
 	
 } // namespace LightOptim
 

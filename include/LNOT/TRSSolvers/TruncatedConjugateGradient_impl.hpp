@@ -2,6 +2,7 @@
 #define LNOT_TRUNCATED_CONJUGATE_GRADIENT_IMPL_HPP
 
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
+#include <LNOT/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg.hpp>
 
 #include <fmt/core.h>
@@ -9,6 +10,25 @@
 
 namespace LNOT
 {
+	
+//// explicit template instanciations ////
+
+extern template class TruncatedConjugateGradient<float>;
+extern template class TruncatedConjugateGradient<double>;
+
+// explicit instanciation for float
+extern template void TruncatedConjugateGradient<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void TruncatedConjugateGradient<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void TruncatedConjugateGradient<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void TruncatedConjugateGradient<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+
+// explicit instanciation for double
+extern template void TruncatedConjugateGradient<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void TruncatedConjugateGradient<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void TruncatedConjugateGradient<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void TruncatedConjugateGradient<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+	
+//// method implementations ////
 	
 template<typename T>
 void TruncatedConjugateGradient<T>::clearWorkSpace()
@@ -64,14 +84,14 @@ void TruncatedConjugateGradient<T>::solve(const Op& H, const Scalar* g, const Si
 			if (tau < 0) { Base::m_info = Info::BREAKDOWN; break; } 
 			
 			#pragma omp simd reduction(+:Base::m_modelReduction)
-			for (Size i=0;i !=size; ++i) { Base::m_modelReduction += tau*(x[i]*m_Hp[i] + 0.5*tau*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
+			for (Size i=0;i !=size; ++i) { Base::m_modelReduction += tau*(x[i]*m_Hp[i] + Scalar(0.5)*tau*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
 			BasicLinalg::axpy(tau, m_p, size, x);
 			break;
 		}
 		else
 		{
 			#pragma omp simd reduction(+:Base::m_modelReduction)
-			for (Size i=0;i !=size; ++i) { Base::m_modelReduction += alpha*(x[i]*m_Hp[i] + 0.5*alpha*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
+			for (Size i=0;i !=size; ++i) { Base::m_modelReduction += alpha*(x[i]*m_Hp[i] + Scalar(0.5)*alpha*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
 		}
 		
 		BasicLinalg::axpy( alpha, m_p,  size, x);

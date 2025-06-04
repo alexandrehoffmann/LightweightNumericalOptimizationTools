@@ -1,6 +1,8 @@
 #ifndef LNOT_TRUNCATED_CONJUGATE_GRADIENT_HPP
 #define LNOT_TRUNCATED_CONJUGATE_GRADIENT_HPP
 
+#include <LNOT/TRSSolvers/TRSSolverBase.hpp>
+
 namespace LNOT
 {
 
@@ -35,6 +37,9 @@ private:
 	Scalar* m_p  = nullptr;
 	Scalar* m_Hp = nullptr;
 };
+
+using TruncatedConjugateGradientF = TruncatedConjugateGradient<float>;
+using TruncatedConjugateGradientD = TruncatedConjugateGradient<double>;
 
 } // namespace LNOT
 

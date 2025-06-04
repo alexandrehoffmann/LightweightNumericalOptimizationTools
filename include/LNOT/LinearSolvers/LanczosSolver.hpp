@@ -3,8 +3,6 @@
 
 #include <LNOT/LinearSolvers/LinearSolverBase.hpp>
 
-#include <vector>
-
 namespace LNOT
 {
 
@@ -38,6 +36,9 @@ private:
 	Scalar* m_p     = nullptr;
 	Scalar* m_w     = nullptr;
 };
+
+using LanczosSolverF = LanczosSolver<float>;
+using LanczosSolverD = LanczosSolver<double>;
 
 } // namespace LNOT
 

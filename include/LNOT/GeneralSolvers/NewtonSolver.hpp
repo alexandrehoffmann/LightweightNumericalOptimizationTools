@@ -2,6 +2,8 @@
 #define LNOT_NEWTON_SOLVER_HPP
 
 #include <LNOT/GeneralSolvers/SecondOrderSolverBase.hpp>
+#include <LNOT/LinearSolvers/LinearSolverBase.hpp>
+#include <LNOT/LineSearch/LineSearchBase.hpp>
 
 namespace LNOT
 {

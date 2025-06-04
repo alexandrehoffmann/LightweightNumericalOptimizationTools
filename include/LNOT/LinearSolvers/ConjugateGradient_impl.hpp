@@ -2,13 +2,42 @@
 #define LNOT_CONJUGATE_GRADIENT_IMPL_HPP
 
 #include <LNOT/LinearSolvers/ConjugateGradient.hpp>
-#include <LNOT/BasicLinalg.hpp>
+#include <LNOT/SymmetricDenseMatrixOp.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>
 
 namespace LNOT
 {
+
+//// explicit template instanciations ////
+
+extern template class ConjugateGradient<float>;
+extern template class ConjugateGradient<double>;
+
+// explicit instanciation for float
+extern template void ConjugateGradient<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void ConjugateGradient<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void ConjugateGradient<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void ConjugateGradient<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+
+extern template void ConjugateGradient<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void ConjugateGradient<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void ConjugateGradient<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void ConjugateGradient<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+
+// explicit instanciation for double
+extern template void ConjugateGradient<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void ConjugateGradient<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void ConjugateGradient<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void ConjugateGradient<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+
+extern template void ConjugateGradient<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void ConjugateGradient<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void ConjugateGradient<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void ConjugateGradient<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+
+//// method implementations ////
 
 template<typename T> 
 void ConjugateGradient<T>::clearWorkSpace()

@@ -26,7 +26,7 @@ public:
 	void clearWorkSpace();
 	
 	template<typename Op, bool solveInPlace> 
-	void solve_impl(const Op& H, const Scalar* __restrict__ g, const Size size, std::bool_constant<solveInPlace>, Scalar* __restrict__ x) requires (IsHessianOp<Op>::value);
+	void solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (IsHessianOp<Op>::value);
 
 	Scalar getError        () const { return std::sqrt(m_sqNormR); }
 	Scalar getSquaredError () const { return m_sqNormR;            }
@@ -37,6 +37,9 @@ private:
 	Scalar* m_p  = nullptr;
 	Scalar* m_Hp = nullptr;
 };
+
+using ConjugateGradientF = ConjugateGradient<float>;
+using ConjugateGradientD = ConjugateGradient<double>;
 
 } // namespace LNOT
 

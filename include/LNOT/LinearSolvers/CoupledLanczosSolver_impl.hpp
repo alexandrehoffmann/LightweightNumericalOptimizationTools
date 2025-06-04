@@ -2,6 +2,7 @@
 #define LNOT_COUPLED_LANCZOS_SOLVER_IMPL_HPP
 
 #include <LNOT/LinearSolvers/CoupledLanczosSolver.hpp>
+#include <LNOT/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg.hpp>
 
 #include <fmt/core.h>
@@ -9,7 +10,36 @@
 
 namespace LNOT
 {
-	
+
+//// explicit template instanciations ////
+
+extern template class CoupledLanczosSolver<float>;
+extern template class CoupledLanczosSolver<double>;
+
+// explicit instanciation for float
+extern template void CoupledLanczosSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void CoupledLanczosSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void CoupledLanczosSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void CoupledLanczosSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+
+extern template void CoupledLanczosSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void CoupledLanczosSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void CoupledLanczosSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void CoupledLanczosSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+
+// explicit instanciation for double
+extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::true_type, Scalar* x);
+
+extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, std::false_type, Scalar* x);
+
+//// method implementations ////
+
 template<typename T>
 void CoupledLanczosSolver<T>::clearWorkSpace()
 {
@@ -49,7 +79,7 @@ void CoupledLanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__
 	Scalar eta = -normR0;
 	Scalar tau_old = 0;
 	
-	BasicLinalg::scal(1. / eta, size, m_v);
+	BasicLinalg::scal(Scalar(1) / eta, size, m_v);
 	
 	std::copy(m_v, m_v + size, m_q);
 	
@@ -69,7 +99,7 @@ void CoupledLanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__
 		// solve T_k h_k = -\|r_0\|e_1
 		const Scalar d = alpha - beta_old*l_old;
 		if (d < std::numeric_limits<Scalar>::epsilon()) { Base::m_info = Info::NEGATIVE_CURVATURE; break; }
-		const Scalar invD = 1. / d;
+		const Scalar invD = Scalar(1) / d;
 		BasicLinalg::axpy(invD*eta, m_q, size, x);
 		// Resume Lanczos iteration
 		BasicLinalg::axpy(-tau, m_v, size, m_w);
@@ -82,7 +112,7 @@ void CoupledLanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__
 		l_old    = l;
 		tau_old  = tau;
 		m_normR  = std::abs(eta); 
-		const Scalar invBeta = 1. / beta;
+		const Scalar invBeta = Scalar(1) / beta;
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_v[i] = invBeta*m_w[i]; m_q[i] = m_v[i] - l*m_q[i]; } 
 	}

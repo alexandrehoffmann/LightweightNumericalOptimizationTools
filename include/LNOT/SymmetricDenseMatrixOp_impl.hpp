@@ -9,6 +9,20 @@
 
 namespace LNOT
 {
+	
+//// explicit template instanciations ////
+
+extern template class SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>; 
+extern template class SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>; 
+extern template class SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>; 
+extern template class SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>; 
+
+extern template class SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>; 
+extern template class SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>; 
+extern template class SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>; 
+extern template class SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>; 
+
+//// method implementations ////
 
 template<typename Scalar, StorageOrder storageOrder, UpLo uplo>
 void SymmetricDenseMatrixOp<Scalar, storageOrder, uplo>::operator() (const Scalar* __restrict__ x, Scalar* __restrict__ Ax) const

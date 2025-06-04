@@ -3,11 +3,23 @@
 
 #include <LNOT/GeneralSolvers/LBFGS.hpp>
 #include <LNOT/Containers/CircularBuffer.hpp>
+#include <LNOT/LineSearch/BisectionLineSearch.hpp>
+#include <LNOT/LineSearch/BacktrackingLineSearch.hpp>
 
 #include <span>
 
 namespace LNOT
 {
+
+//// explicit template instanciations ////
+
+extern template class LBFGS< BisectionLineSearch<float> >;
+extern template class LBFGS< BacktrackingLineSearch<float> >;
+
+extern template class LBFGS< BisectionLineSearch<double> >;
+extern template class LBFGS< BacktrackingLineSearch<double> >;
+
+//// method implementations ////
 
 template<typename LineSearch> 
 void LBFGS<LineSearch>::clearWorkSpace()

@@ -1,6 +1,13 @@
 #ifndef LNOT_TRS_SOLVER_BASE_HPP
 #define LNOT_TRS_SOLVER_BASE_HPP
 
+#include <cstdio>
+#include <cmath>
+
+#include <type_traits>
+#include <limits>
+#include <algorithm>
+
 namespace LNOT
 {
 	

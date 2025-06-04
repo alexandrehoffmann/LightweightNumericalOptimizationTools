@@ -2,10 +2,25 @@
 #define LNOT_NEWTON_TRUST_REGION_SOLVER_IMPL_HPP
 
 #include <LNOT/GeneralSolvers/NewtonTrustRegionSolver.hpp>
+#include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
+#include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
+#include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
 
 namespace LNOT
 {
-	
+
+//// explicit template instanciations ////
+
+extern template class NewtonTrustRegionSolver< TruncatedConjugateGradient<float> >;
+extern template class NewtonTrustRegionSolver< LanczosTRSSolver<float> >;
+extern template class NewtonTrustRegionSolver< CoupledLanczosTRSSolver<float> >;
+
+extern template class NewtonTrustRegionSolver< TruncatedConjugateGradient<double> >;
+extern template class NewtonTrustRegionSolver< LanczosTRSSolver<double> >;
+extern template class NewtonTrustRegionSolver< CoupledLanczosTRSSolver<double> >;
+
+//// method implementations ////
+
 template<typename TRSSolver>
 void NewtonTrustRegionSolver<TRSSolver>::clearWorkSpace()
 {

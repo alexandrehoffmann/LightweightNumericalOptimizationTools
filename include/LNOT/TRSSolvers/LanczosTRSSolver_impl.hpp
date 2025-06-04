@@ -2,6 +2,7 @@
 #define LNOT_LANCZOS_TRS_SOLVER_IMPL_HPP
 
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
+#include <LNOT/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg.hpp>
 
 #include <algorithm>
@@ -11,6 +12,25 @@
 
 namespace LNOT
 {
+
+//// explicit template instanciations ////
+
+extern template class LanczosTRSSolver<float>;
+extern template class LanczosTRSSolver<double>;
+
+// explicit instanciation for float
+extern template void LanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+
+// explicit instanciation for double
+extern template void LanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+	
+//// method implementations ////
 
 template<typename T>
 LanczosTRSSolver<T>::LanczosTRSSolver(const Size maxIt, const Scalar tol, const Size maxItTr, const Scalar tolTr) 
@@ -60,7 +80,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 	Scalar l_old = 0;
 	Scalar eta = -normR0;
 	
-	BasicLinalg::scal(1. / eta, size, m_v);
+	BasicLinalg::scal(Scalar(1) / eta, size, m_v);
 	
 	std::fill(m_v_old, m_v_old + size, 0);
 	std::fill(m_p,     m_p     + size, 0);
@@ -82,7 +102,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 		m_alpha.push_back( BasicLinalg::inner(m_v, m_w, size) );
 		// solve T_k h_k = -\|r_0\|e_1
 		const Scalar d = m_alpha.back() - m_beta.back()*l_old;
-		const Scalar invD = 1. / d;
+		const Scalar invD = Scalar(1) / d;
 		if (d < std::numeric_limits<Scalar>::epsilon()) 
 		{ 
 			isInterior = false; 
@@ -93,7 +113,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 			#pragma omp simd
 			for (Size i=0; i!=size; ++i) { m_p[i] = invD*(m_v[i] - m_beta.back()*m_p[i]); m_Hp[i] = invD*(m_w[i] - m_beta.back()*m_Hp[i]); } 
 			#pragma omp simd reduction(+:Base::m_modelReduction)
-			for (Size i=0; i!=size; ++i) { Base::m_modelReduction += eta*(x[i]*m_Hp[i] + 0.5*eta*m_p[i]*m_Hp[i] + m_p[i]*g[i]); }
+			for (Size i=0; i!=size; ++i) { Base::m_modelReduction += eta*(x[i]*m_Hp[i] + Scalar(0.5)*eta*m_p[i]*m_Hp[i] + m_p[i]*g[i]); }
 			BasicLinalg::axpy(eta, m_p, size, x);
 			if (BasicLinalg::squaredNorm(x, size) > deltaTol2)
 			{
@@ -118,7 +138,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 		{
 			m_normR = std::abs(m_beta.back()*m_h.back());
 		}
-		const Scalar invBeta = 1. / m_beta.back();
+		const Scalar invBeta = Scalar(1) / m_beta.back();
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) 
 		{ 
@@ -140,7 +160,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 		m_beta.push_back( BasicLinalg::norm(m_w, size) );
 		
 		m_normR = std::abs(m_beta.back()*m_h.back());
-		const Scalar invBeta = 1. / m_beta.back();
+		const Scalar invBeta = Scalar(1) / m_beta.back();
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) 
 		{ 
@@ -164,11 +184,11 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 		H(m_v, m_w);
 		
 		#pragma omp simd reduction(+:Base::m_modelReduction)
-		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += (*it_h)*(x[i]*m_w[i] + 0.5*(*it_h)*m_v[i]*m_w[i] + m_v[i]*g[i]); }
+		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += (*it_h)*(x[i]*m_w[i] + Scalar(0.5)*(*it_h)*m_v[i]*m_w[i] + m_v[i]*g[i]); }
 		
 		BasicLinalg::axpy(*it_h, m_v, size, x);
 		
-		const Scalar invNextBeta = 1. / *std::next(it_beta);
+		const Scalar invNextBeta = Scalar(1) / *std::next(it_beta);
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i)
 		{
@@ -181,7 +201,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 		H(m_v, m_w);
 		
 		#pragma omp simd reduction(+:Base::m_modelReduction)
-		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += m_h.back()*(x[i]*m_w[i] + 0.5*m_h.back()*m_v[i]*m_w[i] + m_v[i]*g[i]); }
+		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += m_h.back()*(x[i]*m_w[i] + Scalar(0.5)*m_h.back()*m_v[i]*m_w[i] + m_v[i]*g[i]); }
 		
 		BasicLinalg::axpy(m_h.back(), m_v, size, x);
 		
@@ -233,13 +253,13 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& __restrict__ gamma, const 
 			if (sqNormH < delta2) { lambdaMax = m_lambda; }
 			else                  { lambdaMin = m_lambda; }
 			
-			const Scalar gap = (lambdaMax - lambdaMin)*0.005;
+			const Scalar gap = (lambdaMax - lambdaMin)*Scalar(0.005);
 			m_lambda = std::max(lambdaMin + gap, std::min(m_lambda + deltaLambda, lambdaMax - gap));
 		}
 		else
 		{
 			lambdaMin = m_lambda;
-			m_lambda  = 0.5*(lambdaMax + lambdaMin); 
+			m_lambda  = Scalar(0.5)*(lambdaMax + lambdaMin); 
 		}
 	}
 	// hard case cannot occur, we did not converge due to numerical errors

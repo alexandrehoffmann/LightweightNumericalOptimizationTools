@@ -1,8 +1,17 @@
 #ifndef LNOT_CIRCULAR_BUFFER_IMPL_HPP
 #define LNOT_CIRCULAR_BUFFER_IMPL_HPP
 
+#include <LNOT/Containers/CircularBuffer.hpp>
+
 namespace LNOT
 {
+	
+//// explicit template instanciations ////
+
+extern template class CircularBuffer<float>;
+extern template class CircularBuffer<double>;
+
+//// method implementations ////
 	
 template<typename T, typename Allocator>
 CircularBuffer<T, Allocator>::CircularBuffer(const size_type size, const allocator& alloc) : 
@@ -31,14 +40,14 @@ CircularBuffer<T, Allocator>::~CircularBuffer()
 }
 
 template<typename T, typename Allocator> template<typename... Args>
-auto CircularBuffer<T, Allocator>::push(Args &&...args) -> size_type
+auto CircularBuffer<T, Allocator>::push(Args&&...args) -> size_type
 {
 	if (m_range_end == m_data_end)
 	{
 		m_range_end = m_data_begin;
 		m_allFilled = true;
 	}
-	std::construct_at(m_range_end, std::forward<Args> (args)...);
+	std::construct_at(m_range_end, std::forward<Args>(args)...);
 	++m_range_end;
 	
 	return size_type(m_range_end - 1 - m_data_begin);

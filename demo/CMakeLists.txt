@@ -1,3 +1,5 @@
+find_package(PkgConfig REQUIRED)
+
 add_executable(demo_LinearSolver                demo_LinearSolver.cpp)
 add_executable(demo_TrustRegionSubproblemSolver demo_TrustRegionSubproblemSolver.cpp)
 add_executable(demo_Newton                      demo_Newton.cpp)
