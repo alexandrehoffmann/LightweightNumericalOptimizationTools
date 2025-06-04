@@ -136,12 +136,22 @@ lbfgs1.solve(func, grad, N, x); // here we do not need hessOp
 
 Available LineSearches:
 
-- `BacktrackingLineSearch` $\alpha$ is multiplied repeatedly $\tau<1$ ultil $\alpha$ satisfies the Armijo-Goldstein condition
+- `BacktrackingLineSearch` $\alpha$ is multiplied repeatedly by $\tau<1$ ultil $\alpha$ satisfies the Armijo-Goldstein condition
 - `BisectionLineSearch`Use a bisection method to compute an $\alpha$ that satifies Wolfe's conditions
 
 ### Solving the problem with a Trust Region Method (TRM)
 
 A TRM first fixes the step length, and searches a step $s_k$ within an *trust region* : $s_k = \arg\min_{s\in\mathbb{R}^n} (s, Hs) + (g,s) \text{s.t.} \|s\|\leq\Delta_k$. 
+```cpp
+LNOT::LanczosTRSSolver<double> lanczosTrs;
+auto trNewtonSolver = LNOT::makeNewtonSolver(lanczosTrs);
+trNewtonSolver.solve(func, grad, hessOp, N, x);
+```
+We can also solve the problem with both Symmetric Rank 1 (SR1) update of the Hessian matrix or Limited-memory SR1 (L-SR1) methods [6, 7]:
+```
+auto sr1TR2 = LNOT::makeSR1Solver(lanczosTrs);
+sr1TR2.solve(func, grad, N, x);
+```
 
 # Reference
 [1] 4. Basic Iterative Methods. (2003). In Other Titles in Applied Mathematics. Iterative Methods for Sparse Linear Systems (pp. 103–128). doi:10.1137/1.9780898718003.ch4
@@ -149,3 +159,5 @@ A TRM first fixes the step length, and searches a step $s_k$ within an *trust re
 [3] Steihaug, T. (1983). The Conjugate Gradient Method and Trust Regions in Large Scale Optimization. SIAM Journal on Numerical Analysis, 20(3), 626–637. doi:10.1137/0720042
 [4] H. H. Rosenbrock, An Automatic Method for Finding the Greatest or Least Value of a Function, The Computer Journal, Volume 3, Issue 3, 1960, Pages 175–184, https://doi.org/10.1093/comjnl/3.3.175
 [5] Liu, D.C., Nocedal, J. On the limited memory BFGS method for large scale optimization. Mathematical Programming 45, 503–528 (1989). https://doi.org/10.1007/BF01589116
+[6] (2006). Quasi-Newton Methods. In: Numerical Optimization. Springer Series in Operations Research and Financial Engineering. Springer, New York, NY. https://doi.org/10.1007/978-0-387-40065-5_6
+[7] Lu, X. (1996). A study of the limited memory SR1 method in practice. University of Colorado at Boulder.
