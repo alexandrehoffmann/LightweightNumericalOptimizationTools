@@ -1,5 +1,5 @@
-# LightweightNumericalOptimizationTools
-A list basic tools to solve non-constrainted optimization programs
+# Lightweight Numerical Optimization Tools (LNOT)
+A list basic tools to solve non-constrainted optimization programs.
 
 ## Solving a Quadratic Program
 
