@@ -3,7 +3,7 @@
 
 #include <LNOT/GeneralSolvers/SecondOrderSolverBase.hpp>
 #include <LNOT/LinearSolvers/LinearSolverBase.hpp>
-#include <LNOT/LineSearch/LineSearchBase.hpp>
+#include <LNOT/LineSearches/LineSearchBase.hpp>
 
 namespace LNOT
 {

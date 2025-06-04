@@ -1,4 +1,4 @@
-#include <LNOT/LineSearch/BacktrackingLineSearch.hpp>
+#include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
 
 namespace LNOT
 {

@@ -1,7 +1,7 @@
 #ifndef LNOT_LINE_SEARCH_BASE_HPP
 #define LNOT_LINE_SEARCH_BASE_HPP
 
-#include <LNOT/Oracle/OracleBase.hpp>
+#include <LNOT/Oracles/OracleBase.hpp>
 
 #include <cstdio>
 

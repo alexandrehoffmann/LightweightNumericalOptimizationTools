@@ -1,7 +1,7 @@
 #ifndef LNOT_BISECTION_LINE_SEARCH_HPP
 #define LNOT_BISECTION_LINE_SEARCH_HPP
 
-#include <LNOT/LineSearch/LineSearchBase.hpp>
+#include <LNOT/LineSearches/LineSearchBase.hpp>
 
 namespace LNOT
 {
@@ -39,6 +39,6 @@ extern template class BisectionLineSearch<double>;
 
 }
 
-#include <LNOT/LineSearch/BisectionLineSearch_impl.hpp>
+#include <LNOT/LineSearches/BisectionLineSearch_impl.hpp>
 
 #endif // LNOT_BISECTION_LINE_SEARCH_HPP

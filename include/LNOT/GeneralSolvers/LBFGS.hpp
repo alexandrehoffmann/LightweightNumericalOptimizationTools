@@ -2,7 +2,7 @@
 #define LNOT_LBFGS_HPP
 
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
-#include <LNOT/LineSearch/LineSearchBase.hpp>
+#include <LNOT/LineSearches/LineSearchBase.hpp>
 
 namespace LNOT
 {

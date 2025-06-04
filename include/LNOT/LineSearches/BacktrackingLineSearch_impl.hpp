@@ -1,7 +1,7 @@
 #ifndef LNOT_BACKTRACKING_LINESEARCH_IMPL_HPP
 #define LNOT_BACKTRACKING_LINESEARCH_IMPL_HPP
 
-#include <LNOT/LineSearch/BacktrackingLineSearch.hpp>
+#include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
 #include <LNOT/BasicLinalg.hpp>
 
 #include <fmt/core.h>

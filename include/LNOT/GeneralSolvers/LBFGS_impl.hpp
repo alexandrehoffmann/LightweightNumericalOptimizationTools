@@ -3,8 +3,8 @@
 
 #include <LNOT/GeneralSolvers/LBFGS.hpp>
 #include <LNOT/Containers/CircularBuffer.hpp>
-#include <LNOT/LineSearch/BisectionLineSearch.hpp>
-#include <LNOT/LineSearch/BacktrackingLineSearch.hpp>
+#include <LNOT/LineSearches/BisectionLineSearch.hpp>
+#include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
 
 #include <span>
 

@@ -1,4 +1,4 @@
-#include <LNOT/LineSearch/BisectionLineSearch.hpp>
+#include <LNOT/LineSearches/BisectionLineSearch.hpp>
 
 namespace LNOT
 {

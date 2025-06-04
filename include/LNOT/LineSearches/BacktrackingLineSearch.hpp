@@ -1,7 +1,7 @@
 #ifndef LNOT_BACKTRACKING_LINESEARCH_HPP
 #define LNOT_BACKTRACKING_LINESEARCH_HPP
 
-#include <LNOT/LineSearch/LineSearchBase.hpp>
+#include <LNOT/LineSearches/LineSearchBase.hpp>
 
 namespace LNOT
 {
@@ -37,6 +37,6 @@ extern template class BacktrackingLineSearch<double>;
 	
 } // namespace LNOT
 
-#include <LNOT/LineSearch/BacktrackingLineSearch_impl.hpp>
+#include <LNOT/LineSearches/BacktrackingLineSearch_impl.hpp>
 
 #endif // LNOT_BACKTRACKING_LINESEARCH_HPP

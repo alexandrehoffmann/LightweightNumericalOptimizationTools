@@ -2,8 +2,8 @@
 #define LNOT_NEWTON_SOLVER_IMPL_HPP
 
 #include <LNOT/GeneralSolvers/NewtonSolver.hpp>
-#include <LNOT/LineSearch/BisectionLineSearch.hpp>
-#include <LNOT/LineSearch/BacktrackingLineSearch.hpp>
+#include <LNOT/LineSearches/BisectionLineSearch.hpp>
+#include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
 #include <LNOT/LinearSolvers/ConjugateGradient.hpp>
 #include <LNOT/LinearSolvers/LanczosSolver.hpp>
 #include <LNOT/LinearSolvers/CoupledLanczosSolver.hpp>

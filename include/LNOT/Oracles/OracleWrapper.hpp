@@ -4,7 +4,7 @@
 #include <algorithm>   // for std::copy
 #include <type_traits> // for std::is_invocable
 
-#include <LNOT/Oracle/OracleBase.hpp>
+#include <LNOT/Oracles/OracleBase.hpp>
 
 namespace LNOT
 {

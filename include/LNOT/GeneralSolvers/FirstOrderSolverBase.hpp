@@ -1,7 +1,7 @@
 #ifndef LNOT_FIRST_ORDER_MINIMIZER_BASE_HPP
 #define LNOT_FIRST_ORDER_MINIMIZER_BASE_HPP
 
-#include <LNOT/Oracle/OracleWrapper.hpp>
+#include <LNOT/Oracles/OracleWrapper.hpp>
 
 #include <cstdio>
 #include <cmath>

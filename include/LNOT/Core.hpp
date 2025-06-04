@@ -9,8 +9,8 @@
 #include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
 
-#include <LNOT/LineSearch/BacktrackingLineSearch.hpp>
-#include <LNOT/LineSearch/BisectionLineSearch.hpp>
+#include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
+#include <LNOT/LineSearches/BisectionLineSearch.hpp>
 
 #include <LNOT/GeneralSolvers/NewtonSolver.hpp>
 #include <LNOT/GeneralSolvers/NewtonTrustRegionSolver.hpp>
