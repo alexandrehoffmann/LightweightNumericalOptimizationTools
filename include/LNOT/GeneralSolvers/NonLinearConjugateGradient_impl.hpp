@@ -95,6 +95,8 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solve_impl(Oracle& 
 		
 		const Scalar alpha = m_lineSearch.solve(x, Base::m_fx, m_gk, m_dk, oracle);
 		
+		if (alpha < std::numeric_limits<Scalar>::epsilon()) { Base::m_info = Info::BREAKDOWN; break; }
+		
 		Base::m_innerIts.push_back(1);
 		
 		BasicLinalg::axpy(alpha, m_dk, size, x);
