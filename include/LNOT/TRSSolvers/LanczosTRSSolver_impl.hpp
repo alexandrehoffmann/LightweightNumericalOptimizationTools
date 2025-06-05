@@ -161,12 +161,9 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 		
 		m_normR = std::abs(m_beta.back()*m_h.back());
 		const Scalar invBeta = Scalar(1) / m_beta.back();
+		std::copy(m_v, m_v + size, m_v_old);
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) 
-		{ 
-			m_v_old[i] = m_v[i];
-			m_v[i]     = invBeta*m_w[i];
-		} 
+		for (Size i=0; i!=size; ++i) { m_v[i] = invBeta*m_w[i]; } 
 	}	
 	// re-run Lanczos iteration to compute x = Vh;
 	using Iterator = typename std::vector<Scalar>::const_iterator;

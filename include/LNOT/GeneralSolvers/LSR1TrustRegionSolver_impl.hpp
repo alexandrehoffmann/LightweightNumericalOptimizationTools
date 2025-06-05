@@ -65,9 +65,10 @@ void LSR1TrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_cons
 		const Size prev_idx = (curr_idx == 0) ? m_memory-1 : curr_idx-1;
 		const Scalar* skm1 = m_S + prev_idx*size;
 		const Scalar* ykm1 = m_Y + prev_idx*size;
-		//~ const Scalar gamma0 = invRho.empty() ? 1 : BasicLinalg::inner(ykm1, skm1, size) / BasicLinalg::squaredNorm(skm1, size);
-		//~ const Scalar gamma0 = invRho.empty() ? 1 : BasicLinalg::norm(ykm1, size) / BasicLinalg::norm(skm1, size);
-		const Scalar gamma0 = invRho.empty() ? 1 : BasicLinalg::squaredNorm(ykm1, size) / BasicLinalg::inner(ykm1, skm1, size);
+		//~ const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::inner(ykm1, skm1, size) / BasicLinalg::squaredNorm(skm1, size);
+		//~ const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::norm(ykm1, size) / BasicLinalg::norm(skm1, size);
+		const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::squaredNorm(ykm1, size) / BasicLinalg::inner(ykm1, skm1, size);
+		const Scalar gamma0 = std::isfinite(protoGamma0) ? protoGamma0 : 1;
 		
 		#pragma omp simd
 		for (Size k=0; k!=size; ++k) { Bd[k] = gamma0*d[k]; }
