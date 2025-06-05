@@ -62,7 +62,7 @@ Available solvers :
 We now want to solve the following problem $\min_{x\in\mathbb{R}^n} J(x)$ where $J$ is our cost function.
 LNOT's general solvers relly on an *Oracle*, an object that for a given $x$ provides $J(x)$, $\nabla J(x)$ and $\nabla^2 J(x)$. Note that some oracle may not be able to provide $\nabla^2 J(x)$.
 
-### What is an Oracle
+### What is an Oracle ? 
 
 An oracle provides the following functions:
 
@@ -134,6 +134,11 @@ auto lbfgs1 = LNOT::makeLBFGS(ls, 5); // 5 is the number of steps used to estima
 lbfgs1.solve(func, grad, N, x); // here we do not need hessOp
 ```
 
+Available Solvers:
+
+- `LBFGS` [5]
+- `NonLinearConjugateGradient` [8, 9]
+
 Available LineSearches:
 
 - `BacktrackingLineSearch` $\alpha$ is multiplied repeatedly by $\tau<1$ ultil $\alpha$ satisfies the Armijo-Goldstein condition
@@ -167,3 +172,7 @@ sr1TR2.solve(func, grad, N, x);
 [6] (2006). Quasi-Newton Methods. In: Numerical Optimization. Springer Series in Operations Research and Financial Engineering. Springer, New York, NY. https://doi.org/10.1007/978-0-387-40065-5_6
 
 [7] Lu, X. (1996). A study of the limited memory SR1 method in practice. University of Colorado at Boulder.
+
+[8] R. Fletcher, C. M. Reeves, Function minimization by conjugate gradients, The Computer Journal, Volume 7, Issue 2, 1964, Pages 149–154, https://doi.org/10.1093/comjnl/7.2.149
+
+[9] Predrag S. Stanimirović, Branislav Ivanov, Haifeng Ma, Dijana Mosić. A survey of gradient methods for solving nonlinear optimization[J]. Electronic Research Archive, 2020, 28(4): 1573-1624. doi: 10.3934/era.2020115
