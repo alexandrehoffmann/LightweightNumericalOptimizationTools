@@ -136,8 +136,8 @@ lbfgs1.solve(func, grad, N, x); // here we do not need hessOp
 
 Available Solvers:
 
-- L-BFGS [5]
-- Non-linear Conjugate Gradient [8, 9]
+- `LBFGS` [5]
+- `NonLinearConjugateGradient` [8, 9]
 
 Available LineSearches:
 
