@@ -99,6 +99,7 @@ set(LNOT_SRC
 	#
 	src/LNOT/GeneralSolvers/NewtonSolver.cpp
 	src/LNOT/GeneralSolvers/LBFGS.cpp
+	src/LNOT/GeneralSolvers/NonLinearConjugateGradient.cpp
 	src/LNOT/GeneralSolvers/NewtonTrustRegionSolver.cpp
 	src/LNOT/GeneralSolvers/SR1TrustRegionSolver.cpp
 	src/LNOT/GeneralSolvers/LSR1TrustRegionSolver.cpp

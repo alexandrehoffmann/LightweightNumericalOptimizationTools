@@ -37,7 +37,7 @@ void LBFGS<LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPla
 {
 	using CircularBuffer_size = typename CircularBuffer<Scalar>::size_type;
 	
-	const Size size   = oracle.getNDims();
+	const Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{

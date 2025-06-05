@@ -39,6 +39,8 @@ int main()
 	LNOT::LanczosTRSSolver<double> lanczosTrs;
 	LNOT::CoupledLanczosTRSSolver<double> coupledLanczosTrs;
 	
+	std::FILE* nlcgBisectLsOut       = std::fopen("nlcg_bisect_ls.log", "w");
+	std::FILE* nlcgBacktrackLsOut    = std::fopen("nlcg_backtrack_ls.log", "w");
 	std::FILE* lbfgsBisectLsOut      = std::fopen("lbfgs_bisect_ls.log", "w");
 	std::FILE* lbfgsBacktrackLsOut   = std::fopen("lbfgs_backtrack_ls.log", "w");
 	std::FILE* sr1TCGOut             = std::fopen("sr1_tcg.log", "w");
@@ -48,19 +50,33 @@ int main()
 	std::FILE* lsr1LanczosOut        = std::fopen("lsr1_lanczos.log", "w");
 	std::FILE* lsr1CoupledLanczosOut = std::fopen("lsr1_coupled_lanczos.log", "w");
 	
+	auto nlcg1 = LNOT::makeNLCG(bisectLs);
+	nlcg1.setTol(1.0e-11);
+	nlcg1.setOutput(nlcgBisectLsOut);
+	nlcg1.solve(func, grad, N, x);
+	
+	fmt::print("NLCG found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), nlcg1.getIterations(), nlcg1.getError(), nlcg1.getValue());
+
+	auto nlcg2 = LNOT::makeNLCG(backtrackLs);
+	nlcg2.setTol(1.0e-11);
+	nlcg2.setOutput(nlcgBacktrackLsOut);
+	nlcg2.solve(func, grad, N, x);
+	
+	fmt::print("NLCG found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), nlcg2.getIterations(), nlcg2.getError(), nlcg2.getValue());
+	
 	auto lbfgs1 = LNOT::makeLBFGS(bisectLs, 5);
 	lbfgs1.setTol(1.0e-11);
 	lbfgs1.setOutput(lbfgsBisectLsOut);
 	lbfgs1.solve(func, grad, N, x);
 	
-	fmt::print("LBFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs1.getIterations(), lbfgs1.getError(), lbfgs1.getValue());
+	fmt::print("L-BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs1.getIterations(), lbfgs1.getError(), lbfgs1.getValue());
 
 	auto lbfgs2 = LNOT::makeLBFGS(backtrackLs, 5);
 	lbfgs2.setTol(1.0e-11);
 	lbfgs2.setOutput(lbfgsBacktrackLsOut);
 	lbfgs2.solve(func, grad, N, x);
 	
-	fmt::print("LBFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs2.getIterations(), lbfgs2.getError(), lbfgs2.getValue());
+	fmt::print("L-BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs2.getIterations(), lbfgs2.getError(), lbfgs2.getValue());
 
 	auto sr1TR1 = LNOT::makeSR1Solver(tcg);
 	sr1TR1.setTol(1.0e-11);

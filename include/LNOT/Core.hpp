@@ -15,5 +15,6 @@
 #include <LNOT/GeneralSolvers/NewtonSolver.hpp>
 #include <LNOT/GeneralSolvers/NewtonTrustRegionSolver.hpp>
 #include <LNOT/GeneralSolvers/LBFGS.hpp>
+#include <LNOT/GeneralSolvers/NonLinearConjugateGradient.hpp>
 #include <LNOT/GeneralSolvers/SR1TrustRegionSolver.hpp>
 #include <LNOT/GeneralSolvers/LSR1TrustRegionSolver.hpp>
