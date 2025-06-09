@@ -1,5 +1,6 @@
 #include <LNOT/BasicLinalg.hpp>
 #include <LNOT/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/DiagonalPreconditionerOp.hpp>
 
 #include <LNOT/LinearSolvers/ConjugateGradient.hpp>
 #include <LNOT/LinearSolvers/LanczosSolver.hpp>

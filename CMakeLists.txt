@@ -85,6 +85,7 @@ set(LNOT_SRC
 	src/LNOT/Containers/CircularBuffer.cpp
 	#
 	src/LNOT/SymmetricDenseMatrixOp.cpp
+	src/LNOT/DiagonalPreconditionerOp.cpp
 	#
 	src/LNOT/LinearSolvers/ConjugateGradient.cpp
 	src/LNOT/LinearSolvers/LanczosSolver.cpp

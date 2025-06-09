@@ -20,7 +20,8 @@ public:
 	constexpr UpLo         getUplo         () const { return uplo;         }
 private:
 	const Scalar* m_A;
-	const Size    m_size;
+	
+	Size m_size;
 };
 
 } // namespace LNOT

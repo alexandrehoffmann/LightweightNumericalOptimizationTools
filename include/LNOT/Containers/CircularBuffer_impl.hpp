@@ -35,7 +35,7 @@ CircularBuffer<T, Allocator>::CircularBuffer(const CircularBuffer &other) :
 template<typename T, typename Allocator>
 CircularBuffer<T, Allocator>::~CircularBuffer() 
 { 
-	for (pointer it=m_data_begin; it!=m_data_end; ++it) {  std::destroy_at(it); } 
+	std::destroy(m_data_begin, m_data_end);
 	m_allocator.deallocate(m_data_begin, size()); 
 }
 

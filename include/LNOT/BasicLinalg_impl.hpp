@@ -110,15 +110,15 @@ namespace Tridiag
 {
 
 template<typename Scalar, typename Size>
-Scalar norm1(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, const Size size)
+Scalar norm1(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, const Size N)
 {
 	Scalar res(0);
 	#pragma omp simd reduction(+:res)
-	for (Size i=0; i!=Size(size-1); ++i)
+	for (Size i=0; i!=Size(N-1); ++i)
 	{
 		res += std::abs(alpha[i]) + 2*std::abs(beta[i]);
 	}
-	return res + std::abs(alpha[size-1]);
+	return res + std::abs(alpha[N-1]);
 }
 
 namespace LDLt

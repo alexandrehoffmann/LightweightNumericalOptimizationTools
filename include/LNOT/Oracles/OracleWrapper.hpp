@@ -9,11 +9,12 @@
 namespace LNOT
 {
 
-struct VoidFunctor {};
+struct VoidFunctor {}; ///<  @brief Marker functor representing absence of a callable object.
 
-template<class Function> struct IsVoidFunctor : std::bool_constant< std::is_same<Function, VoidFunctor>::value > {};
+template<class Function> struct IsVoidFunctor : std::bool_constant< std::is_same<Function, VoidFunctor>::value > {}; ///<  @brief Trait to determine whether a type is VoidFunctor.
 
-template<typename T, class Function, class Gradient, class HessianOp>  class OracleWrapper;
+template<typename T, class Function, class Gradient, class HessianOp>  class OracleWrapper; 
+
 
 template<typename T, class Function, class Gradient, class HessianOp> 
 struct OracleTraits< OracleWrapper<T, Function, Gradient, HessianOp> > 
@@ -30,7 +31,11 @@ struct OracleTraits< OracleWrapper<T, Function, Gradient, HessianOp> >
 };
 
 /**
- * Basic Oracle that wraps functors that evaluates a functions, value, its gradient and also the product between its Hessian and a given direction.
+ * @brief Basic Oracle that wraps functors that evaluates a functions, value, its gradient and also the product between its Hessian and a given direction.
+ * @tparam T Scalar type used in computations.
+ * @tparam Function Functor type for function evaluation. Must be callable as `T f(const T*)`.
+ * @tparam Gradient Optional gradient functor. Callable as `void grad(const T*, T*)`.
+ * @tparam HessianOp Optional Hessian-vector product functor. Callable as `void hessOp(const T*, const T*, T*)`.
  */
 template<typename T, class Function, class Gradient = VoidFunctor, class HessianOp = VoidFunctor> 
 class OracleWrapper : public OracleBase< OracleWrapper<T, Function, Gradient, HessianOp> >
