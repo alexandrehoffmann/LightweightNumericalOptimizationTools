@@ -37,8 +37,8 @@ public:
 private:
 	Scalar m_normR = 0;
 
-	Scalar* m_Bz_old = nullptr;
-	Scalar* m_Bz     = nullptr;
+	Scalar* m_Bv_old = nullptr;
+	Scalar* m_Bv     = nullptr;
 	Scalar* m_v      = nullptr;
 	Scalar* m_p      = nullptr;
 	Scalar* m_hat_Bv = nullptr;

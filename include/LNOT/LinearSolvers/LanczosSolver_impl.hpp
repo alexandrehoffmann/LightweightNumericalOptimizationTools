@@ -64,8 +64,8 @@ extern template void LanczosSolver<double>::solve_impl(const SymmetricDenseMatri
 template<typename T> 
 void LanczosSolver<T>::clearWorkSpace()
 {
-	if (m_Bz_old  != nullptr) { delete[] m_Bz_old; m_Bz_old = nullptr; }
-	if (m_Bz      != nullptr) { delete[] m_Bz;     m_Bz     = nullptr; }
+	if (m_Bv_old  != nullptr) { delete[] m_Bv_old; m_Bv_old = nullptr; }
+	if (m_Bv      != nullptr) { delete[] m_Bv;     m_Bv     = nullptr; }
 	if (m_v       != nullptr) { delete[] m_v;      m_v      = nullptr; }
 	if (m_p       != nullptr) { delete[] m_p;      m_p      = nullptr; }
 	if (m_hat_Bv  != nullptr) { delete[] m_hat_Bv; m_hat_Bv = nullptr; }
@@ -79,8 +79,8 @@ void LanczosSolver<T>::resizeWorkSpace(const Size newSize)
 	{
 		clearWorkSpace();
 		Base::m_workCapacity = newSize;
-		m_Bz_old  = new Scalar[Base::m_workCapacity];
-		m_Bz      = new Scalar[Base::m_workCapacity];
+		m_Bv_old  = new Scalar[Base::m_workCapacity];
+		m_Bv      = new Scalar[Base::m_workCapacity];
 		m_v       = new Scalar[Base::m_workCapacity];
 		m_p       = new Scalar[Base::m_workCapacity];
 		m_hat_Bv  = new Scalar[Base::m_workCapacity];
@@ -93,25 +93,25 @@ void LanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__ g, con
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
 	{
-		H(x, m_Bz);
+		H(x, m_Bv);
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_Bz[i] = -g[i] - m_Bz[i]; } // r = -b - Hx
+		for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i] - m_Bv[i]; } // r = -b - Hx
 	}
 	else
 	{
 		std::fill(x, x+size, 0);
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_Bz[i] = -g[i]; } 
+		for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i]; } 
 	}
-	const Scalar normR0 = BasicLinalg::norm(m_Bz, size);
+	const Scalar normR0 = BasicLinalg::norm(m_Bv, size);
 	
 	Scalar beta_old = 0;
 	Scalar l_old = 0;
 	Scalar eta = -normR0;
 	
-	BasicLinalg::scal(Scalar(1) / eta, size, m_Bz);
+	BasicLinalg::scal(Scalar(1) / eta, size, m_Bv);
 	
-	std::fill(m_Bz_old, m_Bz_old + size, 0);
+	std::fill(m_Bv_old, m_Bv_old + size, 0);
 	std::fill(m_p,      m_p      + size, 0);
 	
 	m_normR = normR0;
@@ -125,18 +125,18 @@ void LanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__ g, con
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e}\n", Base::m_nIt, m_normR, tol); }
 		if (m_normR < tol) { Base::m_info = Info::SUCCESS; break; }
 		
-		H(m_Bz, m_hat_Bv);
-		const Scalar alpha = BasicLinalg::inner(m_Bz, m_hat_Bv, size);
+		H(m_Bv, m_hat_Bv);
+		const Scalar alpha = BasicLinalg::inner(m_Bv, m_hat_Bv, size);
 		// solve T_k h_k = -\|r_0\|e_1
 		const Scalar d = alpha - beta_old*l_old;
 		if (d < std::numeric_limits<Scalar>::epsilon()) { Base::m_info = Info::NEGATIVE_CURVATURE; break; }
 		const Scalar invD = Scalar(1) / d;
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_p[i] = invD*(m_Bz[i] - beta_old*m_p[i]); } 
+		for (Size i=0; i!=size; ++i) { m_p[i] = invD*(m_Bv[i] - beta_old*m_p[i]); } 
 		BasicLinalg::axpy(eta, m_p, size, x);
 		// resume Lanczos iteration
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_hat_Bv[i] += -alpha*m_Bz[i] - beta_old*m_Bz_old[i]; } 
+		for (Size i=0; i!=size; ++i) { m_hat_Bv[i] += -alpha*m_Bv[i] - beta_old*m_Bv_old[i]; } 
 		const Scalar beta    = BasicLinalg::norm(m_hat_Bv, size);
 		const Scalar invBeta = Scalar(1) / beta;
 		// prepare next solve
@@ -149,8 +149,8 @@ void LanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__ g, con
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) 
 		{ 
-			m_Bz_old[i] = m_Bz[i];
-			m_Bz[i]     = invBeta*m_hat_Bv[i];
+			m_Bv_old[i] = m_Bv[i];
+			m_Bv[i]     = invBeta*m_hat_Bv[i];
 		} 
 	}
 }
@@ -161,28 +161,28 @@ void LanczosSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scal
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
 	{
-		H(x, m_Bz);
+		H(x, m_Bv);
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_Bz[i] = -g[i] - m_Bz[i]; } // r = -b - Hx
+		for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i] - m_Bv[i]; } // r = -b - Hx
 	}
 	else
 	{
 		std::fill(x, x+size, 0);
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_Bz[i] = -g[i]; } 
+		for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i]; } 
 	}
-	invB(m_Bz, m_v);
+	invB(m_Bv, m_v);
 	
-	const Scalar normR0 = std::sqrt(BasicLinalg::inner(m_Bz, m_v, size));
+	const Scalar normR0 = std::sqrt(BasicLinalg::inner(m_Bv, m_v, size));
 	
 	Scalar beta_old = 0;
 	Scalar l_old = 0;
 	Scalar eta = -normR0;
 	
-	BasicLinalg::scal(Scalar(1) / eta, size, m_Bz);
+	BasicLinalg::scal(Scalar(1) / eta, size, m_Bv);
 	BasicLinalg::scal(Scalar(1) / eta, size, m_v);
 	
-	std::fill(m_Bz_old, m_Bz_old + size, 0);
+	std::fill(m_Bv_old, m_Bv_old + size, 0);
 	std::fill(m_p,      m_p      + size, 0);
 	
 	m_normR = normR0;
@@ -207,7 +207,7 @@ void LanczosSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scal
 		BasicLinalg::axpy(eta, m_p, size, x);
 		// resume Lanczos iteration
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_hat_Bv[i] += -alpha*m_Bz[i] - beta_old*m_Bz_old[i]; } 
+		for (Size i=0; i!=size; ++i) { m_hat_Bv[i] += -alpha*m_Bv[i] - beta_old*m_Bv_old[i]; } 
 		invB(m_hat_Bv, m_v);
 		const Scalar beta    = std::sqrt(BasicLinalg::inner(m_hat_Bv, m_v, size));
 		const Scalar invBeta = Scalar(1) / beta;
@@ -222,8 +222,8 @@ void LanczosSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scal
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) 
 		{ 
-			m_Bz_old[i] = m_Bz[i];
-			m_Bz[i]     = invBeta*m_hat_Bv[i];
+			m_Bv_old[i] = m_Bv[i];
+			m_Bv[i]     = invBeta*m_hat_Bv[i];
 		}
 	}
 }
