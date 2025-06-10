@@ -70,7 +70,8 @@ An oracle provides the following functions:
 - `void setCurrentPoint(const Scalar* x)` do whatever is necessary to compute $J(x)$, $\nabla J(x)$ and $\nabla^2 J(x)$. *e.g.* for an inverse problem the oracle might discretize the forward and adjoint equation with the model parameter $x$.
 - `Scalar getValue() const` returns $J(x)$
 - `void getGradient(Scalar* g) const` [optional] writes $\nabla J(x)$ in `g`
-- `void getHessianProd(const Scalar* d, Scalar* Hd) const ` [optional] writes $\nabla J(x)d$ in `Hd`
+- `void getHessianProd(const Scalar* d, Scalar* Hd) const` [optional] writes $\nabla^2 J(x)d$ in `Hd`
+- `void applyPrecond(const Scalar* d, Scalar* invBd) const` [optional] writes $B^-1d$ in `invBd` with $B\approx\nabla^2 J(x)$ in some norm.
 
 If a large amout of pre-computation is required to evaluate $J$ and its derivatives, we strongly recommand to write a custom Oracle. 
 On the other hand, for a functions such as Rosenbrok's function [4], we can simply define three functors:
