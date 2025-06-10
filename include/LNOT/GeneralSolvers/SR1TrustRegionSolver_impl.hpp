@@ -2,7 +2,7 @@
 #define LNOT_SR1_TRUST_REGION_SOLVER_IMPL_HPP
 
 #include <LNOT/GeneralSolvers/SR1TrustRegionSolver.hpp>
-#include <LNOT/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
 #include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>

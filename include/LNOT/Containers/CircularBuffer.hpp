@@ -39,6 +39,7 @@ private:
 	template<typename Function> struct IsTraverserFunction      : std::bool_constant<std::is_invocable<Function, size_type,       reference>::value> {}; ///<  @brief Checks whether a function is a valid traverser for mutable references.
 public:
 	CircularBuffer() = default;
+	
 	/**
 	 * @brief Construct a circular buffer with a fixed size.
 	 * 
@@ -46,6 +47,7 @@ public:
 	 * @param alloc Optional allocator instance.
 	 */
 	CircularBuffer(const size_type size, const allocator& alloc = allocator());
+	
 	/**
 	 * @brief Copy constructor.
 	 * 
@@ -56,10 +58,13 @@ public:
 	CircularBuffer(const CircularBuffer &other);
 	
 	~CircularBuffer();
+	
 	/// @brief Get the number of elements stored in the buffer.
 	size_type size() const { return size_type(m_data_end - m_data_begin); }
+	
 	/// @brief Check if the buffer has been completely filled at least once.
 	bool allFilled() const { return m_allFilled; }
+	
 	/**
 	 * @brief Insert a new element in-place using constructor arguments.
 	 * 
@@ -69,8 +74,10 @@ public:
 	 */
 	template<typename... Args> 
 	size_type push(Args&&...args);
+	
 	/// @brief Get the index of the first inserted element relative to the buffer's internal memory.
 	size_type firstInsertedIndex() const { return (m_allFilled and m_range_end!=m_data_end) ? size_type(m_range_end - m_data_begin) : 0u; }
+	
 	/**
 	 * @brief Traverse all elements in order and apply a user function.
 	 * 
@@ -81,6 +88,7 @@ public:
 	 * @return The same function object (may be used for stateful operations).
 	 */
 	template<typename Function> Function foreach(Function f) requires (IsTraverserFunction<Function>::value);
+	
 	/**
 	 * @brief Traverse all elements in reverse order and apply a user function.
 	 * 
@@ -91,6 +99,7 @@ public:
 	 * @return The same function object.
 	 */
 	template<typename Function> Function reverseForeach(Function f) requires (IsTraverserFunction<Function>::value);
+	
 	/**
 	 * @brief Traverse all elements (const version) and apply a user function.
 	 * 
@@ -101,6 +110,7 @@ public:
 	 * @return The same function object.
 	 */
 	template<typename Function> Function foreach(Function f) const requires (IsConstTraverserFunction<Function>::value);
+	
 	/**
 	 * @brief Traverse all elements in reverse (const version) and apply a user function.
 	 * 
@@ -111,8 +121,10 @@ public:
 	 * @return The same function object.
 	 */
 	template<typename Function> Function reverseForeach(Function f) const requires (IsConstTraverserFunction<Function>::value);
+	
 	/// @brief Clears the buffer contents (logically, does not deallocate).
 	void clear() { m_range_end = m_data_begin; m_allFilled = false; }
+	
 	/// @brief Check if the buffer currently holds no elements.
 	bool empty() const { return (not m_allFilled) and m_range_end == m_data_begin; }
 private:	

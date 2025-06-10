@@ -1,4 +1,4 @@
-#include <LNOT/DiagonalPreconditionerOp.hpp>
+#include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
 
 namespace LNOT
 {

@@ -1,4 +1,4 @@
-#include <LNOT/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 
 namespace LNOT
 {

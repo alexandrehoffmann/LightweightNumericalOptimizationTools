@@ -45,6 +45,17 @@ int main()
 		Hd[N-2] += -400*x[N-2]*d[N-1];
 		Hd[N-1] += 200*d[N-1];
 	};
+	const auto precOp = [](const double* __restrict__ x, const double* __restrict__ d, double* __restrict__ Hd) 
+	{
+		std::fill(Hd, Hd + N, 0);
+	
+		Hd[0] += d[0] / (2 - 400*(x[1] - 3*x[0]*x[0]));
+		for (Size i=1; i!=Size(N-1); ++i)
+		{
+			Hd[i] += d[i] / (202 - 400*(x[i+1] - 3*x[i]*x[i]));
+		}
+		Hd[N-1] += d[N-1] / 200;
+	};
 	
 	double x[N];
 	std::span<const double> x_view(x, N);
@@ -65,13 +76,13 @@ int main()
 	
 	auto newtonSolver1 = LNOT::makeNewtonSolver(cg, bisectLs);
 	newtonSolver1.setOutput(newtonBisectLsOut);
-	newtonSolver1.solve(func, grad, hessOp, N, x);
+	newtonSolver1.solve(func, grad, hessOp, precOp, N, x);
 	
 	fmt::print("Newton with Bisection LineSrearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver1.getIterations(), newtonSolver1.getError(), newtonSolver1.getValue());
 	
 	auto newtonSolver2 = LNOT::makeNewtonSolver(cg, backtrackLs);
 	newtonSolver2.setOutput(newtonBacktrackLsOut);
-	newtonSolver2.solve(func, grad, hessOp, N, x);
+	newtonSolver2.solve(func, grad, hessOp, precOp, N, x);
 	
 	fmt::print("Newton with Bisection Backtracking LineSearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver2.getIterations(), newtonSolver2.getError(), newtonSolver2.getValue());
 	

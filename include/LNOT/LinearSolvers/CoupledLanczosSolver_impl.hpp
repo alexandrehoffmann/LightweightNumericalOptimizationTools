@@ -2,9 +2,9 @@
 #define LNOT_COUPLED_LANCZOS_SOLVER_IMPL_HPP
 
 #include <LNOT/LinearSolvers/CoupledLanczosSolver.hpp>
-#include <LNOT/SymmetricDenseMatrixOp.hpp>
-#include <LNOT/DiagonalPreconditionerOp.hpp>
-#include <LNOT/BasicLinalg.hpp>
+#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
+#include <LNOT/BasicLinalg/BasicLinalg.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>

@@ -1,7 +1,7 @@
 #ifndef LNOT_DIAGONAL_PRECONDITIONER_OP_IMPL_HPP
 #define LNOT_DIAGONAL_PRECONDITIONER_OP_IMPL_HPP
 
-#include <LNOT/DiagonalPreconditionerOp.hpp>
+#include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
 
 namespace LNOT
 {

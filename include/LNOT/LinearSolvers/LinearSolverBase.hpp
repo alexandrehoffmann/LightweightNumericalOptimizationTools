@@ -31,6 +31,7 @@ class LinearSolverBase
 public:
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
 	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
+	
 	/// @brief Enumeration indicating solver termination status.
 	enum class Info 
 	{
@@ -45,6 +46,7 @@ public:
 
 	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
 	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
+	
 	/**
 	 * @brief Construct the solver with optional maximum iterations and tolerance.
 	 * @param maxIt Maximum number of iterations (default: 200000).
@@ -52,8 +54,10 @@ public:
 	 */
 	LinearSolverBase(const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : m_maxIt(maxIt), m_tol(tol) {}
 	~LinearSolverBase() { clearWorkSpace(); }
+	
 	/// @brief Clear any internal memory or workspace used by the solver.
 	void clearWorkSpace() { derived_cast().clearWorkSpace(); }
+	
 	/**
 	 * @brief Solve the linear system Hx = -g using the provided Hessian operator.
 	 * @param H Hessian operator (must satisfy IsHessianOp).
@@ -63,6 +67,7 @@ public:
 	 */
 	template<typename Op> 
 	void solve(const Op& H, const Scalar* g, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { solve_impl(H, g, size, std::false_type{}, x); }
+	
 	/**
 	 * @brief Solve the system with an initial guess.
 	 * @param H Hessian operator  (must satisfy IsHessianOp).
@@ -73,6 +78,7 @@ public:
 	 */
 	template<typename Op> 
 	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { std::copy(x0, x0 + size, x); solve_impl(H, g, size, std::true_type{}, x);  }
+	
 	/**
 	 * @brief Solve the system with or without an initial guess.
 	 * 
@@ -87,6 +93,7 @@ public:
 	 */
 	template<typename Op, bool solveInPlace> 
 	void solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsHessianOp<Op>::value) { derived_cast().solve_impl(H, g, size, bc, x); }
+	
 	/**
 	 * @brief Solve the preconditioned linear system Hx = -g using the provided Hessian operator.
 	 * @param H Hessian operator (must satisfy IsHessianOp).
@@ -97,6 +104,7 @@ public:
 	 */
 	template<typename HesOp, typename PrecOp> 
 	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { solve_impl(H, invB, g, size, std::false_type{}, x); }
+	
 	/**
 	 * @brief Solve the preconditioned system with an initial guess.
 	 * @param H Hessian operator.
@@ -108,6 +116,7 @@ public:
 	 */	
 	template<typename HesOp, typename PrecOp> 
 	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { std::copy(x0, x0 + size, x); solve_impl(H, invB, g, size, std::true_type{}, x);  }
+	
 	/**
 	 * @brief Solve the preconditioned system with or without an initial guess.
 	 * 
@@ -144,14 +153,14 @@ protected:
 	Scalar getResidualThreshold()        const { return m_tol*std::max(Scalar(1), getError()); }              ///<  @brief Get the residual threshold for which the problem is considered solved.
 	Scalar getSquaredResidualThreshold() const { return m_tol*m_tol*std::max(Scalar(1), getSquaredError()); } ///<  @brief Get the squared residual threshold for which the problem is considered solved. 
 
-	Size   m_maxIt; ///<  Maximum number of iterations
-	Scalar m_tol;   ///<  Tolerance for convergence
-	Size   m_nIt;   ///<  Number of iterations actually performed
-	Info   m_info;  ///<  Status of the solver after termination
+	Size   m_maxIt; ///<  @brief Maximum number of iterations
+	Scalar m_tol;   ///<  @brief Tolerance for convergence
+	Size   m_nIt;   ///<  @brief Number of iterations actually performed
+	Info   m_info;  ///<  @brief Status of the solver after termination
 	
-	Size m_workCapacity = 0; ///<  Maximum size of the arrays allocated by the solver
+	Size m_workCapacity = 0; ///<  @brief Maximum size of the arrays allocated by the solver
 	
-	std::FILE* m_out = nullptr; ///<  Optional output stream
+	std::FILE* m_out = nullptr; ///<  @brief Optional output stream
 };
 
 template<class T> struct IsLinearSolver : std::bool_constant< std::is_base_of<LinearSolverBase<T>, T>::value > {};

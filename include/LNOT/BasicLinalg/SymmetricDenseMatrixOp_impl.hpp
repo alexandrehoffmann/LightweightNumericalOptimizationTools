@@ -1,7 +1,7 @@
 #ifndef LNOT_SYMMETRIC_DENSE_MATRIX_OP_IMPL_HPP
 #define LNOT_SYMMETRIC_DENSE_MATRIX_OP_IMPL_HPP
 
-#include <LNOT/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 
 #ifdef LNOT_WITH_BLAS
 #include <cblas.h>

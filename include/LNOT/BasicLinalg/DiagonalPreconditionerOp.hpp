@@ -22,6 +22,6 @@ private:
 
 } // namespace LNOT
 
-#include <LNOT/DiagonalPreconditionerOp_impl.hpp>
+#include <LNOT/BasicLinalg/DiagonalPreconditionerOp_impl.hpp>
 
 #endif // LNOT_DIAGONAL_PRECONDITIONER_OP_HPP

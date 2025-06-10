@@ -2,8 +2,8 @@
 #define LNOT_COUPLED_LANCZOS_TRS_SOLVER_IMPL_HPP
 
 #include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
-#include <LNOT/SymmetricDenseMatrixOp.hpp>
-#include <LNOT/BasicLinalg.hpp>
+#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/BasicLinalg/BasicLinalg.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>

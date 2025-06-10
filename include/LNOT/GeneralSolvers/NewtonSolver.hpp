@@ -36,7 +36,10 @@ public:
 	void clearWorkSpace();
 	
 	template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
-	void solve_impl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
+	void solve_impl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x) requires (not Oracle::hasApplyPrecond);
+	
+	template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
+	void solve_impl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x) requires (Oracle::hasApplyPrecond);
 private:
 	Scalar* m_gk = nullptr;
 	Scalar* m_sk = nullptr;

@@ -1,5 +1,6 @@
 #include <LNOT/LinearSolvers/CoupledLanczosSolver.hpp>
-#include <LNOT/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
+#include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
 
 namespace LNOT
 {

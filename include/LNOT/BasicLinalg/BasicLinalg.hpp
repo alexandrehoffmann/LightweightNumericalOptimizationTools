@@ -108,6 +108,6 @@ template<typename Scalar, typename Size> void solve_Lt_inplace(const Scalar* __r
 } // namespace BasicLinalg
 }
 
-#include <LNOT/BasicLinalg_impl.hpp>
+#include <LNOT/BasicLinalg/BasicLinalg_impl.hpp>
 
 #endif // LNOT_BASIC_LINALG_HPP

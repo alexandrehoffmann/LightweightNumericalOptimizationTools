@@ -30,11 +30,13 @@ template<class Derived> struct OracleTraits;
  * It may also implement:
  * - getGradient()
  * - getHessianProd()
+ * - applyPrecond()
  * An OracleTraits must be specialized for Derived that defines:
  * - Scalar, the Scalar type used by the Oracle, typically float or double
  * - Size, the Size type, typically int, unsigned int, size_t
  * - hasGradient, a boolean constexpr true, if Derived implements getGradient()
  * - hasHessianProd, a boolean constexpr true, if Derived implements getHessianProd()
+ * - hasApplyPrecond, a boolean constexpr true, if Derived implements applyPrecond()
  */
 template<class Derived>
 class OracleBase
@@ -44,11 +46,13 @@ public:
 	using Size   = typename DerivedTraits::Size;   ///<  @brief Type representing the number of dimensions (variables) of the function.
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief Scalar type used in evaluations.
 
-	static constexpr bool hasGradient    = DerivedTraits::hasGradient;
-	static constexpr bool hasHessianProd = DerivedTraits::hasHessianProd;
+	static constexpr bool hasGradient     = DerivedTraits::hasGradient;
+	static constexpr bool hasHessianProd  = DerivedTraits::hasHessianProd;
+	static constexpr bool hasApplyPrecond = DerivedTraits::hasApplyPrecond;
 
 	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
 	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
+	
 	/**
 	 * @brief Get the number of dimensions (variables) of the function.
 	 * 
@@ -57,6 +61,7 @@ public:
 	 * @return Number of variables (dimension of the domain).
 	 */
 	Size getNDims() const { return derived_cast().getNDims(); }
+	
 	/**
 	 * @brief Set the point at which the function will be evaluated.
 	 * 
@@ -66,6 +71,7 @@ public:
 	 * @param x Pointer to an array representing the current point \f$x \in \mathbb{R}^d\f$.
 	 */
 	void setCurrentPoint(const Scalar* x) { derived_cast().setCurrentPoint(x); }
+	
 	/**
 	 * @brief Get the function value \f$f(x)\f$ at the current point.
 	 * 
@@ -74,6 +80,7 @@ public:
 	 * @return The function value at the current point.
 	 */
 	Scalar getValue() const { return derived_cast().getValue(); }
+	
 	/**
 	 * @brief Get the gradient \f$\nabla f(x)\f$ at the current point.
 	 * 
@@ -84,6 +91,7 @@ public:
 	 * @param g Pointer to an array to store the gradient values.
 	 */
 	void getGradient(Scalar* g) const requires (hasGradient) { derived_cast().getGradient(g); }
+	
 	/**
 	 * @brief Compute the Hessian-vector product \f$\nabla^2 f(x)d\f$.
 	 * 
@@ -95,6 +103,18 @@ public:
 	 * @param Hd Output array for the result of the Hessian-vector product.
 	 */
 	void getHessianProd(const Scalar* d, Scalar* Hd) const requires (hasHessianProd) { derived_cast().getHessianProd(d, Hd); }
+	
+	/**
+	 * @brief Solves \f$B x = y\f$ where \f$B\approx\nabla^2 f(x)\f$ in some norm.
+	 * 
+	 * Enabled only if `hasApplyPrecond == true`.
+	 * 
+	 * Delegates to `Derived::hasApplyPrecond(d, invBd)`.
+	 * 
+	 * @param d  Input direction vector.
+	 * @param Hd Output array for the result of the Hessian-vector product.
+	 */
+	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) { derived_cast().applyPrecond(d, invBd); }
 };
 
 template<class T> struct IsOracle : std::bool_constant< std::is_base_of<OracleBase<T>, T>::value > {};

@@ -1,7 +1,7 @@
 #ifndef LNOT_BASIC_LINALG_IMPL_HPP
 #define LNOT_BASIC_LINALG_IMPL_HPP
 
-#include <LNOT/BasicLinalg.hpp>
+#include <LNOT/BasicLinalg/BasicLinalg.hpp>
 
 namespace LNOT
 {

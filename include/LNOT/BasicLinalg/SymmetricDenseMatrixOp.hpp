@@ -1,7 +1,7 @@
 #ifndef LNOT_SYMMETRIC_DENSE_MATRIX_OP_HPP
 #define LNOT_SYMMETRIC_DENSE_MATRIX_OP_HPP
 
-#include <LNOT/BasicLinalg.hpp>
+#include <LNOT/BasicLinalg/BasicLinalg.hpp>
 
 namespace LNOT
 {
@@ -26,6 +26,6 @@ private:
 
 } // namespace LNOT
 
-#include <LNOT/SymmetricDenseMatrixOp_impl.hpp>
+#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp_impl.hpp>
 
 #endif // LNOT_SYMMETRIC_DENSE_MATRIX_OP_HPP

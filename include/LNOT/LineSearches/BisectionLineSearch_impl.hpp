@@ -2,7 +2,7 @@
 #define LNOT_BISECTION_LINE_SEARCH_IMPL_HPP
 
 #include <LNOT/LineSearches/BisectionLineSearch.hpp>
-#include <LNOT/BasicLinalg.hpp>
+#include <LNOT/BasicLinalg/BasicLinalg.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>
