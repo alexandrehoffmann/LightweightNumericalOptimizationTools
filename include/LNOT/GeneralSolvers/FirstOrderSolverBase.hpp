@@ -1,5 +1,5 @@
-#ifndef LNOT_FIRST_ORDER_MINIMIZER_BASE_HPP
-#define LNOT_FIRST_ORDER_MINIMIZER_BASE_HPP
+#ifndef LNOT_FIRST_ORDER_SOLVER_BASE_HPP
+#define LNOT_FIRST_ORDER_SOLVER_BASE_HPP
 
 #include <LNOT/Oracles/OracleWrapper.hpp>
 
@@ -37,13 +37,13 @@ public:
 		FAILURE,  ///<  Failed to converge
 		BREAKDOWN ///<  Numerical breakdown (e.g., division by zero)
 	};
-	
-	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
-	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
-	
+		
 	template<typename Function>  struct IsFunction  : std::bool_constant< std::is_invocable<Function, const Scalar*>::value > {};                           ///<  @brief Trait to check if Function is a valid callable with signature Scalar(const Scalar*)
 	template<typename Gradient>  struct IsGradient  : std::bool_constant< std::is_invocable<Gradient, const Scalar*, Scalar*>::value > {};                  ///<  @brief Trait to check if Gradient is a valid callable with signature void(const Scalar*, Scalar*)
 	template<typename Function, typename Gradient> struct IsProgram : std::bool_constant< IsFunction<Function>::value and IsGradient<Gradient>::value > {}; ///<  @brief Trait to check if Function + Gradient pair is valid
+	
+	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
+	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
 	
 	// ========================================================================
 	// SOLVER INTERFACES
@@ -59,7 +59,7 @@ public:
 	
 	/// @brief Clear any internal memory or workspace used by the solver.
 	void clearWorkSpace() { derived_cast().clearWorkSpace(); }
-		
+	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle (no initial guess).
 	 * @param oracle An oracle object conforming to FirstOrderOracle_concept.
@@ -164,8 +164,8 @@ protected:
 
 template<class T> struct IsFirstOrderSolver : std::bool_constant< std::is_base_of<FirstOrderSolverBase<T>, T>::value > {}; ///<  @brief Trait to determine if a type derives from FirstOrderSolverBase.
 
-template<class T> concept IsFirstOrderSolver_concept = IsFirstOrderSolver<T>::value;
+template<class T> concept FirstOrderSolver_concept = IsFirstOrderSolver<T>::value;
 
 } // namespace LightOptim
 
-#endif // LNOT_FIRST_ORDER_MINIMIZER_BASE_HPP
+#endif // LNOT_FIRST_ORDER_SOLVER_BASE_HPP
