@@ -87,6 +87,7 @@ public:
 	 * @param H Hessian operator (must satisfy IsHessianOp).
 	 * @param g Gradient vector.
 	 * @param size Problem size.
+	 * @param bc a placeholder for `solveInPlace`.
 	 * @param x Solution vector (output if solveInPlace == false, input and output else).
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
@@ -126,6 +127,7 @@ public:
 	 * @param invB a preconditioner operator (must satisfy IsHessianOp).
 	 * @param g Gradient vector.
 	 * @param size Problem size.
+	 * @param bc a placeholder for `solveInPlace`.
 	 * @param x Solution vector (output if solveInPlace == false, input and output else).
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.

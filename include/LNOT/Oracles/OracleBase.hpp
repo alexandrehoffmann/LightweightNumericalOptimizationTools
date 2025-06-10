@@ -112,7 +112,7 @@ public:
 	 * Delegates to `Derived::hasApplyPrecond(d, invBd)`.
 	 * 
 	 * @param d  Input direction vector.
-	 * @param Hd Output array for the result of the Hessian-vector product.
+	 * @param invBd Output array for the result.
 	 */
 	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) { derived_cast().applyPrecond(d, invBd); }
 };

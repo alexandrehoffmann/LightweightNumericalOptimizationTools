@@ -4,9 +4,9 @@ A list basic tools to solve non-constrainted optimization programs.
 ## Solving a Quadratic Program
 
 We want to solve the following problem:
-$\min_{x\in\mathbb{R}^n} \frac{1}{2}(x, Ax) + (b, x).$
+\f$\min_{x\in\mathbb{R}^n} \frac{1}{2}(x, Ax) + (b, x).\f$
 
-LNOT's linear solver uses matrix-free Hessian operators $d\in\mathbb{R}^n \to Ad\in\mathbb{R}^n$. 
+LNOT's linear solver uses matrix-free Hessian operators \f$d\in\mathbb{R}^n \to Ad\in\mathbb{R}^n\f$. 
 An hessian operator is a *functor* that define a `void operaor() (const Scalar* d, Scalar* Ad)`.
 Writting such operator might be cumbersome. We thus provide the following class:
 ```cpp
@@ -39,7 +39,7 @@ Available solvers :
 
 
 We want to solve the following problem:
-$\min_{x\in\mathbb{R}^n} \frac{1}{2}(x, Ax) + (b, x) \text{s.t.} \|x\|_2\leq\Delta.$
+\f$\min_{x\in\mathbb{R}^n} \frac{1}{2}(x, Ax) + (b, x) \text{s.t.} \|x\|_2\leq\Delta.\f$
 
 We build another type of solver based on Lanczos's iteration Gould *et. al.* [2]:
 ```cpp
@@ -59,21 +59,21 @@ Available solvers :
 
 ## Solving a general unconstrained problem
 
-We now want to solve the following problem $\min_{x\in\mathbb{R}^n} J(x)$ where $J$ is our cost function.
-LNOT's general solvers relly on an *Oracle*, an object that for a given $x$ provides $J(x)$, $\nabla J(x)$ and $\nabla^2 J(x)$. Note that some oracle may not be able to provide $\nabla^2 J(x)$.
+We now want to solve the following problem \f$\min_{x\in\mathbb{R}^n} J(x)\f$ where \f$J\f$ is our cost function.
+LNOT's general solvers relly on an *Oracle*, an object that for a given \f$x\f$ provides \f$J(x)\f$, \f$\nabla J(x)\f$ and \f$\nabla^2 J(x)\f$. Note that some oracle may not be able to provide \f$\nabla^2 J(x)\f$.
 
 ### What is an Oracle ? 
 
 An oracle provides the following functions:
 
 - `Size getNDims() const` the number of dimensions of the problem
-- `void setCurrentPoint(const Scalar* x)` do whatever is necessary to compute $J(x)$, $\nabla J(x)$ and $\nabla^2 J(x)$. *e.g.* for an inverse problem the oracle might discretize the forward and adjoint equation with the model parameter $x$.
-- `Scalar getValue() const` returns $J(x)$
-- `void getGradient(Scalar* g) const` [optional] writes $\nabla J(x)$ in `g`
-- `void getHessianProd(const Scalar* d, Scalar* Hd) const` [optional] writes $\nabla^2 J(x)d$ in `Hd`
-- `void applyPrecond(const Scalar* d, Scalar* invBd) const` [optional] writes $B^-1d$ in `invBd` with $B\approx\nabla^2 J(x)$ in some norm.
+- `void setCurrentPoint(const Scalar* x)` do whatever is necessary to compute \f$J(x)\f$, \f$\nabla J(x)\f$ and \f$\nabla^2 J(x)\f$. *e.g.* for an inverse problem the oracle might discretize the forward and adjoint equation with the model parameter \f$x\f$.
+- `Scalar getValue() const` returns \f$J(x)\f$
+- `void getGradient(Scalar* g) const` [optional] writes \f$\nabla J(x)\f$ in `g`
+- `void getHessianProd(const Scalar* d, Scalar* Hd) const` [optional] writes \f$\nabla^2 J(x)d\f$ in `Hd`
+- `void applyPrecond(const Scalar* d, Scalar* invBd) const` [optional] writes \f$B^{-1}d\f$ in `invBd` with \f$B\approx\nabla^2 J(x)\f$ in some norm.
 
-If a large amout of pre-computation is required to evaluate $J$ and its derivatives, we strongly recommand to write a custom Oracle. 
+If a large amout of pre-computation is required to evaluate \f$J\f$ and its derivatives, we strongly recommand to write a custom Oracle. 
 On the other hand, for a functions such as Rosenbrok's function [4], we can simply define three functors:
 
 ```cpp
@@ -120,18 +120,18 @@ The solver will wrap theses three functors in an *OracleWrapper*.
 
 ### Solving the problem with a Newton/quasi-Newton method
 
-A Newton/quasi-Newton method first computes a descent direction as $d_k = -B_k \nabla J(x_k)$, where $B_k$ is an approximation of the Hessian of $J$, and then computes the step lenght $\alpha_k\in\mathbb{R}$ with a *LineSearch* method.
+A Newton/quasi-Newton method first computes a descent direction as \f$d_k = -B_k \nabla J(x_k)\f$, where \f$B_k\f$ is an approximation of the Hessian of \f$J\f$, and then computes the step lenght \f$\alpha_k\in\mathbb{R}\f$ with a *LineSearch* method.
 
 Lets solve our problem with Newton's method:
 ```cpp
-LNOT::ConjugateGradient<double> cg; // we will compute $d_k$ with the Conjgate Gradient 
-LNOT::BacktrackingLineSearch<double> ls; // we will compute $\alpha_k$ with a Backtracking Linesearch
+LNOT::ConjugateGradient<double> cg; // we will compute \f$d_k\f$ with the Conjgate Gradient 
+LNOT::BacktrackingLineSearch<double> ls; // we will compute \f$\alpha_k\f$ with a Backtracking Linesearch
 auto newtonSolver = LNOT::makeNewtonSolver(cg, ls);
 newtonSolver1.solve(func, grad, hessOp, N, x);
 ```
 We can also solve the problem witn the L-BFGS method [5]:
 ```cpp
-auto lbfgs1 = LNOT::makeLBFGS(ls, 5); // 5 is the number of steps used to estimate $B_k^{-1}$
+auto lbfgs1 = LNOT::makeLBFGS(ls, 5); // 5 is the number of steps used to estimate \f$B_k^{-1}\f$
 lbfgs1.solve(func, grad, N, x); // here we do not need hessOp
 ```
 
@@ -142,12 +142,12 @@ Available Solvers:
 
 Available LineSearches:
 
-- `BacktrackingLineSearch` $\alpha$ is multiplied repeatedly by $\tau<1$ ultil $\alpha$ satisfies the Armijo-Goldstein condition
-- `BisectionLineSearch`Use a bisection method to compute an $\alpha$ that satifies Wolfe's conditions
+- `BacktrackingLineSearch` \f$\alpha\f$ is multiplied repeatedly by \f$\tau<1\f$ ultil \f$\alpha\f$ satisfies the Armijo-Goldstein condition
+- `BisectionLineSearch`Use a bisection method to compute an \f$\alpha\f$ that satifies Wolfe's conditions
 
 ### Solving the problem with a Trust Region Method (TRM)
 
-A TRM first fixes the step length, and searches a step $s_k$ within an *trust region* : $s_k = \arg\min_{s\in\mathbb{R}^n} (s, Hs) + (g,s) \text{s.t.} \|s\|\leq\Delta_k$. 
+A TRM first fixes the step length, and searches a step \f$s_k\f$ within an *trust region* : \f$s_k = \arg\min_{s\in\mathbb{R}^n} (s, Hs) + (g,s) \text{s.t.} \|s\|\leq\Delta_k\f$. 
 ```cpp
 LNOT::LanczosTRSSolver<double> lanczosTrs;
 auto trNewtonSolver = LNOT::makeNewtonSolver(lanczosTrs);

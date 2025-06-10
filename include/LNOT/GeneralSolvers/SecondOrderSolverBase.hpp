@@ -135,6 +135,7 @@ public:
 	 * @param g Gradient functor.
 	 * @param H Hessian-product functor.
 	 * @param size Problem dimension.
+	 * @param bc a placeholder for `solveInPlace`.
 	 * @param x Output solution vector.
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
@@ -149,6 +150,7 @@ public:
 	 * @param H Hessian-product functor.
 	 * @param invB Preconditioner functor.
 	 * @param size Problem dimension.
+	 * @param bc a placeholder for `solveInPlace`.
 	 * @param x Output solution vector.
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
@@ -159,6 +161,7 @@ public:
 	/**
 	 * @brief Solve using a valid FirstOrderOracle with or without an initial guess.
 	 * @param oracle An oracle object.
+	 * @param bc a placeholder for `solveInPlace`.
 	 * @param x Output solution vector.
 	 * 
 	 * Delegates to `Derived::solve_impl()`.

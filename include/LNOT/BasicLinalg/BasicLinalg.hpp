@@ -73,7 +73,7 @@ namespace LDLt
 template<typename Scalar, typename Size> bool compute(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, const Size size, const Scalar shift, Scalar* __restrict__ invDelta, Scalar* __restrict__ l);
 /**
  * @brief Solve \f$LDL^Tx = b\f$ with \f$b = (b1, 0, ..., 0)^T\f$ using precomputed inverse diagonal.
- * @param invDelta Input array of size N. Stores the inverse of D
+ * @param invD Input array of size N. Stores the inverse of D
  * @param l Input array of size N. Stores lower bidiagonal elements (unit diagonal assumed)
  * @param size Matrix size
  * @param b1 First entry of the RHS vector
