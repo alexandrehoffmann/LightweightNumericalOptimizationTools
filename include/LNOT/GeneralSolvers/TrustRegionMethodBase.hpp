@@ -22,12 +22,12 @@ public:
 	void setGammaIncrease(const Scalar& gammaIncrease) { m_gammaIncrease = gammaIncrease; }
 	void setGammaDecrease(const Scalar& gammaDecrease) { m_gammaDecrease = gammaDecrease; }
 protected:
-	Scalar m_etaVerySuccessful = 0.75;
-	Scalar m_etaSuccessful     = 0.25;
-	Scalar m_etaAccept         = 0.;
+	Scalar m_etaVerySuccessful = Scalar(0.75);
+	Scalar m_etaSuccessful     = Scalar(0.25);
+	Scalar m_etaAccept         = Scalar(0.10);
 	
-	Scalar m_gammaIncrease = 2.;
-	Scalar m_gammaDecrease = 0.25;
+	Scalar m_gammaIncrease = Scalar(2.00);
+	Scalar m_gammaDecrease = Scalar(0.25);
 };
 	
 }
