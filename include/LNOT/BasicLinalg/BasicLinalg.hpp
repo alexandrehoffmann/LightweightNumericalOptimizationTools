@@ -38,6 +38,19 @@ template<typename Scalar, typename Size> void axpy(const Scalar alpha, const Sca
 ///  @brief Performs \f$ x = \alpha x \f$
 template<typename Scalar, typename Size> void scal(const Scalar alpha, const Size N, Scalar* __restrict__ x);
 /**
+ * @brief Computes the product between a symmetric matrix and a vector \f$y = Ax\f$ or \f$y = y + Ax\f$
+ * @tparam incrY specifies weither we compute \f$y = Ax\f$ or \f$y = y + Ax\f$
+ * @param layout Specifies whether two-dimensional array storage is row-major or column-major
+ * @param uplo Specifies whether the upper or lower triangular part of the array A is used
+ * @param alpha Scaling factor
+ * @param A An array of size `N*N` that stores either the lower or upper triangular part of the matrix symmetric \f$A\f$
+ * @param x Input vector
+ * @param N Vector/Matrix size
+ * @param y An Input-Output array  
+ */
+template<typename Scalar, typename Size, bool incrY> 
+void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ A, const Scalar* __restrict__ x, const Size N, std::bool_constant<incrY>, Scalar* __restrict__ y);
+/**
  * @brief Performs a Symmetric Rank 1 update of \f$A = A + \alpha xx^T\f$
  * @param layout Specifies whether two-dimensional array storage is row-major or column-major
  * @param uplo Specifies whether the upper or lower triangular part of the array A is used
@@ -46,7 +59,18 @@ template<typename Scalar, typename Size> void scal(const Scalar alpha, const Siz
  * @param N Vector/Matrix size
  * @param A An array of size `N*N` that stores either the lower or upper triangular part of the matrix symmetric \f$A\f$.
  */
-template<typename Scalar, typename Size> void symRk1Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ A);
+template<typename Scalar, typename Size> void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ A);
+/**
+ * @brief Performs a Symmetric Rank 2 update of \f$A = A + \alpha xy^T + \alpha yx^T\f$
+ * @param layout Specifies whether two-dimensional array storage is row-major or column-major
+ * @param uplo Specifies whether the upper or lower triangular part of the array A is used
+ * @param alpha Scaling factor
+ * @param x Input vector
+ * @param y Input vector
+ * @param N Vector/Matrix size
+ * @param A An array of size `N*N` that stores either the lower or upper triangular part of the matrix symmetric \f$A\f$.
+ */
+template<typename Scalar, typename Size> void symRk2Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Scalar* __restrict__ y, const Size N, Scalar* __restrict__ A);
 
 namespace Tridiag
 {

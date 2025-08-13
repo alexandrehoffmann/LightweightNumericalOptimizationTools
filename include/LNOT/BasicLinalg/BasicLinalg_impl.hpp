@@ -81,13 +81,49 @@ void scal(const Scalar alpha, const Size N, Scalar* __restrict__ x)
 	}
 }
 
+template<typename Scalar, typename Size, bool incrY> 
+void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ A, const Scalar* __restrict__ x, const Size N, std::bool_constant<incrY>, Scalar* __restrict__ y)
+{
+	if constexpr (not incrY) { std::fill(y, y + N, 0); }
+	
+	const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
+	const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N;
+	
+	for (Size i=0; i!=N; ++i)
+	{
+		for (Size j=0; j!=i; ++j)
+		{
+			y[i] += alpha*A[i*iStride + j*jStride]*x[j];
+		}
+		y[i] += alpha*A[i*iStride + i*jStride]*x[i];
+		for (Size j=i+1; j!=N; ++j)
+		{
+			y[i] += alpha*A[j*iStride + i*jStride]*x[j];
+		}
+	}
+}
+
+#ifdef LNOT_WITH_BLAS
+template<typename Size, bool incrY> 
+void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const float alpha, const float* A, const float* x, const Size N, std::bool_constant<incrY>, float* y)
+{
+	cblas_ssymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1);
+}
+
+template<typename Size, bool incrY> 
+void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const double alpha, const double* A, const double* x, const Size N, std::bool_constant<incrY>, double* y)
+{
+	cblas_dsymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1);
+}
+#endif // LNOT_WITH_BLAS 
+
 #ifdef LNOT_WITH_BLAS
 template<typename Size> void scal(const float  alpha, const Size N, float*  x) { cblas_sscal(blasint(N), alpha, x, 1); }
 template<typename Size> void scal(const double alpha, const Size N, double* x) { cblas_dscal(blasint(N), alpha, x, 1); }
 #endif // LNOT_WITH_BLAS 
 
 template<typename Scalar, typename Size>
-void symRk1Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ A)
+void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ A)
 {
 	const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
 	const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
@@ -102,8 +138,47 @@ void symRk1Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scal
 }
 
 #ifdef LNOT_WITH_BLAS
-template<typename Size> void symRk1Update(StorageOrder layout, UpLo uplo, const float  alpha, const float*  x, const Size N, float*  A) { cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
-template<typename Size> void symRk1Update(StorageOrder layout, UpLo uplo, const double alpha, const double* x, const Size N, double* A) { cblas_dsyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+template<typename Size> 
+void symRk1Update(const StorageOrder layout, const UpLo uplo, const float  alpha, const float*  x, const Size N, float*  A) 
+{ 
+	cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); 
+}
+
+template<typename Size> 
+void symRk1Update(const StorageOrder layout, const UpLo uplo, const double alpha, const double* x, const Size N, double* A) 
+{ 
+	cblas_dsyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); 
+}
+#endif // LNOT_WITH_BLAS 
+
+
+template<typename Scalar, typename Size>
+void symRk2Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Scalar* __restrict__ y, const Size N, Scalar* __restrict__ A)
+{
+	const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
+	const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
+
+	for (Size i=0; i!=N; ++i)
+	{
+		for (Size j=0; j!=(i+1); ++j)
+		{
+			A[i*iStride + j*jStride] += alpha*x[i]*y[j] + alpha*y[i]*x[j];
+		}
+	}
+}
+
+#ifdef LNOT_WITH_BLAS
+template<typename Size> 
+void symRk2Update(const StorageOrder layout, const UpLo uplo, const float  alpha, const float*  x, const float*  y, const Size N, float*  A) 
+{ 
+	cblas_ssyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); 
+}
+
+template<typename Size> 
+void symRk2Update(const StorageOrder layout, const UpLo uplo, const double alpha, const double* x, const double* y, const Size N, double* A) 
+{ 
+	cblas_dsyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); 
+}
 #endif // LNOT_WITH_BLAS 
 
 namespace Tridiag

@@ -106,11 +106,11 @@ void LBFGS<LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPla
 		{ 
 			m_S[j + curr_i*size] = step_len*m_dk[j];
 			m_Y[j + curr_i*size] = m_gkp1[j] - m_gk[j];
-		};
+		}
 		
 		const Scalar yk_dot_sk = BasicLinalg::inner(m_Y + curr_i*size, m_S + curr_i*size, size);
 		
-		if (yk_dot_sk > yk_dot_sk*std::numeric_limits<Scalar>::epsilon())
+		if (yk_dot_sk > 0)
 		{
 			++curr_i; if (curr_i == m_memory) { curr_i = 0; }
 			rho.push(1. / yk_dot_sk);	

@@ -29,7 +29,7 @@ set(LNOT_COMPILE_WARNINGS
     -flax-vector-conversions
     -pedantic
     -pedantic-errors
-		-Wno-error=array-bounds
+	-Wno-error=array-bounds
 )
 
 # Set default build type if not specified
@@ -99,6 +99,7 @@ set(LNOT_SRC
 	src/LNOT/LineSearch/BisectionLineSearch.cpp
 	#
 	src/LNOT/GeneralSolvers/NewtonSolver.cpp
+	src/LNOT/GeneralSolvers/BFGS.cpp
 	src/LNOT/GeneralSolvers/LBFGS.cpp
 	src/LNOT/GeneralSolvers/NonLinearConjugateGradient.cpp
 	src/LNOT/GeneralSolvers/NewtonTrustRegionSolver.cpp

@@ -2,6 +2,7 @@
 
 #include <fmt/core.h>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #include <span>
 
@@ -63,6 +64,20 @@ int main()
 	nlcg2.solve(func, grad, N, x);
 	
 	fmt::print("NLCG found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), nlcg2.getIterations(), nlcg2.getError(), nlcg2.getValue());
+	
+	auto bfgs1 = LNOT::makeBFGS(bisectLs);
+	bfgs1.setTol(1.0e-11);
+	bfgs1.setOutput(lbfgsBisectLsOut);
+	bfgs1.solve(func, grad, N, x);
+	
+	fmt::print("BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), bfgs1.getIterations(), bfgs1.getError(), bfgs1.getValue());
+
+	auto bfgs2 = LNOT::makeBFGS(backtrackLs);
+	bfgs2.setTol(1.0e-11);
+	bfgs2.setOutput(lbfgsBacktrackLsOut);
+	bfgs2.solve(func, grad, N, x);
+	
+	fmt::print("BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), bfgs2.getIterations(), bfgs2.getError(), bfgs2.getValue());
 	
 	auto lbfgs1 = LNOT::makeLBFGS(bisectLs, 5);
 	lbfgs1.setTol(1.0e-11);
