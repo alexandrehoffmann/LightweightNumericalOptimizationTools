@@ -82,7 +82,7 @@ void NewtonTrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_co
 		const Scalar normS     = BasicLinalg::norm(m_sk, size);
 		const Scalar tol_delta = std::max(delta*m_trsSolver.getTolTR(), std::numeric_limits<Scalar>::epsilon());
 		
-		const bool isStepFeasible       = std::isfinite(fxTrial);
+		const bool isStepFeasible       = oracle.isFeasible();
 		const bool isStepSuccessful     = ared > 0 and ared > pred*TRSBase::m_etaSuccessful;
 		const bool isStepVerySuccessful = ared > 0 and ared > pred*TRSBase::m_etaVerySuccessful;
 		const bool isStepAccepted       = isStepFeasible and ared > 0 and ared > pred*TRSBase::m_etaAccept;

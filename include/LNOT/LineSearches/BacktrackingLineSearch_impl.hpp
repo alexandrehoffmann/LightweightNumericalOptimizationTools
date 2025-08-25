@@ -45,7 +45,7 @@ auto BacktrackingLineSearch<T>::solve(const Scalar* x, const Scalar fx, const Sc
 		
 		if (Base::m_out != nullptr) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, alpha, fx_new, fx, m_armijoConditionConst*alpha*sDotGrad); }
 		
-		if (not std::isfinite(fx_new))
+		if (not oracle.isFeasible())
 		{
 			alpha *= m_tau;
 		}

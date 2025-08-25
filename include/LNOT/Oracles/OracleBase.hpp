@@ -73,6 +73,15 @@ public:
 	void setCurrentPoint(const Scalar* x) { derived_cast().setCurrentPoint(x); }
 	
 	/**
+	 * @brief True if the current point is feasible
+	 * 
+	 * Delegates to `Derived::isFeasible(x)`.
+	 * 
+	 * @return true if the current point is feasible.
+	 */
+	 bool isFeasible() const { return derived_cast().isFeasible(); }
+	
+	/**
 	 * @brief Get the function value \f$f(x)\f$ at the current point.
 	 * 
 	 * Delegates to `Derived::getValue()`.

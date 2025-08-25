@@ -136,7 +136,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_cons
 		
 		++curr_idx; if (curr_idx == m_memory) { curr_idx = 0; }
 		
-		const bool isStepFeasible       = std::isfinite(fxTrial);
+		const bool isStepFeasible       = oracle.isFeasible();
 		const bool isStepSuccessful     = ared > 0 and ared > pred*TRSBase::m_etaSuccessful;
 		const bool isStepVerySuccessful = ared > 0 and ared > pred*TRSBase::m_etaVerySuccessful;
 		const bool isStepAccepted       = isStepFeasible and ared > 0 and ared > pred*TRSBase::m_etaAccept;

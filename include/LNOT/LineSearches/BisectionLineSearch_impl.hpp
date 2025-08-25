@@ -29,6 +29,8 @@ void BisectionLineSearch<T>::clearWorkSpace()
 template<typename T> template<FirstOrderOracle_concept Oracle>
 auto BisectionLineSearch<T>::solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
 {
+	constexpr Scalar inf = std::numeric_limits<Scalar>::infinity();
+	
 	const Size   size     = oracle.getNDims();
 	const Scalar sDotGrad = BasicLinalg::inner(s, gx, size);
 	
@@ -42,7 +44,7 @@ auto BisectionLineSearch<T>::solve(const Scalar* x, const Scalar& fx, const Scal
 	
 	Scalar alpha = 1;
 	Scalar alpha_min = 0;
-	Scalar alpha_max = std::numeric_limits<Scalar>::infinity();
+	Scalar alpha_max = inf;
 	
 	Base::m_info = Info::FAILURE;
 	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#Bisection LineSearch : \n#Iteration alpha\n"); }
@@ -62,7 +64,7 @@ auto BisectionLineSearch<T>::solve(const Scalar* x, const Scalar& fx, const Scal
 		const bool isStepTooShort = new_sDotGrad < m_secondWolfConditionConst*sDotGrad;
 		const bool isStepTooLong  = fx_new > fx + m_firstWolfConditionConst*alpha*sDotGrad;
 				
-		if (not std::isfinite(fx_new))
+		if (not oracle.isFeasible())
 		{
 			alpha_max = alpha;
 			alpha = 0.5*(alpha_max + alpha_min);
@@ -75,7 +77,7 @@ auto BisectionLineSearch<T>::solve(const Scalar* x, const Scalar& fx, const Scal
 		else if (isStepTooShort)
 		{
 			alpha_min = alpha;
-			alpha = (alpha_max == std::numeric_limits<Scalar>::infinity()) ? 2*alpha : 0.5*(alpha_max + alpha_min);
+			alpha = (alpha_max == inf) ? 2*alpha : 0.5*(alpha_max + alpha_min);
 		}
 		else
 		{

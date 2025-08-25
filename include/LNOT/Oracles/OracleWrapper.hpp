@@ -3,6 +3,7 @@
 
 #include <algorithm>   // for std::copy
 #include <type_traits> // for std::is_invocable
+#include <cmath>       // for std::isfinite
 
 #include <LNOT/Oracles/OracleBase.hpp>
 
@@ -60,6 +61,8 @@ public:
 	Size getNDims() const { return m_nDims; }
 
 	void setCurrentPoint(const Scalar* x) { m_x = x; }
+	
+	bool isFeasible() const { return std::isfinite(getValue()); }
 	
 	Scalar getValue() const { return m_function(m_x); }
 
