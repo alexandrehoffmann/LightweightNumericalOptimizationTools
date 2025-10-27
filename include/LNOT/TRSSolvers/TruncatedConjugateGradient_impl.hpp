@@ -83,14 +83,14 @@ void TruncatedConjugateGradient<T>::solve(const Op& H, const Scalar* g, const Si
 
 			if (tau < 0) { Base::m_info = Info::BREAKDOWN; break; } 
 			
-			#pragma omp simd reduction(+:Base::m_modelReduction)
+			#pragma omp simd 
 			for (Size i=0;i !=size; ++i) { Base::m_modelReduction += tau*(x[i]*m_Hp[i] + Scalar(0.5)*tau*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
 			BasicLinalg::axpy(tau, m_p, size, x);
 			break;
 		}
 		else
 		{
-			#pragma omp simd reduction(+:Base::m_modelReduction)
+			#pragma omp simd 
 			for (Size i=0;i !=size; ++i) { Base::m_modelReduction += alpha*(x[i]*m_Hp[i] + Scalar(0.5)*alpha*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
 		}
 		

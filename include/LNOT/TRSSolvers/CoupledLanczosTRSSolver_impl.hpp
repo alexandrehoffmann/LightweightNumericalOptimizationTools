@@ -105,7 +105,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 		}
 		else
 		{
-			#pragma omp simd reduction(+:Base::m_modelReduction)
+			#pragma omp simd 
 			for (Size i=0; i!=size; ++i) { Base::m_modelReduction += invD*eta*(x[i]*m_w[i] + Scalar(0.5)*invD*eta*m_q[i]*m_w[i] + m_q[i]*g[i]); }
 			BasicLinalg::axpy(invD*eta, m_q, size, x);
 			if (BasicLinalg::squaredNorm(x, size) > deltaTol2)
@@ -172,7 +172,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 	{		
 		H(m_q, m_w);
 
-		#pragma omp simd reduction(+:Base::m_modelReduction)
+		#pragma omp simd 
 		for (Size i=0; i!=size; ++i) 
 		{ 
 			const Scalar Hv_i = m_w[i] + l_old*m_w_old[i];
@@ -193,7 +193,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 	{		
 		H(m_q, m_w);
 		
-		#pragma omp simd reduction(+:Base::m_modelReduction)
+		#pragma omp simd 
 		for (Size i=0; i!=size; ++i) 
 		{ 
 			const Scalar Hv_i = m_w[i] + l_old*m_w_old[i];

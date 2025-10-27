@@ -112,7 +112,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 		{
 			#pragma omp simd
 			for (Size i=0; i!=size; ++i) { m_p[i] = invD*(m_v[i] - m_beta.back()*m_p[i]); m_Hp[i] = invD*(m_w[i] - m_beta.back()*m_Hp[i]); } 
-			#pragma omp simd reduction(+:Base::m_modelReduction)
+			#pragma omp simd 
 			for (Size i=0; i!=size; ++i) { Base::m_modelReduction += eta*(x[i]*m_Hp[i] + Scalar(0.5)*eta*m_p[i]*m_Hp[i] + m_p[i]*g[i]); }
 			BasicLinalg::axpy(eta, m_p, size, x);
 			if (BasicLinalg::squaredNorm(x, size) > deltaTol2)
@@ -180,7 +180,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 	{
 		H(m_v, m_w);
 		
-		#pragma omp simd reduction(+:Base::m_modelReduction)
+		#pragma omp simd 
 		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += (*it_h)*(x[i]*m_w[i] + Scalar(0.5)*(*it_h)*m_v[i]*m_w[i] + m_v[i]*g[i]); }
 		
 		BasicLinalg::axpy(*it_h, m_v, size, x);
@@ -197,7 +197,7 @@ void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, c
 	{
 		H(m_v, m_w);
 		
-		#pragma omp simd reduction(+:Base::m_modelReduction)
+		#pragma omp simd 
 		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += m_h.back()*(x[i]*m_w[i] + Scalar(0.5)*m_h.back()*m_v[i]*m_w[i] + m_v[i]*g[i]); }
 		
 		BasicLinalg::axpy(m_h.back(), m_v, size, x);

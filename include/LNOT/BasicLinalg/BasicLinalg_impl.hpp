@@ -3,6 +3,8 @@
 
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
 
+#include <numeric>
+
 namespace LNOT
 {
 namespace BasicLinalg
@@ -18,7 +20,6 @@ Scalar squaredNorm(const Scalar* x, const Size N)
 	{
 #endif // LNOT_WITH_BLAS
 		Scalar res(0); 
-		#pragma omp simd reduction(+:res)
 		for (Size i=0; i!=N; ++i) { res += x[i]*x[i]; } 
 		return res; 
 #ifdef LNOT_WITH_BLAS
@@ -46,7 +47,6 @@ Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N)
 {
 	Scalar res(0);
 	
-	#pragma omp simd reduction(+:res)
 	for (Size i=0; i!=N; ++i) {  res += x[i]*x[i]*w[i]; }
 	
 	return res;
@@ -62,7 +62,6 @@ Scalar inner(const Scalar* x, const Scalar* y, const Size N)
 	{
 #endif // LNOT_WITH_BLAS
 		Scalar res(0); 
-		#pragma omp simd reduction(+:res)
 		for (Size i=0; i!=N; ++i) { res += x[i]*y[i]; } 
 		return res; 
 #ifdef LNOT_WITH_BLAS
@@ -74,7 +73,6 @@ template<typename Scalar, typename Size>
 Scalar weightedInner(const Scalar* x, const Scalar* y, const Scalar* w, const Size N)
 { 
 	Scalar res(0); 
-	#pragma omp simd reduction(+:res)
 	for (Size i=0; i!=N; ++i) { res += x[i]*y[i]*w[i]; } 
 	return res; 
 }
@@ -214,7 +212,6 @@ template<typename Scalar, typename Size>
 Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 {
 	Scalar res(0);
-	#pragma omp simd reduction(+:res)
 	for (Size i=0; i!=Size(N-1); ++i)
 	{
 		res += std::abs(alpha[i]) + 2*std::abs(beta[i]);
