@@ -24,7 +24,7 @@ public:
 	void clearWorkSpace();
 
 	template<FirstOrderOracle_concept Oracle>
-	Scalar solve(const Scalar* x, const Scalar fx, const Scalar* __restrict__ gx, const Scalar* __restrict__ s, Oracle& oracle);
+	Scalar solve(const Scalar* x, const Scalar fx, const Scalar* gx, const Scalar* s, Oracle& oracle);
 private:	
 	Scalar m_tau;
 	Scalar m_armijoConditionConst;

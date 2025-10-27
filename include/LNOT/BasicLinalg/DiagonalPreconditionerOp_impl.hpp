@@ -14,7 +14,7 @@ extern template class DiagonalPreconditionerOp<double>;
 //// method implementations ////
 
 template<typename Scalar>
-DiagonalPreconditionerOp<Scalar>::DiagonalPreconditionerOp(const Scalar* __restrict__ A, const Size size) 
+DiagonalPreconditionerOp<Scalar>::DiagonalPreconditionerOp(const Scalar* A, const Size size) 
 	: m_invD(new Scalar[size])
 	, m_size(size) 
 { 

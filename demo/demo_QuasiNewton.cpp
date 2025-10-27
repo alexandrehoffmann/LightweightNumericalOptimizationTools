@@ -11,7 +11,7 @@ int main()
 	using Size = unsigned int;
 	constexpr Size N = 10;
 	
-	const auto func = [](const double* __restrict__ x)
+	const auto func = [](const double* x)
 	{ 
 		double y(0);
 		for (Size i=0; i!=Size(N-1); ++i)
@@ -20,7 +20,7 @@ int main()
 		}
 		return y;
 	};
-	const auto grad = [](const double* __restrict__ x, double* __restrict__ g)
+	const auto grad = [](const double* x, double* g)
 	{
 		g[0] = -400*x[0]*(x[1] - x[0]*x[0]) + 2*(x[0] - 1);
 		for (Size i=1; i!=Size(N-1); ++i)

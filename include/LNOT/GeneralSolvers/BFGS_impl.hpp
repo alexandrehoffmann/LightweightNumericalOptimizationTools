@@ -25,12 +25,12 @@ extern template class BFGS< BacktrackingLineSearch<double> >;
 template<typename LineSearch> 
 void BFGS<LineSearch>::clearWorkSpace()
 {
-	if (m_gk    != nullptr) { delete[] m_gk;    m_gk      = nullptr; }
-	if (m_gkp1  != nullptr) { delete[] m_gkp1;  m_gkp1    = nullptr; }
-	if (m_sk    != nullptr) { delete[] m_sk;    m_sk      = nullptr; }
-	if (m_yk    != nullptr) { delete[] m_yk;    m_yk      = nullptr; }
-	if (m_uk    != nullptr) { delete[] m_uk;    m_uk = nullptr; }
-	if (m_invBk != nullptr) { delete[] m_invBk; m_invBk   = nullptr; }
+	if (m_gk    != nullptr) { delete[] m_gk;    m_gk    = nullptr; }
+	if (m_gkp1  != nullptr) { delete[] m_gkp1;  m_gkp1  = nullptr; }
+	if (m_sk    != nullptr) { delete[] m_sk;    m_sk    = nullptr; }
+	if (m_yk    != nullptr) { delete[] m_yk;    m_yk    = nullptr; }
+	if (m_uk    != nullptr) { delete[] m_uk;    m_uk    = nullptr; }
+	if (m_invBk != nullptr) { delete[] m_invBk; m_invBk = nullptr; }
 	Base::m_workCapacity = 0;
 }
 

@@ -27,10 +27,10 @@ public:
 	void resizeWorkSpace(const Size newSize);
 	
 	template<typename Op, bool solveInPlace> 
-	void solve_impl(const Op& H, const Scalar* __restrict__ g, const Size size, std::bool_constant<solveInPlace>, Scalar* __restrict__ x) requires (IsHessianOp<Op>::value);
+	void solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (IsHessianOp<Op>::value);
 	
 	template<typename HesOp, typename PrecOp, bool solveInPlace> 
-	void solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* __restrict__ g, const Size size, std::bool_constant<solveInPlace>, Scalar* __restrict__ x) requires (AreHessianOps<HesOp,PrecOp>::value);
+	void solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value);
 
 	Scalar getError        () const { return m_normR;         }
 	Scalar getSquaredError () const { return m_normR*m_normR; }

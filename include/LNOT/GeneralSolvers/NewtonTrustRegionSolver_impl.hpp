@@ -45,7 +45,7 @@ void NewtonTrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_co
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	auto Hk = [&oracle] (const Scalar* __restrict__ d, Scalar* __restrict__ Hd) -> void {	oracle.getHessianProd(d, Hd); };
+	auto Hk = [&oracle] (const Scalar* d, Scalar* Hd) -> void {	oracle.getHessianProd(d, Hd); };
 	
 	Base::m_innerIts.clear();
 	

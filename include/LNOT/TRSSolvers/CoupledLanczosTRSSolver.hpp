@@ -38,7 +38,7 @@ public:
 	
 	Scalar getLambda() const { return m_lambda; } 
 private:
-	bool solveBoundary(const Scalar& __restrict__ gamma, const Scalar& __restrict__ delta);
+	bool solveBoundary(const Scalar& gamma, const Scalar& delta);
 
 	Size m_maxItTr;
 

@@ -58,7 +58,7 @@ void NewtonSolver<LinSolver,LineSearch>::solve_impl(Oracle& oracle, std::bool_co
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	auto Hk = [&oracle] (const Scalar* __restrict__ d, Scalar* __restrict__ Hd) -> void {	oracle.getHessianProd(d, Hd); };
+	auto Hk = [&oracle] (const Scalar* d, Scalar* Hd) -> void {	oracle.getHessianProd(d, Hd); };
 	
 	Base::m_innerIts.clear();
 	
@@ -100,7 +100,7 @@ void NewtonSolver<LinSolver,LineSearch>::solve_impl(Oracle& oracle, std::bool_co
 }
 
 template<typename LinSolver, typename LineSearch> template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
-void NewtonSolver<LinSolver,LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x) requires (Oracle::hasApplyPrecond)
+void NewtonSolver<LinSolver,LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* 	x) requires (Oracle::hasApplyPrecond)
 {
 	const Size size = oracle.getNDims();
 	
@@ -113,8 +113,8 @@ void NewtonSolver<LinSolver,LineSearch>::solve_impl(Oracle& oracle, std::bool_co
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	auto Hk    = [&oracle] (const Scalar* __restrict__ d, Scalar* __restrict__ Hd)    -> void {	oracle.getHessianProd(d, Hd);  };
-	auto invBk = [&oracle] (const Scalar* __restrict__ d, Scalar* __restrict__ invBd) -> void {	oracle.applyPrecond(d, invBd); };
+	auto Hk    = [&oracle] (const Scalar* d, Scalar* Hd)    -> void {	oracle.getHessianProd(d, Hd);  };
+	auto invBk = [&oracle] (const Scalar* d, Scalar* invBd) -> void {	oracle.applyPrecond(d, invBd); };
 	
 	Base::m_innerIts.clear();
 	

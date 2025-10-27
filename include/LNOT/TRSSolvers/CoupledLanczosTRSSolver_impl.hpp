@@ -207,7 +207,7 @@ void CoupledLanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size 
 }
 
 template<typename T>
-bool CoupledLanczosTRSSolver<T>::solveBoundary(const Scalar& __restrict__ gamma, const Scalar& __restrict__ delta)
+bool CoupledLanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta)
 {	
 	namespace TridiagLDLt = BasicLinalg::Tridiag::LDLt;
 	
@@ -235,14 +235,14 @@ bool CoupledLanczosTRSSolver<T>::solveBoundary(const Scalar& __restrict__ gamma,
 		const bool cholSuccess = ldltSuccess and isSpd;
 		if (cholSuccess)
 		{
-			TridiagLDLt::solve_e1(m_invD.data(), m_l.data(), size, -gamma, m_h.data());
+			TridiagLDLt::solveUnit(m_invD.data(), m_l.data(), size, -gamma, m_h.data());
 			const Scalar sqNormH = BasicLinalg::squaredNorm(m_h.data(), size);
 			const Scalar   normH = std::sqrt(sqNormH);
 			
 			if (std::abs(normH - delta) < tol_delta) { return true; }
 			if (lambdaMax - lambdaMin < std::numeric_limits<Scalar>::epsilon()*std::max(lambdaMax, lambdaMin)) { return false; } // empty interval
 			
-			TridiagLDLt::solve_L_inplace(m_l.data(), size, m_h.data());
+			TridiagLDLt::solveInplaceLower(m_l.data(), size, m_h.data());
 			
 			const Scalar sqnorm_w    = BasicLinalg::weightedSquaredNorm(m_h.data(), m_invD.data(), size);
 			const Scalar deltaLambda = ((normH - delta) / delta)*(sqNormH / sqnorm_w);

@@ -9,21 +9,40 @@ namespace BasicLinalg
 {
 
 template<typename Scalar, typename Size>
-Scalar squaredNorm(const Scalar* __restrict__ x, const Size N) 
+Scalar squaredNorm(const Scalar* x, const Size N) 
 { 
-	Scalar res(0); 
-	#pragma omp simd reduction(+:res)
-	for (Size i=0; i!=N; ++i) { res += x[i]*x[i]; } 
-	return res; 
+#ifdef LNOT_WITH_BLAS
+	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_sdot(blasint(N), x, 1, x, 1); }
+	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_ddot(blasint(N), x, 1, x, 1); }
+	else
+	{
+#endif // LNOT_WITH_BLAS
+		Scalar res(0); 
+		#pragma omp simd reduction(+:res)
+		for (Size i=0; i!=N; ++i) { res += x[i]*x[i]; } 
+		return res; 
+#ifdef LNOT_WITH_BLAS
+	}
+#endif // LNOT_WITH_BLAS
 }
 
+template<typename Scalar, typename Size> 
+Scalar norm(const Scalar* x, const Size N) 
+{
 #ifdef LNOT_WITH_BLAS
-template<typename Size> float  squaredNorm(const float*  x, const Size N) { return cblas_sdot(blasint(N), x, 1, x, 1); }
-template<typename Size> double squaredNorm(const double* x, const Size N) { return cblas_ddot(blasint(N), x, 1, x, 1); }
-#endif // LNOT_WITH_BLAS 
+	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_snrm2(blasint(N), x, 1); }
+	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_dnrm2(blasint(N), x, 1); }
+	else
+	{
+#endif // LNOT_WITH_BLAS
+		return std::sqrt(squaredNorm(x, N));
+#ifdef LNOT_WITH_BLAS
+	}
+#endif // LNOT_WITH_BLAS
+} 
 
 template<typename Scalar, typename Size>
-Scalar weightedSquaredNorm(const Scalar* __restrict__ x, const Scalar* __restrict__ w, const Size N)
+Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N)
 {
 	Scalar res(0);
 	
@@ -34,21 +53,25 @@ Scalar weightedSquaredNorm(const Scalar* __restrict__ x, const Scalar* __restric
 }
 
 template<typename Scalar, typename Size>
-Scalar inner(const Scalar* __restrict__ x, const Scalar* __restrict__ y, const Size N)
+Scalar inner(const Scalar* x, const Scalar* y, const Size N)
 { 
-	Scalar res(0); 
-	#pragma omp simd reduction(+:res)
-	for (Size i=0; i!=N; ++i) { res += x[i]*y[i]; } 
-	return res; 
+#ifdef LNOT_WITH_BLAS
+	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_sdot(blasint(N), x, 1, y, 1); }
+	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_ddot(blasint(N), x, 1, y, 1); }
+	else
+	{
+#endif // LNOT_WITH_BLAS
+		Scalar res(0); 
+		#pragma omp simd reduction(+:res)
+		for (Size i=0; i!=N; ++i) { res += x[i]*y[i]; } 
+		return res; 
+#ifdef LNOT_WITH_BLAS
+	}
+#endif // LNOT_WITH_BLAS
 }
 
-#ifdef LNOT_WITH_BLAS
-template<typename Size> float  inner(const float*  x, const float*  y, const Size N) { return cblas_sdot(blasint(N), x, 1, y, 1); }
-template<typename Size> double inner(const double* x, const double* y, const Size N) { return cblas_ddot(blasint(N), x, 1, y, 1); }
-#endif // LNOT_WITH_BLAS 
-
 template<typename Scalar, typename Size>
-Scalar weightedInner(const Scalar* __restrict__ x, const Scalar* __restrict__ y, const Scalar* __restrict__ w, const Size N)
+Scalar weightedInner(const Scalar* x, const Scalar* y, const Scalar* w, const Size N)
 { 
 	Scalar res(0); 
 	#pragma omp simd reduction(+:res)
@@ -57,135 +80,132 @@ Scalar weightedInner(const Scalar* __restrict__ x, const Scalar* __restrict__ y,
 }
 
 template<typename Scalar, typename Size>
-void axpy(const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ y)
+void axpy(const Scalar alpha, const Scalar* x, const Size N, Scalar* y)
 {
-	#pragma omp simd 
-	for (Size i=0; i!=N; ++i)
+#ifdef LNOT_WITH_BLAS
+	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_saxpy(blasint(N), alpha, x, 1, y, 1); }
+	else if constexpr (std::is_same<Scalar, double>::value) { cblas_daxpy(blasint(N), alpha, x, 1, y, 1); }
+	else
 	{
-		y[i] += alpha*x[i];
+#else
+#endif // LNOT_WITH_BLAS
+		#pragma omp simd 
+		for (Size i=0; i!=N; ++i)
+		{
+			y[i] += alpha*x[i];
+		}
+#ifdef LNOT_WITH_BLAS
 	}
+#endif // LNOT_WITH_BLAS
 }
 
-#ifdef LNOT_WITH_BLAS
-template<typename Size> void axpy(const float&  alpha, const float*  x, const Size N, float*  y) { cblas_saxpy(blasint(N), alpha, x, 1, y, 1); }
-template<typename Size> void axpy(const double& alpha, const double* x, const Size N, double* y) { cblas_daxpy(blasint(N), alpha, x, 1, y, 1); }
-#endif // LNOT_WITH_BLAS 
-
 template<typename Scalar, typename Size>
-void scal(const Scalar alpha, const Size N, Scalar* __restrict__ x)
+void scal(const Scalar alpha, const Size N, Scalar* x)
 {
-	#pragma omp simd 
-	for (Size i=0; i!=N; ++i)
+#ifdef LNOT_WITH_BLAS
+	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_sscal(blasint(N), alpha, x, 1); }
+	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dscal(blasint(N), alpha, x, 1); }
+	else
 	{
-		x[i] *= alpha;
+#endif // LNOT_WITH_BLAS
+		#pragma omp simd 
+		for (Size i=0; i!=N; ++i)
+		{
+			x[i] *= alpha;
+		}
+#ifdef LNOT_WITH_BLAS
 	}
+#endif // LNOT_WITH_BLAS
 }
 
 template<typename Scalar, typename Size, bool incrY> 
-void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ A, const Scalar* __restrict__ x, const Size N, std::bool_constant<incrY>, Scalar* __restrict__ y)
+void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, std::bool_constant<incrY>, Scalar* y)
 {
-	if constexpr (not incrY) { std::fill(y, y + N, 0); }
-	
-	const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
-	const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N;
-	
-	for (Size i=0; i!=N; ++i)
+#ifdef LNOT_WITH_BLAS
+	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_ssymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
+	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
+	else
 	{
-		for (Size j=0; j!=i; ++j)
+#endif // LNOT_WITH_BLAS
+		if constexpr (not incrY) { std::fill(y, y + N, 0); }
+		
+		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
+		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N;
+		
+		for (Size i=0; i!=N; ++i)
 		{
-			y[i] += alpha*A[i*iStride + j*jStride]*x[j];
+			#pragma omp simd 
+			for (Size j=0; j!=i; ++j)
+			{
+				y[i] += alpha*A[i*iStride + j*jStride]*x[j];
+			}
+			y[i] += alpha*A[i*iStride + i*jStride]*x[i];
+			#pragma omp simd 
+			for (Size j=i+1; j!=N; ++j)
+			{
+				y[i] += alpha*A[j*iStride + i*jStride]*x[j];
+			}
 		}
-		y[i] += alpha*A[i*iStride + i*jStride]*x[i];
-		for (Size j=i+1; j!=N; ++j)
-		{
-			y[i] += alpha*A[j*iStride + i*jStride]*x[j];
-		}
+#ifdef LNOT_WITH_BLAS
 	}
+#endif // LNOT_WITH_BLAS
 }
-
-#ifdef LNOT_WITH_BLAS
-template<typename Size, bool incrY> 
-void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const float alpha, const float* A, const float* x, const Size N, std::bool_constant<incrY>, float* y)
-{
-	cblas_ssymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1);
-}
-
-template<typename Size, bool incrY> 
-void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const double alpha, const double* A, const double* x, const Size N, std::bool_constant<incrY>, double* y)
-{
-	cblas_dsymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1);
-}
-#endif // LNOT_WITH_BLAS 
-
-#ifdef LNOT_WITH_BLAS
-template<typename Size> void scal(const float  alpha, const Size N, float*  x) { cblas_sscal(blasint(N), alpha, x, 1); }
-template<typename Size> void scal(const double alpha, const Size N, double* x) { cblas_dscal(blasint(N), alpha, x, 1); }
-#endif // LNOT_WITH_BLAS 
 
 template<typename Scalar, typename Size>
-void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ A)
+void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* x, const Size N, Scalar* A)
 {
-	const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
-	const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
-
-	for (Size i=0; i!=N; ++i)
-	{
-		for (Size j=0; j!=(i+1); ++j)
-		{
-			A[i*iStride + j*jStride] += alpha*x[i]*x[j];
-		}
-	}
-}
-
 #ifdef LNOT_WITH_BLAS
-template<typename Size> 
-void symRk1Update(const StorageOrder layout, const UpLo uplo, const float  alpha, const float*  x, const Size N, float*  A) 
-{ 
-	cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); 
+	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+	else
+	{
+#endif // LNOT_WITH_BLAS
+		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
+		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
+	
+		for (Size i=0; i!=N; ++i)
+		{
+			#pragma omp simd 
+			for (Size j=0; j!=(i+1); ++j)
+			{
+				A[i*iStride + j*jStride] += alpha*x[i]*x[j];
+			}
+		}
+#ifdef LNOT_WITH_BLAS
+	}
+#endif // LNOT_WITH_BLAS
 }
-
-template<typename Size> 
-void symRk1Update(const StorageOrder layout, const UpLo uplo, const double alpha, const double* x, const Size N, double* A) 
-{ 
-	cblas_dsyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); 
-}
-#endif // LNOT_WITH_BLAS 
-
 
 template<typename Scalar, typename Size>
-void symRk2Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Scalar* __restrict__ y, const Size N, Scalar* __restrict__ A)
+void symRk2Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scalar* x, const Scalar* y, const Size N, Scalar* A)
 {
-	const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
-	const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
-
-	for (Size i=0; i!=N; ++i)
-	{
-		for (Size j=0; j!=(i+1); ++j)
-		{
-			A[i*iStride + j*jStride] += alpha*x[i]*y[j] + alpha*y[i]*x[j];
-		}
-	}
-}
-
 #ifdef LNOT_WITH_BLAS
-template<typename Size> 
-void symRk2Update(const StorageOrder layout, const UpLo uplo, const float  alpha, const float*  x, const float*  y, const Size N, float*  A) 
-{ 
-	cblas_ssyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); 
+	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_ssyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); }
+	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); }
+	else
+	{
+#endif // LNOT_WITH_BLAS
+		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
+		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
+	
+		for (Size i=0; i!=N; ++i)
+		{
+			#pragma omp simd 
+			for (Size j=0; j!=(i+1); ++j)
+			{
+				A[i*iStride + j*jStride] += alpha*x[i]*y[j] + alpha*y[i]*x[j];
+			}
+		}
+#ifdef LNOT_WITH_BLAS
+	}
+#endif // LNOT_WITH_BLAS
 }
-
-template<typename Size> 
-void symRk2Update(const StorageOrder layout, const UpLo uplo, const double alpha, const double* x, const double* y, const Size N, double* A) 
-{ 
-	cblas_dsyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); 
-}
-#endif // LNOT_WITH_BLAS 
 
 namespace Tridiag
 {
 
 template<typename Scalar, typename Size>
-Scalar norm1(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, const Size N)
+Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 {
 	Scalar res(0);
 	#pragma omp simd reduction(+:res)
@@ -196,60 +216,77 @@ Scalar norm1(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, 
 	return res + std::abs(alpha[N-1]);
 }
 
+// we do not need to call c functions, as there is no need for the  keyword for this function
+
 namespace LDLt
 {
 
 template<typename Scalar, typename Size>
-bool compute(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, const Size size, const Scalar shift, Scalar* __restrict__ invDelta, Scalar* __restrict__ l)
+bool compute(const Scalar* alpha, const Scalar* beta, const Size size, const Scalar shift, Scalar* invDelta, Scalar* l)
 {
-	if ((alpha[0] + shift) < std::numeric_limits<Scalar>::epsilon()) { return false; }
+	constexpr Scalar epsilon = std::numeric_limits<Scalar>::epsilon();
 	
-	invDelta[0] = Scalar(1) / (alpha[0] + shift);
-	if (size == 1) { return true; } 
-	l[0] = beta[0]*invDelta[0];
-	
-	for (Size i=1; i!=Size(size-1);++i)
+	if constexpr (std::is_same<Scalar, float>::value)       { return lnot_tridiag_ldlt_compute_f (alpha, beta, size, shift, epsilon, invDelta, l); }
+	if constexpr (std::is_same<Scalar, double>::value)      { return lnot_tridiag_ldlt_compute_d (alpha, beta, size, shift, epsilon, invDelta, l); }
+	if constexpr (std::is_same<Scalar, long double>::value) { return lnot_tridiag_ldlt_compute_ld(alpha, beta, size, shift, epsilon, invDelta, l); }
+	else
 	{
-		const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
-		if (delta_i < std::numeric_limits<Scalar>::epsilon()) { return false; }
-		invDelta[i] = Scalar(1) / delta_i;
-		l[i] = beta[i]*invDelta[i];
+		if ((alpha[0] + shift) < epsilon) { return false; }
+		
+		invDelta[0] = Scalar(1) / (alpha[0] + shift);
+		if (size == 1) { return true; } 
+		l[0] = beta[0]*invDelta[0];
+		
+		for (Size i=1; i!=Size(size-1);++i)
+		{
+			const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
+			if (delta_i < epsilon) { return false; }
+			invDelta[i] = Scalar(1) / delta_i;
+			l[i] = beta[i]*invDelta[i];
+		}
+		{ 
+			const Size i = Size(size-1);
+			const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
+			if (delta_i < epsilon) { return false; }
+			invDelta[i] = Scalar(1) / delta_i;
+		}
+		
+		return true;
 	}
-	{ 
-		const Size i = Size(size-1);
-		const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
-		if (delta_i < std::numeric_limits<Scalar>::epsilon()) { return false; }
-		invDelta[i] = Scalar(1) / delta_i;
-	}
-	
-	return true;
 }
 
 template<typename Scalar, typename Size>
-void solve_L_e1(const Scalar* __restrict__ l, const Size size, const Scalar b1, Scalar* __restrict__ x)
+void solveLowerUnit(const Scalar* l, const Size size, const Scalar b1, Scalar* x)
 {
 	x[0] = b1;
 	for (Size i=1; i!=size; ++i) { x[i] = -l[i-1]*x[i-1]; }
 }
 
 template<typename Scalar, typename Size>
-void solve_L_inplace(const Scalar* __restrict__ l, const Size size, Scalar* __restrict__ x)
+void solveInplaceLower(const Scalar* l, const Size size, Scalar* x)
 {
 	for (Size i=1; i!=size; ++i) { x[i] -= l[i-1]*x[i-1]; }
 }
 
 template<typename Scalar, typename Size>
-void solve_Lt_inplace(const Scalar* __restrict__ l, const Size size, Scalar* __restrict__ x)
+void solveInplaceUpper(const Scalar* l, const Size size, Scalar* x)
 {
-	for (Size i=Size(size-2); i!=Size(-1); --i) {	x[i] -= l[i]*x[i+1]; }
+	for (Size i=Size(size-2); i!=Size(-1); --i) { x[i] -= l[i]*x[i+1]; }
 }
 
 template<typename Scalar, typename Size>
-void solve_e1(const Scalar* __restrict__ invD, const Scalar* __restrict__ l, const Size size, const Scalar b1, Scalar* __restrict__ x)
+void solveUnit(const Scalar* invD, const Scalar* l, const Size size, const Scalar b1, Scalar* x)
 {
-	solve_L_e1(l, size, b1, x);     // Solve Lz = b
-	for (Size i=0; i!=size; ++i) { x[i] *= invD[i]; }
-	solve_Lt_inplace(l, size, x);   // Solve L^T x = y
+	if constexpr      (std::is_same<Scalar, float>::value)       { lnot_tridiag_ldlt_solveUnit_f (invD, l, lnot_Size(size), b1, x); }
+	else if constexpr (std::is_same<Scalar, double>::value)      { lnot_tridiag_ldlt_solveUnit_d (invD, l, lnot_Size(size), b1, x); }
+	else if constexpr (std::is_same<Scalar, long double>::value) { lnot_tridiag_ldlt_solveUnit_ld(invD, l, lnot_Size(size), b1, x); }
+	else
+	{
+		solveLowerUnit(l, size, b1, x);     // Solve Lz = b
+		#pragma omp simd
+		for (Size i=0; i!=size; ++i) { x[i] *= invD[i]; }
+		solveInplaceUpper(l, size, x);   // Solve L^T x = y
+	}
 }
 
 } // namespace LDLt

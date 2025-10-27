@@ -88,7 +88,7 @@ void LanczosSolver<T>::resizeWorkSpace(const Size newSize)
 }
 
 template<typename T> template<typename Op, bool solveInPlace> 
-void LanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__ g, const Size size, std::bool_constant<solveInPlace>, Scalar* __restrict__ x) requires (IsHessianOp<Op>::value)
+void LanczosSolver<T>::solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (IsHessianOp<Op>::value)
 {
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
@@ -146,17 +146,15 @@ void LanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__ g, con
 		beta_old = beta;
 		l_old    = l;
 		m_normR  = std::abs(eta); 
+		
+		std::copy(m_Bv, m_Bv + size, m_Bv_old);
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) 
-		{ 
-			m_Bv_old[i] = m_Bv[i];
-			m_Bv[i]     = invBeta*m_hat_Bv[i];
-		} 
+		for (Size i=0; i!=size; ++i) { m_Bv[i] = invBeta*m_hat_Bv[i]; }
 	}
 }
 
 template<typename T> template<typename HesOp, typename PrecOp, bool solveInPlace> 
-void LanczosSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* __restrict__ g, const Size size, std::bool_constant<solveInPlace>, Scalar* __restrict__ x) requires (AreHessianOps<HesOp,PrecOp>::value)
+void LanczosSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value)
 {
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
@@ -219,12 +217,9 @@ void LanczosSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scal
 		beta_old = beta;
 		l_old    = l;
 		m_normR  = std::abs(eta); 
+		std::copy(m_Bv, m_Bv + size, m_Bv_old);
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) 
-		{ 
-			m_Bv_old[i] = m_Bv[i];
-			m_Bv[i]     = invBeta*m_hat_Bv[i];
-		}
+		for (Size i=0; i!=size; ++i) { m_Bv[i] = invBeta*m_hat_Bv[i]; }
 	}
 }
 	

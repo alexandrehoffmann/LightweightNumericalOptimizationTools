@@ -7,6 +7,12 @@
 #include <cblas.h>
 #endif // LNOT_WITH_BLAS
 
+/*
+ * somes routines are implemented in C to
+ * take advange of the standard 'restrict' keyword
+ */
+#include <LNOT/BasicLinalg/BasicLinalg.h>
+
 namespace LNOT
 {
 	
@@ -22,21 +28,21 @@ namespace BasicLinalg
 {
 
 ///  @brief Computes \f$\sum_{i=1}^N x_i^2\f$
-template<typename Scalar, typename Size> Scalar squaredNorm(const Scalar* __restrict__ x, const Size N);
+template<typename Scalar, typename Size> Scalar squaredNorm(const Scalar* x, const Size N);
 ///  @brief Computes \f$\|x\|_{\ell^2}\f$
-template<typename Scalar, typename Size> Scalar norm(const Scalar* __restrict__ x, const Size N) { return std::sqrt(squaredNorm(x, N)); } 
+template<typename Scalar, typename Size> Scalar norm(const Scalar* x, const Size N);
 ///  @brief Computes \f$\sum_{i=1}^N w_i x_i^2\f$
-template<typename Scalar, typename Size> Scalar weightedSquaredNorm(const Scalar* __restrict__ x, const Scalar* __restrict__ w, const Size N); 
+template<typename Scalar, typename Size> Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N); 
 ///  @brief Computes \f$\sqrt{\sum_{i=1}^N w_i x_i^2}\f$
-template<typename Scalar, typename Size> Scalar weightedNorm(const Scalar* __restrict__ x, const Scalar* __restrict__ w, const Size N) { return std::sqrt(weightedSquaredNorm(x, w, N)); } 
+template<typename Scalar, typename Size> Scalar weightedNorm(const Scalar* x, const Scalar* w, const Size N) { return std::sqrt(weightedSquaredNorm(x, w, N)); } 
 ///  @brief Computes \f$\sqrt{\sum_{i=1}^N x_i y_i}\f$
-template<typename Scalar, typename Size> Scalar inner(const Scalar* __restrict__ x, const Scalar* __restrict__ y, const Size N);
+template<typename Scalar, typename Size> Scalar inner(const Scalar* x, const Scalar* y, const Size N);
 ///  @brief Computes \f$\sqrt{\sum_{i=1}^N x_i w_i y_i}\f$
-template<typename Scalar, typename Size> Scalar weightedInner(const Scalar* __restrict__ x, const Scalar* __restrict__ y, const Scalar* __restrict__ w, const Size N);
+template<typename Scalar, typename Size> Scalar weightedInner(const Scalar* x, const Scalar* y, const Scalar* w, const Size N);
 ///  @brief Performs \f$ y = y + \alpha x \f$
-template<typename Scalar, typename Size> void axpy(const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ y);
+template<typename Scalar, typename Size> void axpy(const Scalar alpha, const Scalar* x, const Size N, Scalar* y);
 ///  @brief Performs \f$ x = \alpha x \f$
-template<typename Scalar, typename Size> void scal(const Scalar alpha, const Size N, Scalar* __restrict__ x);
+template<typename Scalar, typename Size> void scal(const Scalar alpha, const Size N, Scalar* x);
 /**
  * @brief Computes the product between a symmetric matrix and a vector \f$y = Ax\f$ or \f$y = y + Ax\f$
  * @tparam incrY specifies weither we compute \f$y = Ax\f$ or \f$y = y + Ax\f$
@@ -49,7 +55,7 @@ template<typename Scalar, typename Size> void scal(const Scalar alpha, const Siz
  * @param y An Input-Output array  
  */
 template<typename Scalar, typename Size, bool incrY> 
-void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ A, const Scalar* __restrict__ x, const Size N, std::bool_constant<incrY>, Scalar* __restrict__ y);
+void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, std::bool_constant<incrY>, Scalar* y);
 /**
  * @brief Performs a Symmetric Rank 1 update of \f$A = A + \alpha xx^T\f$
  * @param layout Specifies whether two-dimensional array storage is row-major or column-major
@@ -59,7 +65,7 @@ void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scala
  * @param N Vector/Matrix size
  * @param A An array of size `N*N` that stores either the lower or upper triangular part of the matrix symmetric \f$A\f$.
  */
-template<typename Scalar, typename Size> void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Size N, Scalar* __restrict__ A);
+template<typename Scalar, typename Size> void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* x, const Size N, Scalar* A);
 /**
  * @brief Performs a Symmetric Rank 2 update of \f$A = A + \alpha xy^T + \alpha yx^T\f$
  * @param layout Specifies whether two-dimensional array storage is row-major or column-major
@@ -70,7 +76,7 @@ template<typename Scalar, typename Size> void symRk1Update(const StorageOrder la
  * @param N Vector/Matrix size
  * @param A An array of size `N*N` that stores either the lower or upper triangular part of the matrix symmetric \f$A\f$.
  */
-template<typename Scalar, typename Size> void symRk2Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* __restrict__ x, const Scalar* __restrict__ y, const Size N, Scalar* __restrict__ A);
+template<typename Scalar, typename Size> void symRk2Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* x, const Scalar* y, const Size N, Scalar* A);
 
 namespace Tridiag
 {
@@ -80,7 +86,7 @@ namespace Tridiag
  * @param beta An array of size N-1 that represents the sub-diagonal of \f$T\f$
  * @param N The size of the matrix
  */
-template<typename Scalar, typename Size> Scalar norm1(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, const Size N);
+template<typename Scalar, typename Size> Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N);
 
 namespace LDLt
 {
@@ -94,7 +100,7 @@ namespace LDLt
  * @param l Output array of size N. Stores lower bidiagonal elements (unit diagonal assumed)
  * @return true if factorization succeeded
  */
-template<typename Scalar, typename Size> bool compute(const Scalar* __restrict__ alpha, const Scalar* __restrict__ beta, const Size size, const Scalar shift, Scalar* __restrict__ invDelta, Scalar* __restrict__ l);
+template<typename Scalar, typename Size> bool compute(const Scalar* alpha, const Scalar* beta, const Size size, const Scalar shift, Scalar* invDelta, Scalar* l);
 /**
  * @brief Solve \f$LDL^Tx = b\f$ with \f$b = (b1, 0, ..., 0)^T\f$ using precomputed inverse diagonal.
  * @param invD Input array of size N. Stores the inverse of D
@@ -103,7 +109,7 @@ template<typename Scalar, typename Size> bool compute(const Scalar* __restrict__
  * @param b1 First entry of the RHS vector
  * @param x Output array of size N. Stores the solution
  */
-template<typename Scalar, typename Size> void solve_e1(const Scalar* __restrict__ invD, const Scalar* __restrict__ l, const Size size, const Scalar b1, Scalar* __restrict__ x);
+template<typename Scalar, typename Size> void solveUnit(const Scalar* invD, const Scalar* l, const Size size, const Scalar b1, Scalar* x);
 /**
  * @brief Solve \f$Lx = b\f$ where \f$b = (b1, 0, ..., 0)^T\f$.
  * @param l Input array of size N. Stores lower bidiagonal elements (unit diagonal assumed)
@@ -111,21 +117,21 @@ template<typename Scalar, typename Size> void solve_e1(const Scalar* __restrict_
  * @param b1 First entry of the RHS vector
  * @param x Output array of size N. Stores the solution
  */
-template<typename Scalar, typename Size> void solve_L_e1(const Scalar* __restrict__ l, const Size size, const Scalar b1, Scalar* __restrict__ x);
+template<typename Scalar, typename Size> void solveLowerUnit(const Scalar* l, const Size size, const Scalar b1, Scalar* x);
 /**
  * @brief In-place solution of \f$Lx = b\f$ for general b (overwrites x).
  * @param l Input array of size N. Stores lower bidiagonal elements (unit diagonal assumed)
  * @param size Matrix size
  * @param x Array of size N. On entry, stores b. On exit stores the solution
  */
-template<typename Scalar, typename Size> void solve_L_inplace(const Scalar* __restrict__ l, const Size size, Scalar* __restrict__ x);
+template<typename Scalar, typename Size> void solveInplaceLower(const Scalar* l, const Size size, Scalar* x);
 /**
  * @brief In-place solution of \f$L^Tx = b\f$ for general b (overwrites x).
  * @param l Input array of size N. Stores lower bidiagonal elements (unit diagonal assumed)
  * @param size Matrix size
  * @param x Array of size N. On entry, stores b. On exit stores the solution
  */
-template<typename Scalar, typename Size> void solve_Lt_inplace(const Scalar* __restrict__ l, const Size size, Scalar* __restrict__ x);
+template<typename Scalar, typename Size> void solveInplaceUpper(const Scalar* l, const Size size, Scalar* x);
 }
 
 } // namespace Tridiag

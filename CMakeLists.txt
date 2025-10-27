@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(LightweightNumericalOptimizationTools VERSION 1.0.0 LANGUAGES CXX)
+project(LightweightNumericalOptimizationTools VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -84,8 +84,9 @@ endif()
 set(LNOT_SRC
 	src/LNOT/Containers/CircularBuffer.cpp
 	#
-	src/LNOT/SymmetricDenseMatrixOp.cpp
-	src/LNOT/DiagonalPreconditionerOp.cpp
+	src/LNOT/BasicLinalg/BasicLinalg.c
+	src/LNOT/BasicLinalg/SymmetricDenseMatrixOp.cpp
+	src/LNOT/BasicLinalg/DiagonalPreconditionerOp.cpp
 	#
 	src/LNOT/LinearSolvers/ConjugateGradient.cpp
 	src/LNOT/LinearSolvers/LanczosSolver.cpp

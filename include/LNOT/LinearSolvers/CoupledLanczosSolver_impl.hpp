@@ -64,9 +64,9 @@ extern template void CoupledLanczosSolver<double>::solve_impl(const SymmetricDen
 template<typename T>
 void CoupledLanczosSolver<T>::clearWorkSpace()
 {
-	if (m_v     != nullptr) { delete[] m_v;     m_v     = nullptr; }
+	if (m_v      != nullptr) { delete[] m_v;      m_v      = nullptr; }
 	if (m_Bv     != nullptr) { delete[] m_Bv;     m_Bv     = nullptr; }
-	if (m_q     != nullptr) { delete[] m_q;     m_q     = nullptr; }
+	if (m_q      != nullptr) { delete[] m_q;      m_q      = nullptr; }
 	if (m_hat_Bv != nullptr) { delete[] m_hat_Bv; m_hat_Bv = nullptr; }
 	Base::m_workCapacity = 0;
 }
@@ -78,15 +78,15 @@ void CoupledLanczosSolver<T>::resizeWorkSpace(const Size newSize)
 	{
 		clearWorkSpace();
 		Base::m_workCapacity = newSize;
-		m_v     = new Scalar[Base::m_workCapacity];
+		m_v      = new Scalar[Base::m_workCapacity];
 		m_Bv     = new Scalar[Base::m_workCapacity];
-		m_q     = new Scalar[Base::m_workCapacity];
+		m_q      = new Scalar[Base::m_workCapacity];
 		m_hat_Bv = new Scalar[Base::m_workCapacity];
 	}
 }
 
 template<typename T> template<typename Op, bool solveInPlace> 
-void CoupledLanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__ g, const Size size, std::bool_constant<solveInPlace>, Scalar* __restrict__ x) requires (IsHessianOp<Op>::value)
+void CoupledLanczosSolver<T>::solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (IsHessianOp<Op>::value)
 {
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
@@ -149,7 +149,7 @@ void CoupledLanczosSolver<T>::solve_impl(const Op& H, const Scalar* __restrict__
 }
 
 template<typename T> template<typename HesOp, typename PrecOp, bool solveInPlace> 
-void CoupledLanczosSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* __restrict__ g, const Size size, std::bool_constant<solveInPlace>, Scalar* __restrict__ x) requires (AreHessianOps<HesOp,PrecOp>::value)
+void CoupledLanczosSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value)
 {
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)

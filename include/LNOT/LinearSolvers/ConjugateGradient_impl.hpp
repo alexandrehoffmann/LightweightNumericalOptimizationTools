@@ -86,7 +86,7 @@ void ConjugateGradient<T>::resizeWorkSpace(const Size newSize)
 }
 
 template<typename T> template<typename Op, bool solveInPlace> 
-void ConjugateGradient<T>::solve_impl(const Op& H, const Scalar* __restrict__ g, const Size size, std::bool_constant<solveInPlace>, Scalar* __restrict__ x) requires (IsHessianOp<Op>::value)
+void ConjugateGradient<T>::solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (IsHessianOp<Op>::value)
 {
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
