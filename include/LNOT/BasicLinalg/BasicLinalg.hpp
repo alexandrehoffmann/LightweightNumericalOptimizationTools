@@ -20,8 +20,8 @@ namespace LNOT
 enum class StorageOrder { ROW_MAJOR = CblasRowMajor, COL_MAJOR = CblasColMajor}; ///<  @brief Enum for matrix storage order.
 enum class UpLo         { LOWER = CblasLower, UPPER = CblasUpper};               ///<  @brief Enum that specifies whether the upper or lower triangular part of 
 #else
-enum class StorageOrder { ROW_MAJOR, COL_MAJOR }; ///<  @brief Enum for matrix storage order.
-enum class UpLo         { LOWER, UPPER };         ///<  @brief Enum that specifies whether the upper or lower triangular part of 
+enum class StorageOrder { ROW_MAJOR = LNOT_MAT_ROW_MAJOR, COL_MAJOR = LNOT_MAT_COL_MAJOR }; ///<  @brief Enum for matrix storage order.
+enum class UpLo         { LOWER = LNOT_MAT_LOWER, UPPER = LNOT_MAT_UPPER };         ///<  @brief Enum that specifies whether the upper or lower triangular part of 
 #endif // LNOT_WITH_BLAS
 
 namespace BasicLinalg

@@ -122,28 +122,32 @@ template<typename Scalar, typename Size, bool incrY>
 void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, std::bool_constant<incrY>, Scalar* y)
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_ssymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
+	if      constexpr (std::is_same<Scalar, float>::value)  { cblas_ssymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
 	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
 		if constexpr (not incrY) { std::fill(y, y + N, 0); }
 		
-		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
-		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N;
-		
-		for (Size i=0; i!=N; ++i)
+		if      constexpr (std::is_same<Scalar, float>::value)       { lnot_symMatrixVectorProd_f (lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
+		else if constexpr (std::is_same<Scalar, double>::value)      { lnot_symMatrixVectorProd_d (lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
+		else if constexpr (std::is_same<Scalar, long double>::value) { lnot_symMatrixVectorProd_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
+		else
 		{
-			#pragma omp simd 
-			for (Size j=0; j!=i; ++j)
+			const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
+			const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N;
+			
+			for (Size i=0; i!=N; ++i)
 			{
-				y[i] += alpha*A[i*iStride + j*jStride]*x[j];
-			}
-			y[i] += alpha*A[i*iStride + i*jStride]*x[i];
-			#pragma omp simd 
-			for (Size j=i+1; j!=N; ++j)
-			{
-				y[i] += alpha*A[j*iStride + i*jStride]*x[j];
+				for (Size j=0; j!=i; ++j)
+				{
+					y[i] += alpha*A[i*iStride + j*jStride]*x[j];
+				}
+				y[i] += alpha*A[i*iStride + i*jStride]*x[i];
+				for (Size j=i+1; j!=N; ++j)
+				{
+					y[i] += alpha*A[j*iStride + i*jStride]*x[j];
+				}
 			}
 		}
 #ifdef LNOT_WITH_BLAS
@@ -155,25 +159,26 @@ template<typename Scalar, typename Size>
 void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* x, const Size N, Scalar* A)
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+	if      constexpr (std::is_same<Scalar, float>::value)  { cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
 	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+#else
+	if      constexpr (std::is_same<Scalar, float>::value)  { lnot_symRk1Update_f(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
+	else if constexpr (std::is_same<Scalar, double>::value) { lnot_symRk1Update_d(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
+#endif // LNOT_WITH_BLAS
+	else if constexpr (std::is_same<Scalar, long double>::value) { lnot_symRk1Update_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
 	else
 	{
-#endif // LNOT_WITH_BLAS
 		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
 		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
 	
 		for (Size i=0; i!=N; ++i)
 		{
-			#pragma omp simd 
 			for (Size j=0; j!=(i+1); ++j)
 			{
 				A[i*iStride + j*jStride] += alpha*x[i]*x[j];
 			}
 		}
-#ifdef LNOT_WITH_BLAS
 	}
-#endif // LNOT_WITH_BLAS
 }
 
 template<typename Scalar, typename Size>
@@ -182,23 +187,24 @@ void symRk2Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scal
 #ifdef LNOT_WITH_BLAS
 	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_ssyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); }
 	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); }
+#else
+	if constexpr      (std::is_same<Scalar, float>::value)  { lnot_symRk2Update_f(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
+	else if constexpr (std::is_same<Scalar, double>::value) { lnot_symRk2Update_d(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
+#endif // LNOT_WITH_BLAS
+	else if constexpr (std::is_same<Scalar, long double>::value) { lnot_symRk2Update_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
 	else
 	{
-#endif // LNOT_WITH_BLAS
 		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
 		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
 	
 		for (Size i=0; i!=N; ++i)
 		{
-			#pragma omp simd 
 			for (Size j=0; j!=(i+1); ++j)
 			{
 				A[i*iStride + j*jStride] += alpha*x[i]*y[j] + alpha*y[i]*x[j];
 			}
 		}
-#ifdef LNOT_WITH_BLAS
 	}
-#endif // LNOT_WITH_BLAS
 }
 
 namespace Tridiag

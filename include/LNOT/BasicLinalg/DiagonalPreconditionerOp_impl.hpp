@@ -18,6 +18,7 @@ DiagonalPreconditionerOp<Scalar>::DiagonalPreconditionerOp(const Scalar* A, cons
 	: m_invD(new Scalar[size])
 	, m_size(size) 
 { 
+	#pragma omp simd
 	for (Size i=0; i!=size; ++i) { m_invD[i] = Scalar(1) / A[i*(size + 1)]; } 
 }
 

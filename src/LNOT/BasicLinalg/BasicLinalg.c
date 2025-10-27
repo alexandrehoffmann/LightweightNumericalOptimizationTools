@@ -1,5 +1,95 @@
 #include <LNOT/BasicLinalg/BasicLinalg.h>
 
+#define LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(Scalar, Suffix)\
+	void lnot_symMatrixVectorProd_##Suffix(\
+		const lnot_mat_StorageOrder layout, \
+		const lnot_mat_UpLo uplo, \
+		const Scalar alpha, \
+		const Scalar* LNOT_RESTRICT A, \
+		const Scalar* LNOT_RESTRICT x, \
+		const lnot_Size N, \
+		Scalar* LNOT_RESTRICT y)\
+	{\
+		const lnot_Size iStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? N : 1;\
+		const lnot_Size jStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? 1 : N; \
+	\
+		for (lnot_Size i=0; i!=N; ++i)\
+		{\
+			for (lnot_Size j=0; j!=i; ++j)\
+			{\
+				y[i] += alpha*A[i*iStride + j*jStride]*x[j];\
+			}\
+			y[i] += alpha*A[i*iStride + i*jStride]*x[i];\
+			for (lnot_Size j=i+1; j!=N; ++j)\
+			{\
+				y[i] += alpha*A[j*iStride + i*jStride]*x[j];\
+			}\
+		}\
+	}\
+	\
+
+LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(float, f)
+LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(double, d)
+LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(long double, ld)
+
+#define LNOT_IMPLEMENT_SYM_RK1_UPDATE(Scalar, Suffix)\
+	void lnot_symRk1Update_##Suffix(\
+		const lnot_mat_StorageOrder layout, \
+		const lnot_mat_UpLo         uplo, \
+		const Scalar                alpha, \
+		const Scalar* LNOT_RESTRICT x, \
+		const lnot_Size             N, \
+		Scalar* LNOT_RESTRICT       A)\
+	{\
+		const lnot_Size iStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? N : 1;\
+		const lnot_Size jStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? 1 : N; \
+	\
+		for (lnot_Size i=0; i!=N; ++i)\
+		{\
+			const Scalar alpha_xi = alpha*x[i];\
+			\
+			for (lnot_Size j=0; j!=(i+1); ++j)\
+			{\
+				A[i*iStride + j*jStride] += alpha_xi*x[j];\
+			}\
+		}\
+	}\
+	\
+
+LNOT_IMPLEMENT_SYM_RK1_UPDATE(float, f)
+LNOT_IMPLEMENT_SYM_RK1_UPDATE(double, d)
+LNOT_IMPLEMENT_SYM_RK1_UPDATE(long double, ld)
+
+#define LNOT_IMPLEMENT_SYM_RK2_UPDATE(Scalar, Suffix)\
+	void lnot_symRk2Update_##Suffix(\
+		const lnot_mat_StorageOrder layout, \
+		const lnot_mat_UpLo         uplo, \
+		const Scalar                alpha, \
+		const Scalar* LNOT_RESTRICT x, \
+		const Scalar* LNOT_RESTRICT y, \
+		const lnot_Size             N, \
+		Scalar* LNOT_RESTRICT       A)\
+	{\
+		const lnot_Size iStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? N : 1;\
+		const lnot_Size jStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? 1 : N; \
+	\
+		for (lnot_Size i=0; i!=N; ++i)\
+		{\
+			const Scalar alpha_xi = alpha*x[i];\
+			const Scalar alpha_yi = alpha*y[i];\
+			\
+			for (lnot_Size j=0; j!=(i+1); ++j)\
+			{\
+				A[i*iStride + j*jStride] += alpha_xi*y[j] + alpha_yi*x[j];\
+			}\
+		}\
+	}\
+	\
+
+LNOT_IMPLEMENT_SYM_RK2_UPDATE(float, f)
+LNOT_IMPLEMENT_SYM_RK2_UPDATE(double, d)
+LNOT_IMPLEMENT_SYM_RK2_UPDATE(long double, ld)
+
 #define LNOT_IMPLEMENT_TRIDIAG_LDLT_COMPUTE(Scalar, Suffix)\
 	bool lnot_tridiag_ldlt_compute_##Suffix(\
 		const Scalar* restrict alpha, \

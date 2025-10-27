@@ -14,7 +14,54 @@
 extern "C" {
 #endif // __cplusplus
 
+typedef enum { LNOT_MAT_ROW_MAJOR, LNOT_MAT_COL_MAJOR } lnot_mat_StorageOrder; ///<  @brief Enum for matrix storage order.
+typedef enum { LNOT_MAT_LOWER,     LNOT_MAT_UPPER }     lnot_mat_UpLo;         ///<  @brief Enum that specifies whether the upper or lower triangular part of 
+
 typedef unsigned int lnot_Size;
+
+#define LNOT_DEFINE_SYM_MATRIX_VECTOR_PROD(Scalar, Suffix)\
+	void lnot_symMatrixVectorProd_##Suffix(\
+		const lnot_mat_StorageOrder layout, \
+		const lnot_mat_UpLo uplo, \
+		const Scalar alpha, \
+		const Scalar* LNOT_RESTRICT A, \
+		const Scalar* LNOT_RESTRICT x, \
+		const lnot_Size N, \
+		Scalar* LNOT_RESTRICT y);\
+		\
+
+LNOT_DEFINE_SYM_MATRIX_VECTOR_PROD(float, f)
+LNOT_DEFINE_SYM_MATRIX_VECTOR_PROD(double, d)
+LNOT_DEFINE_SYM_MATRIX_VECTOR_PROD(long double, ld)
+
+#define LNOT_DEFINE_SYM_RK1_UPDATE(Scalar, Suffix)\
+	void lnot_symRk1Update_##Suffix(\
+		const lnot_mat_StorageOrder layout, \
+		const lnot_mat_UpLo         uplo, \
+		const Scalar                alpha, \
+		const Scalar* LNOT_RESTRICT x, \
+		const lnot_Size             N, \
+		Scalar* LNOT_RESTRICT       A);\
+		\
+
+LNOT_DEFINE_SYM_RK1_UPDATE(float, f)
+LNOT_DEFINE_SYM_RK1_UPDATE(double, d)
+LNOT_DEFINE_SYM_RK1_UPDATE(long double, ld)
+
+#define LNOT_DEFINE_SYM_RK2_UPDATE(Scalar, Suffix)\
+	void lnot_symRk2Update_##Suffix(\
+		const lnot_mat_StorageOrder layout, \
+		const lnot_mat_UpLo         uplo, \
+		const Scalar                alpha, \
+		const Scalar* LNOT_RESTRICT x, \
+		const Scalar* LNOT_RESTRICT y, \
+		const lnot_Size             N, \
+		Scalar* LNOT_RESTRICT       A);\
+		\
+
+LNOT_DEFINE_SYM_RK2_UPDATE(float, f)
+LNOT_DEFINE_SYM_RK2_UPDATE(double, d)
+LNOT_DEFINE_SYM_RK2_UPDATE(long double, ld)
 
 #define LNOT_DEFINE_TRIDIAG_LDLT_COMPUTE(Scalar, Suffix)\
 	bool lnot_tridiag_ldlt_compute_##Suffix(\
