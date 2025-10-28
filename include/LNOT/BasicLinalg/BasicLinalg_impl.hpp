@@ -210,15 +210,22 @@ namespace Tridiag
 template<typename Scalar, typename Size>
 Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 {
-	Scalar res(0);
-	for (Size i=0; i!=Size(N-1); ++i)
+	if constexpr      (std::is_same<Scalar, float>::value)       { return lnot_tridiag_norm1_f (alpha, beta, lnot_Size(N)); }
+	else if constexpr (std::is_same<Scalar, double>::value)      { return lnot_tridiag_norm1_d (alpha, beta, lnot_Size(N)); }
+	else if constexpr (std::is_same<Scalar, long double>::value) { return lnot_tridiag_norm1_ld(alpha, beta, lnot_Size(N)); }
+	else
 	{
-		res += std::abs(alpha[i]) + 2*std::abs(beta[i]);
-	}
-	return res + std::abs(alpha[N-1]);
-}
+		if (N == 1) { return std::abs(alpha[0]); }
 
-// we do not need to call c functions, as there is no need for the  keyword for this function
+		Scalar res = std::abs(alpha[0]) + std::abs(beta[0]);
+		#pragma omp simd reduction(max:res)
+		for (Size i=1; i!=Size(N-1); ++i)
+		{
+			res = std::max(res, std::abs(alpha[i]) + std::abs(beta[i]) + std::abs(beta[i-1]));
+		}
+		return std::max(res, std::abs(alpha[N-1]) + std::abs(beta[N-2]));
+	}
+}
 
 namespace LDLt
 {

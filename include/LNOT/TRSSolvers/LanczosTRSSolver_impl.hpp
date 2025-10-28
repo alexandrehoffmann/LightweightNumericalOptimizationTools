@@ -224,7 +224,10 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta
 	m_invD.resize(size);
 	m_l.resize(size-1);
 	
-	Scalar lambdaMin = 0;
+	// estimate lambdaMin and lambdaMax such that
+	// lambda in [lambdaMin, lambdaMax]
+	// then put our initial guess m_lambda, in [lambdaMin, lambdaMax].
+	Scalar lambdaMin = std::max(Scalar(0), std::abs(gamma) / delta - norm1_T);
 	Scalar lambdaMax = std::abs(gamma) / delta + norm1_T;
 	m_lambda = std::max(lambdaMin, std::min(m_lambda, lambdaMax));
 		
@@ -233,6 +236,7 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta
 		const bool ldltSuccess = TridiagLDLt::compute(m_alpha.data(), std::next(m_beta.data()), size, m_lambda, m_invD.data(), m_l.data());
 		const bool isSpd       = std::ranges::all_of(m_invD, [](const Scalar& invDi) -> bool { return invDi > std::numeric_limits<Scalar>::epsilon(); });
 		const bool cholSuccess = ldltSuccess and isSpd;
+		
 		if (cholSuccess)
 		{
 			TridiagLDLt::solveUnit(m_invD.data(), m_l.data(), size, -gamma, m_h.data());

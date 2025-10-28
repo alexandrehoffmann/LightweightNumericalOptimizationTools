@@ -1,5 +1,7 @@
 #include <LNOT/BasicLinalg/BasicLinalg.h>
 
+#include <math.h>
+
 #define LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(Scalar, Suffix)\
 	void lnot_symMatrixVectorProd_##Suffix(\
 		const lnot_mat_StorageOrder layout, \
@@ -88,6 +90,28 @@ LNOT_IMPLEMENT_SYM_RK1_UPDATE(long double, ld)
 LNOT_IMPLEMENT_SYM_RK2_UPDATE(float, f)
 LNOT_IMPLEMENT_SYM_RK2_UPDATE(double, d)
 LNOT_IMPLEMENT_SYM_RK2_UPDATE(long double, ld)
+
+#define LNOT_IMPLEMENT_TRIDIAG_NORM1(Scalar, Suffix)\
+	Scalar lnot_tridiag_norm1_##Suffix(\
+		const Scalar* LNOT_RESTRICT alpha, \
+		const Scalar* LNOT_RESTRICT beta, \
+		const lnot_Size N)\
+	{\
+		if (N == 1) { return lnot_abs_##Suffix(alpha[0]); }\
+	\
+		Scalar res = lnot_abs_##Suffix(alpha[0]) + lnot_abs_##Suffix(beta[0]);\
+        _Pragma("omp simd reduction(max:res)")\
+		for (lnot_Size i=1; i!=(lnot_Size)(N-1); ++i)\
+		{\
+			res = lnot_max_##Suffix(res, lnot_abs_##Suffix(alpha[i]) + lnot_abs_##Suffix(beta[i]) + lnot_abs_##Suffix(beta[i-1]));\
+		}\
+		return lnot_max_##Suffix(res, lnot_abs_##Suffix(alpha[N-1]) + lnot_abs_##Suffix(beta[N-2]));\
+	}\
+	\
+
+LNOT_IMPLEMENT_TRIDIAG_NORM1(float, f)
+LNOT_IMPLEMENT_TRIDIAG_NORM1(double, d)
+LNOT_IMPLEMENT_TRIDIAG_NORM1(long double, ld)
 
 #define LNOT_IMPLEMENT_TRIDIAG_LDLT_COMPUTE(Scalar, Suffix)\
 	bool lnot_tridiag_ldlt_compute_##Suffix(\
