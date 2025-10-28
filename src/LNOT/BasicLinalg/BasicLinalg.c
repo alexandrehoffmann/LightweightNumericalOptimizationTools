@@ -15,11 +15,10 @@
 	\
 		for (lnot_Size i=0; i!=N; ++i)\
 		{\
-			for (lnot_Size j=0; j!=i; ++j)\
+			for (lnot_Size j=0; j!=(i+1); ++j)\
 			{\
 				y[i] += alpha*A[i*iStride + j*jStride]*x[j];\
 			}\
-			y[i] += alpha*A[i*iStride + i*jStride]*x[i];\
 			for (lnot_Size j=i+1; j!=N; ++j)\
 			{\
 				y[i] += alpha*A[j*iStride + i*jStride]*x[j];\

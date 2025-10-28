@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # List of compiler flags
-set(LNOT_COMPILE_WARNINGS
+set(LNOT_GENERAL_COMPILE_COMPILE_OPTIONS
     -fopenmp-simd
     -Wundef
     -Wvarargs
@@ -17,19 +17,32 @@ set(LNOT_COMPILE_WARNINGS
     -Wconversion
     -Wuninitialized
     -Wmissing-declarations
-    -Wrange-loop-construct
     -Wsign-conversion
     -Wshadow
-    -Wnon-virtual-dtor
-    -Wold-style-cast
     -Wcast-align
-    -Woverloaded-virtual
     -Wnull-dereference
     -Wformat=2
     -flax-vector-conversions
     -pedantic
     -pedantic-errors
 	-Wno-error=array-bounds
+)
+
+set(LNOT_COMPILE_C_COMPILE_OPTIONS
+    -Wstrict-prototypes
+    -Wmissing-prototypes
+    -Wnested-externs
+    -Wbad-function-cast
+    -Wmissing-parameter-type
+    -Wimplicit-function-declaration
+    -Wreturn-type
+)
+
+set(LNOT_COMPILE_CXX_COMPILE_OPTIONS
+	-Wrange-loop-construct
+	-Wnon-virtual-dtor
+	-Wold-style-cast
+	-Woverloaded-virtual
 )
 
 # Set default build type if not specified
@@ -40,9 +53,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # === Options ===
-option(LNOT_WITH_BLAS   "Enable BLAS support via pkg-config" OFF)
-option(LNOT_BUILD_DEMO  "Build demo executable" OFF)
-option(LNOT_BUILD_DOC   "Build Doxygen documentation" OFF)
+option(LNOT_WITH_BLAS  "Enable BLAS support via pkg-config" OFF)
+option(LNOT_NATIVE_OPT "Enable CPU-specific optimizations (-march=native -mtune=native)" OFF)
+option(LNOT_BUILD_DEMO "Build demo executable" OFF)
+option(LNOT_BUILD_DOC  "Build Doxygen documentation" OFF)
 
 # === Dependencies ===
 find_package(fmt REQUIRED)
@@ -125,7 +139,19 @@ if(LNOT_WITH_BLAS)
 endif()
 
 target_compile_options(LNOT PUBLIC
-    $<$<COMPILE_LANGUAGE:CXX>:${LNOT_COMPILE_WARNINGS}>
+	$<$<COMPILE_LANGUAGE:C>:${LNOT_GENERAL_COMPILE_COMPILE_OPTIONS} ${LNOT_COMPILE_C_COMPILE_OPTIONS}>
+    $<$<COMPILE_LANGUAGE:CXX>:${LNOT_GENERAL_COMPILE_COMPILE_OPTIONS} ${LNOT_COMPILE_CXX_COMPILE_OPTIONS}>
+)
+
+if(LNOT_NATIVE_OPT)
+    message(STATUS "Enabling native CPU optimizations (-march=native -mtune=native)")
+    target_compile_options(LNOT PRIVATE -march=native -mtune=native)
+endif()
+
+set_source_files_properties(
+    src/LNOT/BasicLinalg/BasicLinalg.c
+    PROPERTIES
+        COMPILE_OPTIONS "-ffast-math"
 )
 
 # === Installation ===
