@@ -137,11 +137,10 @@ void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scala
 			
 			for (Size i=0; i!=N; ++i)
 			{
-				for (Size j=0; j!=i; ++j)
+				for (Size j=0; j!=(i+1); ++j)
 				{
 					y[i] += alpha*A[i*iStride + j*jStride]*x[j];
 				}
-				y[i] += alpha*A[i*iStride + i*jStride]*x[i];
 				for (Size j=i+1; j!=N; ++j)
 				{
 					y[i] += alpha*A[j*iStride + i*jStride]*x[j];
