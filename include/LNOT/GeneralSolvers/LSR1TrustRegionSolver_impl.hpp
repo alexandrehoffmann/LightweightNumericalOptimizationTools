@@ -5,7 +5,6 @@
 #include <LNOT/Containers/CircularBuffer.hpp>
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
-#include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
 
 namespace LNOT
 {
@@ -14,11 +13,9 @@ namespace LNOT
 
 extern template class LSR1TrustRegionSolver< TruncatedConjugateGradient<float> >;
 extern template class LSR1TrustRegionSolver< LanczosTRSSolver<float> >;
-extern template class LSR1TrustRegionSolver< CoupledLanczosTRSSolver<float> >;
 
 extern template class LSR1TrustRegionSolver< TruncatedConjugateGradient<double> >;
 extern template class LSR1TrustRegionSolver< LanczosTRSSolver<double> >;
-extern template class LSR1TrustRegionSolver< CoupledLanczosTRSSolver<double> >;
 
 //// method implementations ////
 
@@ -134,7 +131,8 @@ void LSR1TrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_cons
 		for (Size i=0; i!=size; ++i) { m_Y[i + curr_idx*size] = m_gkp1[i] - m_gk[i]; } // u_k = y_k - Bks_k
 		invRho.push(0);
 		
-		++curr_idx; if (curr_idx == m_memory) { curr_idx = 0; }
+		++curr_idx; 
+		if (curr_idx == m_memory) { curr_idx = 0; }
 		
 		const bool isStepFeasible       = oracle.isFeasible();
 		const bool isStepSuccessful     = ared > 0 and ared > pred*TRSBase::m_etaSuccessful;

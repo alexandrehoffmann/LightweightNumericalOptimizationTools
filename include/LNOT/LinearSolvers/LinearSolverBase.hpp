@@ -7,6 +7,8 @@
 #include <limits>
 #include <algorithm>
 
+#include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
+
 namespace LNOT
 {
 
@@ -41,6 +43,8 @@ public:
 		BREAKDOWN           ///<  Numerical breakdown (e.g., division by zero)
 	};
 	
+	using IdOp = IdentityPreconditionerOp<Scalar>;
+	
 	template<typename HesOp>                  struct IsHessianOp   : std::bool_constant< std::is_invocable<HesOp, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if a type is a valid Hessian operator.
 	template<typename HesOp, typename PrecOp> struct AreHessianOps : std::bool_constant< IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
 
@@ -66,34 +70,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename Op> 
-	void solve(const Op& H, const Scalar* g, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { solve_impl(H, g, size, std::false_type{}, x); }
-	
-	/**
-	 * @brief Solve the system with an initial guess.
-	 * @param H Hessian operator  (must satisfy IsHessianOp).
-	 * @param g Gradient vector.
-	 * @param x0 Initial guess vector.
-	 * @param size Problem size.
-	 * @param x Solution vector (output).
-	 */
-	template<typename Op> 
-	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { std::copy(x0, x0 + size, x); solve_impl(H, g, size, std::true_type{}, x);  }
-	
-	/**
-	 * @brief Solve the system with or without an initial guess.
-	 * 
-	 * Delegates to `Derived::solve_impl()`.
-	 * 
-	 * @param H Hessian operator (must satisfy IsHessianOp).
-	 * @param g Gradient vector.
-	 * @param size Problem size.
-	 * @param bc a placeholder for `solveInPlace`.
-	 * @param x Solution vector (output if solveInPlace == false, input and output else).
-	 * 
-	 * @tparam solveInPlace specifying if x should be used as an initial guess.
-	 */
-	template<typename Op, bool solveInPlace> 
-	void solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsHessianOp<Op>::value) { derived_cast().solve_impl(H, g, size, bc, x); }
+	void solve(const Op& H, const Scalar* g, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); solve(H, I, g, size, x); }
 	
 	/**
 	 * @brief Solve the preconditioned linear system Hx = -g using the provided Hessian operator.
@@ -105,6 +82,17 @@ public:
 	 */
 	template<typename HesOp, typename PrecOp> 
 	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { solve_impl(H, invB, g, size, std::false_type{}, x); }
+	
+	/**
+	 * @brief Solve the system with an initial guess.
+	 * @param H Hessian operator  (must satisfy IsHessianOp).
+	 * @param g Gradient vector.
+	 * @param x0 Initial guess vector.
+	 * @param size Problem size.
+	 * @param x Solution vector (output).
+	 */
+	template<typename Op> 
+	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); solveWithGuess(H, I, g, size, x);  }
 	
 	/**
 	 * @brief Solve the preconditioned system with an initial guess.

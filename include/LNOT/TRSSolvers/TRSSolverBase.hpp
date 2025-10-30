@@ -8,6 +8,8 @@
 #include <limits>
 #include <algorithm>
 
+#include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
+
 namespace LNOT
 {
 	
@@ -23,7 +25,10 @@ public:
 	
 	enum class Info {SUCCESS, FAILURE, BREAKDOWN};
 	
-	template<typename HessianOp> struct IsHessianOp : std::bool_constant< std::is_invocable<HessianOp, const Scalar*, Scalar*>::value > {};
+	using IdOp = IdentityPreconditionerOp<Scalar>;
+	
+	template<typename HesOp>                  struct IsHessianOp   : std::bool_constant< std::is_invocable<HesOp, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if a type is a valid Hessian operator.
+	template<typename HesOp, typename PrecOp> struct AreHessianOps : std::bool_constant< IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
 
 	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
 	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
@@ -34,7 +39,10 @@ public:
 	void clearWorkSpace() { derived_cast().clearWorkSpace(); }
 	
 	template<typename Op> 
-	void solve(const Op& H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value) { derived_cast().solve(H, g, size, delta, x); }
+	void solve(const Op& H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); derived_cast().solve_impl(H, I, g, size, delta, x); }
+	
+	template<typename HesOp, typename PrecOp> 
+	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp, PrecOp>::value) { derived_cast().solve_impl(H, invB, g, size, delta, x); }
 
 	Scalar getError        () const { return derived_cast().getError();        }
 	Scalar getSquaredError () const { return derived_cast().getSquaredError(); }
@@ -53,6 +61,9 @@ public:
 	
 	void setOutput(std::FILE* out) { m_out = out; }
 protected:
+	Scalar getResidualThreshold()        const { return m_tol*std::max(Scalar(1), getError()); }              ///<  @brief Get the residual threshold for which the problem is considered solved.
+	Scalar getSquaredResidualThreshold() const { return m_tol*m_tol*std::max(Scalar(1), getSquaredError()); } ///<  @brief Get the squared residual threshold for which the problem is considered solved. 
+
 	Size   m_maxIt;
 	Scalar m_tol;
 	Scalar m_tolTr;

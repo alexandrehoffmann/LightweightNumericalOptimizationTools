@@ -10,7 +10,8 @@ int main()
 {
 	constexpr unsigned int N = 10;
 	
- 	const double A[N*N] = {4.06221475, 3.05878411, 3.28435976, 2.38055909, 2.41311328,
+ 	const double A[N*N] = {
+	   4.06221475, 3.05878411, 3.28435976, 2.38055909, 2.41311328,
        2.7726784 , 3.69140663, 3.39073922, 3.76682296, 1.71341658,
        3.05878411, 4.06142791, 2.72437461, 2.37025037, 2.85672027,
        2.91818372, 3.71723443, 3.82002084, 3.73158745, 2.39528936,
@@ -39,6 +40,7 @@ int main()
 	std::span<const double> x_view(x, N);
 	
 	LNOT::SymmetricDenseMatrixOp<double> Aop(A, N);
+	
 	LNOT::LanczosTRSSolver<double> lanczosTrs;
 	lanczosTrs.setOutput(stdout);
 	lanczosTrs.solve(Aop, b, N, delta, x);
@@ -58,24 +60,6 @@ int main()
 	fmt::print("  * lambda*(|x| - Delta) = {:10.2e}\n", lanczosTrs.getLambda()*(LNOT::BasicLinalg::norm(x, N) - delta));
 	Aop(x, r); 
 	fmt::print("Predicted model reduction : {}\n", lanczosTrs.getModelReduction());
-	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));
-	
-	LNOT::CoupledLanczosTRSSolver<double> coupledLanczosTr;
-	coupledLanczosTr.setOutput(stdout);
-	coupledLanczosTr.solve(Aop, b, N, delta, x);
-	
-	fmt::print("Lanczos Trust Region found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), coupledLanczosTr.getIterations(), coupledLanczosTr.getError());
-	
-	Aop(x, r);
-	for (unsigned int i=0; i!=N; ++i) { r[i] += coupledLanczosTr.getLambda()*x[i] + b[i];  }
-	
-	fmt::print("KKT : \n");
-	fmt::print("  * (A + lambda I)x + b = {:10.2e}\n", fmt::join(r_view, " "));
-	fmt::print("  * |x| <= Delta ? {}\n", LNOT::BasicLinalg::norm(x, N) <= delta + lanczosTrs.getTolTR());
-	fmt::print("  * lambda >= 0 ? {}\n", coupledLanczosTr.getLambda() >= 0);
-	fmt::print("  * lambda*(|x| - Delta) = {:10.2e}\n", coupledLanczosTr.getLambda()*(LNOT::BasicLinalg::norm(x, N) - delta));
-	Aop(x, r); 
-	fmt::print("Predicted model reduction : {}\n", coupledLanczosTr.getModelReduction());
 	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));
 	
 	LNOT::TruncatedConjugateGradient<double> tcg;

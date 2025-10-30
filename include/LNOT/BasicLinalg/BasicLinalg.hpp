@@ -26,7 +26,8 @@ enum class UpLo         { LOWER = LNOT_MAT_LOWER, UPPER = LNOT_MAT_UPPER };     
 
 namespace BasicLinalg
 {
-
+///  @brief Computes \f$y[i*yStride] <- x[i*xStride] i = 0,\dots, N-1\f$
+template<typename Scalar, typename Size> void stridedCopy(const Scalar* x, const Size xStride, const Size N, Scalar* y, const Size yStride);
 ///  @brief Computes \f$\sum_{i=1}^N x_i^2\f$
 template<typename Scalar, typename Size> Scalar squaredNorm(const Scalar* x, const Size N);
 ///  @brief Computes \f$\|x\|_{\ell^2}\f$

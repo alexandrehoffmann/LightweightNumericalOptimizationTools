@@ -17,27 +17,23 @@ class ConjugateGradient : public LinearSolverBase< ConjugateGradient<T> >
 {
 	using Base = LinearSolverBase< ConjugateGradient<T> >;
 public:
-	using Scalar = typename Base::Scalar; 
-	using Size   = typename Base::Size;   
-	using Info   = typename Base::Info;   
+	using Scalar = typename Base::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
+	using Size   = typename Base::Size;   ///<  @brief The size type used for indexing and loop counters
+	using Info   = typename Base::Info;   ///<  @brief Enumeration indicating solver termination status.
 
-	template<typename Hesp>                   using IsHessianOp   = typename Base::template IsHessianOp<Hesp>;          
-	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>;
+	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>; ///<  @brief Trait to check if two types are both valid Hessian operators.
 	
 	void clearWorkSpace();
 	
 	void resizeWorkSpace(const Size newSize); ///<  @brief reallocate internal memory if `newSize` > `Base::m_workCapacity`.
-	
-	template<typename Op, bool solveInPlace> 
-	void solve_impl(const Op& H, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (IsHessianOp<Op>::value);
-	
+
 	template<typename HesOp, typename PrecOp, bool solveInPlace> 
 	void solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value);
 
-	Scalar getError        () const { return std::sqrt(m_sqNormR); } 
-	Scalar getSquaredError () const { return m_sqNormR;            } 
+	Scalar getError        () const { return std::sqrt(m_precSqNormR); } 
+	Scalar getSquaredError () const { return m_precSqNormR;            } 
 private:
-	Scalar m_sqNormR = 0;
+	Scalar m_precSqNormR = 0;
 
 	Scalar* m_z  = nullptr;
 	Scalar* m_r  = nullptr;

@@ -4,7 +4,6 @@
 #include <LNOT/GeneralSolvers/NewtonTrustRegionSolver.hpp>
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
-#include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
 
 namespace LNOT
 {
@@ -13,11 +12,9 @@ namespace LNOT
 
 extern template class NewtonTrustRegionSolver< TruncatedConjugateGradient<float> >;
 extern template class NewtonTrustRegionSolver< LanczosTRSSolver<float> >;
-extern template class NewtonTrustRegionSolver< CoupledLanczosTRSSolver<float> >;
 
 extern template class NewtonTrustRegionSolver< TruncatedConjugateGradient<double> >;
 extern template class NewtonTrustRegionSolver< LanczosTRSSolver<double> >;
-extern template class NewtonTrustRegionSolver< CoupledLanczosTRSSolver<double> >;
 
 //// method implementations ////
 

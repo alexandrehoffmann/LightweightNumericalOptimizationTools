@@ -4,6 +4,7 @@
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
 #include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
+#include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
 
 #include <algorithm>
 
@@ -19,17 +20,27 @@ extern template class LanczosTRSSolver<float>;
 extern template class LanczosTRSSolver<double>;
 
 // explicit instanciation for float
-extern template void LanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
-extern template void LanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
-extern template void LanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
-extern template void LanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const IdentityPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const IdentityPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const IdentityPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const IdentityPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+
+extern template void LanczosTRSSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const DiagonalPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const DiagonalPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const DiagonalPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<float>::solve_impl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const DiagonalPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
 
 // explicit instanciation for double
-extern template void LanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
-extern template void LanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
-extern template void LanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
-extern template void LanczosTRSSolver<double>::solve(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
-	
+extern template void LanczosTRSSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const IdentityPreconditionerOp<double>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const IdentityPreconditionerOp<double>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const IdentityPreconditionerOp<double>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const IdentityPreconditionerOp<double>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+
+extern template void LanczosTRSSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const DiagonalPreconditionerOp<double>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&  H, const DiagonalPreconditionerOp<double>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&  H, const DiagonalPreconditionerOp<double>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+extern template void LanczosTRSSolver<double>::solve_impl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&  H, const DiagonalPreconditionerOp<double>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);
+
 //// method implementations ////
 
 template<typename T>
@@ -41,169 +52,206 @@ LanczosTRSSolver<T>::LanczosTRSSolver(const Size maxIt, const Scalar tol, const 
 
 template<typename T>
 void LanczosTRSSolver<T>::clearWorkSpace()
-{
-	if (m_v_old != nullptr) { delete[] m_v_old; m_v_old = nullptr; }
-	if (m_v     != nullptr) { delete[] m_v;     m_v     = nullptr; }
-	if (m_p     != nullptr) { delete[] m_p;     m_p     = nullptr; }
-	if (m_Hp    != nullptr) { delete[] m_Hp;    m_Hp    = nullptr; }
-	if (m_w     != nullptr) { delete[] m_w;     m_w     = nullptr; }
+{	
+	if (m_Bv_old != nullptr) { delete[] m_Bv_old; m_Bv_old = nullptr; }
+	if (m_Bv     != nullptr) { delete[] m_Bv;     m_Bv     = nullptr; }
+	if (m_v      != nullptr) { delete[] m_v;      m_v      = nullptr; }
+	if (m_p      != nullptr) { delete[] m_p;      m_p      = nullptr; }
+	if (m_Bp     != nullptr) { delete[] m_Bp;     m_Bp     = nullptr; }
+	if (m_Hp     != nullptr) { delete[] m_Hp;     m_Hp     = nullptr; }
+	if (m_w      != nullptr) { delete[] m_w;      m_w      = nullptr; }
+	
 	Base::m_workCapacity = 0;
 }
 
-template<typename T> template<typename Op> 
-void LanczosTRSSolver<T>::solve(const Op& H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value)
+template<typename T>
+void LanczosTRSSolver<T>::resizeWorkSpace(const Size newSize)
 {
-	if (Base::m_workCapacity < size)
+	if (Base::m_workCapacity < newSize)
 	{
 		clearWorkSpace();
-		Base::m_workCapacity = size;
-		m_v_old  = new Scalar[Base::m_workCapacity];
-		m_v      = new Scalar[Base::m_workCapacity];
-		m_p      = new Scalar[Base::m_workCapacity];
-		m_Hp     = new Scalar[Base::m_workCapacity];
-		m_w      = new Scalar[Base::m_workCapacity];
+		Base::m_workCapacity = newSize;
+		m_Bv_old  = new Scalar[Base::m_workCapacity];
+		m_Bv      = new Scalar[Base::m_workCapacity];
+		m_v       = new Scalar[Base::m_workCapacity];
+		m_p       = new Scalar[Base::m_workCapacity];
+		m_Bp      = new Scalar[Base::m_workCapacity];
+		m_Hp      = new Scalar[Base::m_workCapacity];
+		m_w       = new Scalar[Base::m_workCapacity];
 	}
+}
+
+template<typename T> template<typename HesOp, typename PrecOp> 
+void LanczosTRSSolver<T>::solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value)
+{
+	resizeWorkSpace(size);
+	
 	m_alpha.clear();
 	m_beta.clear();
 	
 	std::fill(x, x + size, 0);
+	Scalar precSqNormX = 0;
+	
 	m_lambda = 0;
 	Base::m_modelReduction = 0;
+	
 	bool isInterior = true;
-	
+	std::fill(m_Bv_old, m_Bv_old + size, 0);
 	#pragma omp simd
-	for (Size i=0; i!=size; ++i) { m_v[i] = -g[i]; } 
+	for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i]; }
 	
-	const Scalar normR0 = BasicLinalg::norm(m_v, size);
+	invB(m_Bv, m_v);
+	
+	const Scalar precNormR0 = std::sqrt(BasicLinalg::inner(m_Bv, m_v, size)); 
 	
 	m_beta.push_back(0);
-	Scalar l_old = 0;
-	Scalar eta = -normR0;
 	
+	Scalar l_old = 0;
+	Scalar eta   = -precNormR0;
+	
+	BasicLinalg::scal(Scalar(1) / eta, size, m_Bv);
 	BasicLinalg::scal(Scalar(1) / eta, size, m_v);
 	
-	std::fill(m_v_old, m_v_old + size, 0);
-	std::fill(m_p,     m_p     + size, 0);
-	std::fill(m_Hp,    m_Hp    + size, 0);
+	std::fill(m_p,  m_p  + size, 0);
+	std::fill(m_Bp, m_Bp + size, 0);
+	std::fill(m_Hp, m_Hp + size, 0);
 	
-	m_normR = normR0;
+	m_precNormR = precNormR0;
 	
-	const Scalar tol = Base::m_tol*m_normR;
+	const Scalar tol       = Base::getResidualThreshold();
 	const Scalar deltaTol2 = (delta + Base::m_tolTr)*(delta + Base::m_tolTr);
 	
 	Base::m_info = Info::FAILURE;
-	if (Base::m_out) { fmt::print(Base::m_out, "#Lanczos TRS solver : \n#Iteration residual lambda tol\n"); }
+	if (Base::m_out) { fmt::print(Base::m_out, "#Preconditioned Lanczos TRS solver : \n#Iteration residual lambda tol\n"); }
+	
+	// first try to solve within the trust region
 	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt and isInterior; ++Base::m_nIt)
 	{
-		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, m_normR, m_lambda, tol); }
-		if (m_normR < tol) { Base::m_info = Info::SUCCESS; return; }
+		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, m_precNormR, m_lambda, tol); }
+		if (m_precNormR < tol) { Base::m_info = Info::SUCCESS; return; }
 		
 		H(m_v, m_w);
+		// m_w = Hv_{k}
 		m_alpha.push_back( BasicLinalg::inner(m_v, m_w, size) );
 		// solve T_k h_k = -\|r_0\|e_1
 		const Scalar d = m_alpha.back() - m_beta.back()*l_old;
 		const Scalar invD = Scalar(1) / d;
+		
 		if (d < std::numeric_limits<Scalar>::epsilon()) 
-		{ 
+		{
 			isInterior = false; 
-			if (not solveBoundary(normR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
+			if (not solveBoundary(precNormR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
 		}
 		else
 		{
 			#pragma omp simd
-			for (Size i=0; i!=size; ++i) { m_p[i] = invD*(m_v[i] - m_beta.back()*m_p[i]); m_Hp[i] = invD*(m_w[i] - m_beta.back()*m_Hp[i]); } 
-			#pragma omp simd 
+			for (Size i=0; i!=size; ++i) 
+			{ 
+				m_p[i]  = invD*(m_v[i]  - m_beta.back()*m_p[i]); 
+				m_Bp[i] = invD*(m_Bv[i] - m_beta.back()*m_Bp[i]); 
+				m_Hp[i] = invD*(m_w[i]  - m_beta.back()*m_Hp[i]); 
+			} 
 			for (Size i=0; i!=size; ++i) { Base::m_modelReduction += eta*(x[i]*m_Hp[i] + Scalar(0.5)*eta*m_p[i]*m_Hp[i] + m_p[i]*g[i]); }
+			
+			precSqNormX += 2*eta*BasicLinalg::inner(x, m_Bp, size) + eta*eta*BasicLinalg::inner(m_p, m_Bp, size);
 			BasicLinalg::axpy(eta, m_p, size, x);
-			if (BasicLinalg::squaredNorm(x, size) > deltaTol2)
+			
+			if (precSqNormX > deltaTol2)
 			{
 				isInterior = false;
-				if (not solveBoundary(normR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
+				if (not solveBoundary(precNormR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
 			}
 		}
 		// resume Lanczos iteration
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_w[i] += -m_alpha.back()*m_v[i] - m_beta.back()*m_v_old[i]; } 
-		m_beta.push_back( BasicLinalg::norm(m_w, size) );
+		for (Size i=0; i!=size; ++i) { m_w[i] += -m_alpha.back()*m_Bv[i] - m_beta.back()*m_Bv_old[i]; }
+		// m_w = \beta_{k}Bv_{k+1}
+		invB(m_w, m_v);
+		m_beta.push_back( std::sqrt(BasicLinalg::inner(m_w, m_v, size)) );
+		
+		const Scalar invBeta = Scalar(1) / m_beta.back();
+		BasicLinalg::scal(invBeta, size, m_v);
+		std::copy(m_Bv, m_Bv + size, m_Bv_old);
+		#pragma omp simd
+		for (Size i=0; i!=size; ++i) { m_Bv[i] = invBeta*m_w[i]; }
+		// prepare next solve
 		if (isInterior)
 		{
-			// prepare next solve
 			const Scalar l = invD*m_beta.back();
 			
-			eta     *= -l;
-			l_old    = l;
-			m_normR  = std::abs(eta);
+			eta         *= -l;
+			l_old        = l;
+			m_precNormR  = std::abs(eta); 
 		}
 		else
 		{
-			m_normR = std::abs(m_beta.back()*m_h.back());
+			m_precNormR = std::abs(m_beta.back()*m_h.back());
 		}
-		const Scalar invBeta = Scalar(1) / m_beta.back();
-		#pragma omp simd
-		for (Size i=0; i!=size; ++i) 
-		{ 
-			m_v_old[i] = m_v[i];
-			m_v[i]     = invBeta*m_w[i];
-		} 
 	}
+	// The solution is located on the boundary of the trust region
 	for (; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
 	{
-		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, m_normR, m_lambda, tol); }
-		if (m_normR < tol) { Base::m_info = Info::SUCCESS; break; }
+		if (Base::m_out)       { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, m_precNormR, m_lambda, tol); }
+		if (m_precNormR < tol) { Base::m_info = Info::SUCCESS; break; }
+		
 		H(m_v, m_w);
+		// m_w = Hv
 		m_alpha.push_back( BasicLinalg::inner(m_v, m_w, size) );
 		
-		if (not solveBoundary(normR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
+		if (not solveBoundary(precNormR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
 		
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_w[i] += -m_alpha.back()*m_v[i] - m_beta.back()*m_v_old[i]; } 
-		m_beta.push_back( BasicLinalg::norm(m_w, size) );
+		for (Size i=0; i!=size; ++i) { m_w[i] += -m_alpha.back()*m_Bv[i] - m_beta.back()*m_Bv_old[i]; }
+		// m_w = \beta_{k}Bv_{k+1}
+		invB(m_w, m_v);
+		m_beta.push_back( std::sqrt(BasicLinalg::inner(m_w, m_v, size)) );
 		
-		m_normR = std::abs(m_beta.back()*m_h.back());
 		const Scalar invBeta = Scalar(1) / m_beta.back();
-		std::copy(m_v, m_v + size, m_v_old);
+		BasicLinalg::scal(invBeta, size, m_v);
+		std::copy(m_Bv, m_Bv + size, m_Bv_old);
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_v[i] = invBeta*m_w[i]; } 
-	}	
+		for (Size i=0; i!=size; ++i) { m_Bv[i] = invBeta*m_w[i]; }
+		
+		m_precNormR = std::abs(m_beta.back()*m_h.back());
+	}
 	// re-run Lanczos iteration to compute x = Vh;
 	using Iterator = typename std::vector<Scalar>::const_iterator;
-	 
+	
 	std::fill(x, x + size, 0);
+	std::fill(m_Bv_old, m_Bv_old + size, 0);
 	Base::m_modelReduction = 0;
-	std::fill(m_v_old, m_v_old + size, 0);
 	#pragma omp simd
-	for (Size i=0; i!=size; ++i) { m_v[i] = g[i] / normR0; } 
+	for (Size i=0; i!=size; ++i) { m_Bv[i] = g[i] / precNormR0; } 
+	
+	invB(m_Bv, m_v);
 	
 	Iterator it_alpha = m_alpha.cbegin();
 	Iterator it_beta  = m_beta.cbegin();
 	for (Iterator it_h = m_h.cbegin(); it_h!=m_h.cend()-1; ++it_h, ++it_alpha, ++it_beta, ++Base::m_nIt)
 	{
 		H(m_v, m_w);
-		
-		#pragma omp simd 
 		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += (*it_h)*(x[i]*m_w[i] + Scalar(0.5)*(*it_h)*m_v[i]*m_w[i] + m_v[i]*g[i]); }
 		
 		BasicLinalg::axpy(*it_h, m_v, size, x);
-		
 		const Scalar invNextBeta = Scalar(1) / *std::next(it_beta);
+		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i)
 		{
-			const Scalar new_v_i = invNextBeta*(m_w[i] - (*it_alpha)*m_v[i] - (*it_beta)*m_v_old[i]);
-			m_v_old[i] = m_v[i];
-			m_v[i] = new_v_i;
+			const Scalar new_Bv_i = invNextBeta*(m_w[i] - (*it_alpha)*m_Bv[i] - (*it_beta)*m_Bv_old[i]);
+			m_Bv_old[i] = m_Bv[i];
+			m_Bv[i] = new_Bv_i;
 		}
+		invB(m_Bv, m_v);
 	}
 	{
 		H(m_v, m_w);
-		
-		#pragma omp simd 
 		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += m_h.back()*(x[i]*m_w[i] + Scalar(0.5)*m_h.back()*m_v[i]*m_w[i] + m_v[i]*g[i]); }
 		
 		BasicLinalg::axpy(m_h.back(), m_v, size, x);
 		
 		++Base::m_nIt;
-	}
+	}	
 }
 
 template<typename T>

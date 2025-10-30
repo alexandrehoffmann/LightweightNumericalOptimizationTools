@@ -53,11 +53,5 @@ int main()
 	
 	fmt::print("Lanczos found : {:.2f} in {} iterations with a final error of {}\n", fmt::join(x_view, " "), lanczos.getIterations(), lanczos.getError());
 	
-	LNOT::CoupledLanczosSolver<double> lanczos2;
-	lanczos2.setOutput(stdout);
-	lanczos2.solve(Aop, Bop, b, N, x);
-	
-	fmt::print("Coupled Lanczos found : {:.2f} in {} iterations with a final error of {}\n", fmt::join(x_view, " "), lanczos2.getIterations(), lanczos2.getError());
-	
 	return EXIT_SUCCESS;
 }

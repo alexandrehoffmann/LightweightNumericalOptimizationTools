@@ -19,20 +19,23 @@ public:
 	using Size   = typename Base::Size;
 	using Info   = typename Base::Info;
 
-	template<typename HessianOp> using IsHessianOp = typename Base::template IsHessianOp<HessianOp>;
+	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>;
 	
 	void clearWorkSpace();
 	
-	template<typename Op> 
-	void solve(const Op& H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value);
+	void resizeWorkSpace(const Size newSize);
 	
-	Scalar getError        () const { return std::sqrt(m_sqNormR); }
-	Scalar getSquaredError () const { return m_sqNormR;            }
+	template<typename HesOp, typename PrecOp> 
+	void solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value);
+	
+	Scalar getError        () const { return std::sqrt(m_precSqNormR); }
+	Scalar getSquaredError () const { return m_precSqNormR;            }
 private:
 	static Scalar getPolyMaxRoot(const Scalar a, const Scalar b, const Scalar c);
 
-	Scalar m_sqNormR = 0;
+	Scalar m_precSqNormR = 0;
 
+	Scalar* m_z  = nullptr;
 	Scalar* m_r  = nullptr;
 	Scalar* m_p  = nullptr;
 	Scalar* m_Hp = nullptr;

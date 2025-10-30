@@ -104,11 +104,9 @@ set(LNOT_SRC
 	#
 	src/LNOT/LinearSolvers/ConjugateGradient.cpp
 	src/LNOT/LinearSolvers/LanczosSolver.cpp
-	src/LNOT/LinearSolvers/CoupledLanczosSolver.cpp
 	#
 	src/LNOT/TRSSolvers/TruncatedConjugateGradient.cpp
 	src/LNOT/TRSSolvers/LanczosTRSSolver.cpp
-	src/LNOT/TRSSolvers/CoupledLanczosTRSSolver.cpp
 	#
 	src/LNOT/LineSearch/BacktrackingLineSearch.cpp
 	src/LNOT/LineSearch/BisectionLineSearch.cpp

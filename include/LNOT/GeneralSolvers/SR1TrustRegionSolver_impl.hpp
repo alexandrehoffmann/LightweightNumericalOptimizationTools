@@ -5,7 +5,6 @@
 #include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
-#include <LNOT/TRSSolvers/CoupledLanczosTRSSolver.hpp>
 
 namespace LNOT
 {
@@ -14,11 +13,9 @@ namespace LNOT
 
 extern template class SR1TrustRegionSolver< TruncatedConjugateGradient<float> >;
 extern template class SR1TrustRegionSolver< LanczosTRSSolver<float> >;
-extern template class SR1TrustRegionSolver< CoupledLanczosTRSSolver<float> >;
 
 extern template class SR1TrustRegionSolver< TruncatedConjugateGradient<double> >;
 extern template class SR1TrustRegionSolver< LanczosTRSSolver<double> >;
-extern template class SR1TrustRegionSolver< CoupledLanczosTRSSolver<double> >;
 
 //// method implementations ////
 

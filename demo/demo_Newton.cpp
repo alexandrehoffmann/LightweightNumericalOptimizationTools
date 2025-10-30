@@ -67,13 +67,11 @@ int main()
 	
 	LNOT::TruncatedConjugateGradient<double> tcg;
 	LNOT::LanczosTRSSolver<double> lanczosTrs;
-	LNOT::CoupledLanczosTRSSolver<double> coupledLanczosTrs;
 	
 	std::FILE* newtonBisectLsOut       = std::fopen("newton_bisect_ls.log", "w");
 	std::FILE* newtonBacktrackLsOut    = std::fopen("newton_backtrack_ls.log", "w");
 	std::FILE* newtonTCGOut            = std::fopen("newton_tcg.log", "w");
 	std::FILE* newtonLanczosOut        = std::fopen("newton_lanczos.log", "w");
-	std::FILE* newtonCoupledLanczosOut = std::fopen("newton_coupled_lanczos.log", "w");
 	
 	auto newtonSolver1 = LNOT::makeNewtonSolver(cg, bisectLs);
 	newtonSolver1.setOutput(newtonBisectLsOut);
@@ -99,17 +97,10 @@ int main()
 	
 	fmt::print("Trut Region Newton with Lanczos solver found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver4.getIterations(), newtonSolver4.getError(), newtonSolver4.getValue());
 	
-	auto newtonSolver5 = LNOT::makeNewtonSolver(coupledLanczosTrs);
-	newtonSolver5.setOutput(newtonCoupledLanczosOut);
-	newtonSolver5.solve(func, grad, hessOp, N, x);
-	
-	fmt::print("Trut Region Newton with coupled Lanczos solver found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver5.getIterations(), newtonSolver5.getError(), newtonSolver5.getValue());
-
 	std::fclose(newtonBisectLsOut);
 	std::fclose(newtonBacktrackLsOut);
 	std::fclose(newtonTCGOut);
 	std::fclose(newtonLanczosOut);
-  std::fclose(newtonCoupledLanczosOut);
   
 	return EXIT_SUCCESS;
 }
