@@ -20,16 +20,16 @@ public:
 	
 	enum class Info {SUCCESS, FAILURE};
 
-	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
-	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
+	const Derived& derived() const { return static_cast<const Derived&>(*this); }
+	      Derived& derived()       { return static_cast<      Derived&>(*this); }
 	
 	LineSearchBase(const Size maxIt = 200000) : m_maxIt(maxIt) {}
 	~LineSearchBase() { clearWorkSpace(); }
 	
-	void clearWorkSpace() { derived_cast().clearWorkSpace(); }
+	void clearWorkSpace() { derived().clearWorkSpace(); }
 	
 	template<FirstOrderOracle_concept Oracle>
-	Scalar solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) { derived_cast().solve(x, fx, gx, s, oracle); }
+	Scalar solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) { return derived().solveImpl(x, fx, gx, s, oracle); }
 	
 	Size getMaxIt   () const { return m_maxIt; }
 	Size iterations () const { return m_nIt;   }

@@ -37,7 +37,7 @@ extern template class NewtonSolver<CoupledLanczosSolver<double>, BacktrackingLin
 
 
 template<typename LinSolver, typename LineSearch> 
-void NewtonSolver<LinSolver,LineSearch>::clearWorkSpace()
+void NewtonSolver<LinSolver,LineSearch>::clearWorkSpaceImpl()
 {
 	if (m_gk != nullptr) { delete[] m_gk; m_gk = nullptr; }
 	if (m_sk != nullptr) { delete[] m_sk; m_sk = nullptr; }
@@ -45,76 +45,21 @@ void NewtonSolver<LinSolver,LineSearch>::clearWorkSpace()
 }
 
 template<typename LinSolver, typename LineSearch> template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
-void NewtonSolver<LinSolver,LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x) requires (not Oracle::hasApplyPrecond)
+void NewtonSolver<LinSolver,LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x) 
 {
 	const Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{
-		clearWorkSpace();
+		clearWorkSpaceImpl();
 		Base::m_workCapacity = size;
 		m_gk = new Scalar[Base::m_workCapacity];
 		m_sk = new Scalar[Base::m_workCapacity];
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	auto Hk = [&oracle] (const Scalar* d, Scalar* Hd) -> void {	oracle.getHessianProd(d, Hd); };
-	
-	Base::m_innerIts.clear();
-	
-	oracle.setCurrentPoint(x);
-	oracle.getGradient(m_gk);
-	
-	Base::m_fx = oracle.getValue();
-	Base::m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
-	
-	const Scalar tol2 = Base::m_tol*Base::m_tol*std::max(Scalar(1), Base::m_squaredNormGrad);
-	
-	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#Newton method\n#Iteration f(x) residual tol\n"); }
-	
-	Base::m_info = Info::FAILURE;
-	for (Base::m_nIt=0;Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
-	{				
-		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, Base::m_fx, Base::m_squaredNormGrad, tol2); }
-		if (Base::m_squaredNormGrad < tol2) { Base::m_info = Info::SUCCESS; break; }
-		m_linsSolver.solve(Hk, m_gk, size, m_sk); 
-		if (m_linsSolver.getInfo() == LinSolver::Info::NEGATIVE_CURVATURE) 
-		{ 
-			#pragma omp simd
-			for (Size i=0; i!=size; ++i) { m_sk[i] = -m_gk[i]; }
-		}
-		Base::m_innerIts.push_back(m_linsSolver.getIterations());
-		
-		const Scalar alpha = m_lineSearch.solve(x, Base::m_fx, m_gk, m_sk, oracle);
-		
-		if (alpha < std::numeric_limits<Scalar>::epsilon()) { Base::m_info = Info::BREAKDOWN; break; }
-		
-		BasicLinalg::axpy(alpha, m_sk, size, x);
-		
-		oracle.setCurrentPoint(x);
-		oracle.getGradient(m_gk);
-		
-		Base::m_fx = oracle.getValue();
-		Base::m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
-	}
-}
-
-template<typename LinSolver, typename LineSearch> template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
-void NewtonSolver<LinSolver,LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* 	x) requires (Oracle::hasApplyPrecond)
-{
-	const Size size = oracle.getNDims();
-	
-	if (Base::m_workCapacity < size)
-	{
-		clearWorkSpace();
-		Base::m_workCapacity = size;
-		m_gk = new Scalar[Base::m_workCapacity];
-		m_sk = new Scalar[Base::m_workCapacity];
-	}
-	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }
-	
-	auto Hk    = [&oracle] (const Scalar* d, Scalar* Hd)    -> void {	oracle.getHessianProd(d, Hd);  };
-	auto invBk = [&oracle] (const Scalar* d, Scalar* invBd) -> void {	oracle.applyPrecond(d, invBd); };
+	const auto Hk    = [&oracle] (const Scalar* d, Scalar* Hd)    -> void { oracle.getHessianProd(d, Hd);  };
+	const auto invBk = [&oracle] (const Scalar* d, Scalar* invBd) -> void { oracle.applyPrecond(d, invBd); };
 	
 	Base::m_innerIts.clear();
 	

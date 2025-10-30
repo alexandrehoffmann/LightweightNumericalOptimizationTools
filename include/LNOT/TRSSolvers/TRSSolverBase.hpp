@@ -30,22 +30,22 @@ public:
 	template<typename HesOp>                  struct IsHessianOp   : std::bool_constant< std::is_invocable<HesOp, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if a type is a valid Hessian operator.
 	template<typename HesOp, typename PrecOp> struct AreHessianOps : std::bool_constant< IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
 
-	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
-	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
+	const Derived& derived() const { return static_cast<const Derived&>(*this); }
+	      Derived& derived()       { return static_cast<      Derived&>(*this); }
 	
 	TRSSolverBase(const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon(), const Scalar tolTr = std::sqrt(std::numeric_limits<Scalar>::epsilon())) : m_maxIt(maxIt), m_tol(tol), m_tolTr(tolTr) {}
 	~TRSSolverBase() { clearWorkSpace(); }
 	      
-	void clearWorkSpace() { derived_cast().clearWorkSpace(); }
+	void clearWorkSpace() { derived().clearWorkSpace(); }
 	
 	template<typename Op> 
-	void solve(const Op& H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); derived_cast().solve_impl(H, I, g, size, delta, x); }
+	void solve(const Op& H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); derived().solveImpl(H, I, g, size, delta, x); }
 	
 	template<typename HesOp, typename PrecOp> 
-	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp, PrecOp>::value) { derived_cast().solve_impl(H, invB, g, size, delta, x); }
+	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp, PrecOp>::value) { derived().solveImpl(H, invB, g, size, delta, x); }
 
-	Scalar getError        () const { return derived_cast().getError();        }
-	Scalar getSquaredError () const { return derived_cast().getSquaredError(); }
+	Scalar getError        () const { return derived().getErrorImpl();        }
+	Scalar getSquaredError () const { return derived().getSquaredErrorImpl(); }
 	
 	Size   getMaxIt      () const { return m_maxIt; }
 	Scalar getTol        () const { return m_tol;   }

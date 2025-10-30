@@ -33,10 +33,10 @@ public:
 	
 	SR1TrustRegionSolver(TRSSolver& trsSolver, const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : Base(maxIt, tol), m_trsSolver(trsSolver) {}
 	
-	void clearWorkSpace();
+	void clearWorkSpaceImpl();
 	
 	template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-	void solve_impl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
+	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
 private:
 	TRSSolver& m_trsSolver;
 	

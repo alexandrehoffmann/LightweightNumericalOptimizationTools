@@ -24,7 +24,7 @@ template<class LinearSolver> struct LinearSolverTraits;
  * @tparam Derived The derived class implementing specific solver behavior.
  * Derived must implement:
  * - void clearWorkSpace()
- * - solve_impl() with an without a preconditioner
+ * - solveImpl() with an without a preconditioner
  */
 template<class Derived>
 class LinearSolverBase
@@ -48,8 +48,8 @@ public:
 	template<typename HesOp>                  struct IsHessianOp   : std::bool_constant< std::is_invocable<HesOp, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if a type is a valid Hessian operator.
 	template<typename HesOp, typename PrecOp> struct AreHessianOps : std::bool_constant< IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
 
-	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
-	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
+	const Derived& derived() const { return static_cast<const Derived&>(*this); }
+	      Derived& derived()       { return static_cast<      Derived&>(*this); }
 	
 	/**
 	 * @brief Construct the solver with optional maximum iterations and tolerance.
@@ -60,7 +60,7 @@ public:
 	~LinearSolverBase() { clearWorkSpace(); }
 	
 	/// @brief Clear any internal memory or workspace used by the solver.
-	void clearWorkSpace() { derived_cast().clearWorkSpace(); }
+	void clearWorkSpace() { derived().clearWorkSpace(); }
 	
 	/**
 	 * @brief Solve the linear system Hx = -g using the provided Hessian operator.
@@ -81,7 +81,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename HesOp, typename PrecOp> 
-	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { solve_impl(H, invB, g, size, std::false_type{}, x); }
+	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { derived().solveImpl(H, invB, g, size, std::false_type{}, x); }
 	
 	/**
 	 * @brief Solve the system with an initial guess.
@@ -92,7 +92,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename Op> 
-	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); solveWithGuess(H, I, g, size, x);  }
+	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); solveWithGuess(H, I, g, x0, size, x);  }
 	
 	/**
 	 * @brief Solve the preconditioned system with an initial guess.
@@ -104,27 +104,10 @@ public:
 	 * @param x Solution vector (output).
 	 */	
 	template<typename HesOp, typename PrecOp> 
-	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { std::copy(x0, x0 + size, x); solve_impl(H, invB, g, size, std::true_type{}, x);  }
+	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { std::copy(x0, x0 + size, x); derived().solveImpl(H, invB, g, size, std::true_type{}, x);  }
 	
-	/**
-	 * @brief Solve the preconditioned system with or without an initial guess.
-	 * 
-	 * Delegates to `Derived::solve_impl()`.
-	 * 
-	 * @param H Hessian operator (must satisfy IsHessianOp).
-	 * @param invB a preconditioner operator (must satisfy IsHessianOp).
-	 * @param g Gradient vector.
-	 * @param size Problem size.
-	 * @param bc a placeholder for `solveInPlace`.
-	 * @param x Solution vector (output if solveInPlace == false, input and output else).
-	 * 
-	 * @tparam solveInPlace specifying if x should be used as an initial guess.
-	 */
-	template<typename HesOp, typename PrecOp, bool solveInPlace> 
-	void solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { derived_cast().solve_impl(H, invB, g, size, bc, x); }
-	
-	Scalar getError        () const { return derived_cast().getError();        } ///<  @brief Get the final error after solving. Delegates to `Derived::getError()`.
-	Scalar getSquaredError () const { return derived_cast().getSquaredError(); } ///<  @brief Get the final squared error after solving. Delegates to `Derived::getSquaredError()`.
+	Scalar getError        () const { return derived().getErrorImpl();        } ///<  @brief Get the final error after solving. Delegates to `Derived::getError()`.
+	Scalar getSquaredError () const { return derived().getSquaredErrorImpl(); } ///<  @brief Get the final squared error after solving. Delegates to `Derived::getSquaredError()`.
 	
 	Size   getMaxIt      () const { return m_maxIt; } ///<  @brief Get the maximum number of iterations allowed
 	Scalar getTol        () const { return m_tol;   } ///<  @brief Get the convergence tolerance.

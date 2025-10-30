@@ -14,8 +14,8 @@ template<typename Scalar, typename Size>
 void stridedCopy(const Scalar* x, const Size xStride, const Size N, Scalar* y, const Size yStride)
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_scopy(blasint(N), x, xStride, y, yStride); }
-	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_dcopy(blasint(N), x, xStride, y, yStride); }
+	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_scopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
+	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_dcopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
 	else
 	{
 #endif // LNOT_WITH_BLAS

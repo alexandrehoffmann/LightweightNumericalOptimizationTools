@@ -26,10 +26,10 @@ public:
 	void resizeWorkSpace(const Size newSize);  ///<  @brief reallocate internal memory if `newSize` > `Base::m_workCapacity`.
 	
 	template<typename HesOp, typename PrecOp, bool solveInPlace> 
-	void solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value);
+	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value);
 
-	Scalar getError        () const { return m_precNormR;             }
-	Scalar getSquaredError () const { return m_precNormR*m_precNormR; }
+	Scalar getErrorImpl        () const { return m_precNormR;             }
+	Scalar getSquaredErrorImpl () const { return m_precNormR*m_precNormR; }
 private:
 	Scalar m_precNormR = 0;
 

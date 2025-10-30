@@ -19,7 +19,7 @@ extern template class NewtonTrustRegionSolver< LanczosTRSSolver<double> >;
 //// method implementations ////
 
 template<typename TRSSolver>
-void NewtonTrustRegionSolver<TRSSolver>::clearWorkSpace()
+void NewtonTrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 {
 	if (m_gk     != nullptr) { delete[] m_gk;     m_gk     = nullptr; }
 	if (m_sk     != nullptr) { delete[] m_sk;     m_sk     = nullptr; }
@@ -28,13 +28,13 @@ void NewtonTrustRegionSolver<TRSSolver>::clearWorkSpace()
 }
 
 template<typename TRSSolver> template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
-void NewtonTrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
+void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
 	const Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{
-		clearWorkSpace();
+		clearWorkSpaceImpl();
 		Base::m_workCapacity = size;
 		m_gk     = new Scalar[Base::m_workCapacity];
 		m_sk     = new Scalar[Base::m_workCapacity];
@@ -42,7 +42,8 @@ void NewtonTrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_co
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	auto Hk = [&oracle] (const Scalar* d, Scalar* Hd) -> void {	oracle.getHessianProd(d, Hd); };
+	const auto Hk    = [&oracle] (const Scalar* d, Scalar* Hd)    -> void { oracle.getHessianProd(d, Hd);  };
+	const auto invBk = [&oracle] (const Scalar* d, Scalar* invBd) -> void { oracle.applyPrecond(d, invBd); };
 	
 	Base::m_innerIts.clear();
 	
@@ -64,7 +65,7 @@ void NewtonTrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_co
 		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, Base::m_fx, delta, Base::m_squaredNormGrad, tol2); }
 		if (Base::m_squaredNormGrad < tol2) { Base::m_info = Info::SUCCESS; break; }
 		
-		m_trsSolver.solve(Hk, m_gk, size, delta, m_sk); 
+		m_trsSolver.solve(Hk, invBk, m_gk, size, delta, m_sk); 
 		
 		Base::m_innerIts.push_back(m_trsSolver.getIterations());
 		

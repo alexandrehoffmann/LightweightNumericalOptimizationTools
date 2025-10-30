@@ -27,7 +27,7 @@ void BisectionLineSearch<T>::clearWorkSpace()
 }
 	
 template<typename T> template<FirstOrderOracle_concept Oracle>
-auto BisectionLineSearch<T>::solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
+auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
 {
 	constexpr Scalar inf = std::numeric_limits<Scalar>::infinity();
 	

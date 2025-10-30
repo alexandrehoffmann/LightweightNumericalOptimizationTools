@@ -23,7 +23,7 @@ extern template class BFGS< BacktrackingLineSearch<double> >;
 //// method implementations ////
 
 template<typename LineSearch> 
-void BFGS<LineSearch>::clearWorkSpace()
+void BFGS<LineSearch>::clearWorkSpaceImpl()
 {
 	if (m_gk    != nullptr) { delete[] m_gk;    m_gk    = nullptr; }
 	if (m_gkp1  != nullptr) { delete[] m_gkp1;  m_gkp1  = nullptr; }
@@ -35,13 +35,13 @@ void BFGS<LineSearch>::clearWorkSpace()
 }
 
 template<typename LineSearch> template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-void BFGS<LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
+void BFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
 	const Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{
-		clearWorkSpace();
+		clearWorkSpaceImpl();
 		Base::m_workCapacity = size;
 
 		m_gk    = new Scalar[Base::m_workCapacity];

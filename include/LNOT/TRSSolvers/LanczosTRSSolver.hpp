@@ -29,10 +29,10 @@ public:
 	void resizeWorkSpace(const Size newSize);
 	
 	template<typename HesOp, typename PrecOp> 
-	void solve_impl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value);
+	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value);
 	
-	Scalar getError        () const { return m_precNormR;             }
-	Scalar getSquaredError () const { return m_precNormR*m_precNormR; }
+	Scalar getErrorImpl        () const { return m_precNormR;             }
+	Scalar getSquaredErrorImpl () const { return m_precNormR*m_precNormR; }
 	
 	Size getMaxItTr() const { return m_maxItTr; }
 	

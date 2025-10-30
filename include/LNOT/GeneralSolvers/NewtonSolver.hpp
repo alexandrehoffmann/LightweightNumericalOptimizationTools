@@ -33,13 +33,10 @@ public:
 	
 	NewtonSolver(LinSolver& linSolver, LineSearch& lineSearch, const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : Base(maxIt, tol), m_linsSolver(linSolver), m_lineSearch(lineSearch) {}
 	
-	void clearWorkSpace();
+	void clearWorkSpaceImpl();
 	
 	template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
-	void solve_impl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x) requires (not Oracle::hasApplyPrecond);
-	
-	template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
-	void solve_impl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x) requires (Oracle::hasApplyPrecond);
+	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
 private:
 	Scalar* m_gk = nullptr;
 	Scalar* m_sk = nullptr;

@@ -18,7 +18,7 @@ void BacktrackingLineSearch<T>::clearWorkSpace()
 }
 
 template<typename T> template<FirstOrderOracle_concept Oracle>
-auto BacktrackingLineSearch<T>::solve(const Scalar* x, const Scalar fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
+auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
 {	
 	const Size   size     = oracle.getNDims();
 	const Scalar sDotGrad = BasicLinalg::inner(s, gx, size);

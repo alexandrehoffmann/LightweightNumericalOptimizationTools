@@ -46,7 +46,7 @@ extern template class NonLinearConjugateGradient<BacktrackingLineSearch<double>,
 //// method implementations ////
 
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy>
-void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::clearWorkSpace()
+void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::clearWorkSpaceImpl()
 {
 	if (m_dk   != nullptr) { delete[] m_dk;   m_dk   = nullptr; }
 	if (m_yk   != nullptr) { delete[] m_yk;   m_yk   = nullptr; }
@@ -56,13 +56,13 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::clearWorkSpace()
 }
 
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy>  template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
+void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
 	const Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{
-		clearWorkSpace();
+		clearWorkSpaceImpl();
 		Base::m_workCapacity = size;
 
 		m_dk   = new Scalar[Base::m_workCapacity];

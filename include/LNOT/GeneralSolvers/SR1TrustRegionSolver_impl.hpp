@@ -20,7 +20,7 @@ extern template class SR1TrustRegionSolver< LanczosTRSSolver<double> >;
 //// method implementations ////
 
 template<typename TRSSolver>
-void SR1TrustRegionSolver<TRSSolver>::clearWorkSpace()
+void SR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 {
 	if (m_gk     != nullptr) { delete[] m_gk;     m_gk     = nullptr; }
 	if (m_gkp1   != nullptr) { delete[] m_gkp1;   m_gkp1   = nullptr; }
@@ -32,14 +32,14 @@ void SR1TrustRegionSolver<TRSSolver>::clearWorkSpace()
 }
 
 template<typename TRSSolver> template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-void SR1TrustRegionSolver<TRSSolver>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
+void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
 	const Scalar sr1DropTol = std::sqrt( std::numeric_limits<Scalar>::epsilon() );
 	const Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{
-		clearWorkSpace();
+		clearWorkSpaceImpl();
 		Base::m_workCapacity = size;
 		m_gk     = new Scalar[Base::m_workCapacity];
 		m_gkp1   = new Scalar[Base::m_workCapacity];

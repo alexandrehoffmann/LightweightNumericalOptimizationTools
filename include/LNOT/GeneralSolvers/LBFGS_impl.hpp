@@ -22,7 +22,7 @@ extern template class LBFGS< BacktrackingLineSearch<double> >;
 //// method implementations ////
 
 template<typename LineSearch> 
-void LBFGS<LineSearch>::clearWorkSpace()
+void LBFGS<LineSearch>::clearWorkSpaceImpl()
 {
 	if (m_gk   != nullptr) { delete[] m_gk;   m_gk   = nullptr; }
 	if (m_gkp1 != nullptr) { delete[] m_gkp1; m_gkp1 = nullptr; }
@@ -33,7 +33,7 @@ void LBFGS<LineSearch>::clearWorkSpace()
 }
 
 template<typename LineSearch> template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-void LBFGS<LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
+void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
 	using CircularBuffer_size = typename CircularBuffer<Scalar>::size_type;
 	
@@ -41,7 +41,7 @@ void LBFGS<LineSearch>::solve_impl(Oracle& oracle, std::bool_constant<solveInPla
 	
 	if (Base::m_workCapacity < size)
 	{
-		clearWorkSpace();
+		clearWorkSpaceImpl();
 		Base::m_workCapacity = size;
 
 		m_gk   = new Scalar[Base::m_workCapacity];
