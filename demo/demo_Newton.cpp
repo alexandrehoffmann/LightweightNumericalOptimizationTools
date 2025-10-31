@@ -75,7 +75,7 @@ int main()
 	
 	LNOT::NewtonSolver<CG, BisectLS> newtonSolver1;
 	newtonSolver1.setOutput(newtonBisectLsOut);
-	newtonSolver1.solve(func, grad, hessOp, precOp, BIC::fixed<unsigned int, N>, x);
+	newtonSolver1.solve(func, grad, hessOp, precOp, N, x);
 	
 	fmt::print("Newton with Bisection LineSrearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver1.getIterations(), newtonSolver1.getError(), newtonSolver1.getValue());
 	
