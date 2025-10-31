@@ -69,6 +69,22 @@ if(LNOT_WITH_BLAS)
     message(STATUS "OpenBLAS found: ${OpenBLAS_INCLUDE_DIRS}")
 endif()
 
+include(FetchContent)
+
+FetchContent_Declare(
+    BIC
+    GIT_REPOSITORY https://github.com/alexandrehoffmann/BetterIntegralConstant.git
+    GIT_TAG main
+)
+
+if(NOT BetterIntegralConstant_POPULATED)
+    message(STATUS "Fetching BetterIntegralConstant...")
+else()
+    message(STATUS "BetterIntegralConstant already available, skipping fetch")
+endif()
+
+FetchContent_MakeAvailable(BIC)
+
 # === Doxygen ===
 if(LNOT_BUILD_DOC)
     find_package(Doxygen REQUIRED dot)
@@ -130,6 +146,7 @@ target_include_directories(LNOT
 )
 
 target_link_libraries(LNOT PUBLIC fmt::fmt)
+target_link_libraries(LNOT PUBLIC BIC)
 
 if(LNOT_WITH_BLAS)
     target_include_directories(LNOT PUBLIC ${OpenBLAS_INCLUDE_DIRS})

@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
+#include <BIC/Core.hpp>
 
 namespace LNOT
 {
@@ -48,6 +49,8 @@ public:
 	template<typename HesOp>                  struct IsHessianOp   : std::bool_constant< std::is_invocable<HesOp, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if a type is a valid Hessian operator.
 	template<typename HesOp, typename PrecOp> struct AreHessianOps : std::bool_constant< IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
 
+	template<typename ASize> struct IsSize : std::bool_constant< BIC::MutOrFixed<Size, ASize> > {}; ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`
+
 	const Derived& derived() const { return static_cast<const Derived&>(*this); }
 	      Derived& derived()       { return static_cast<      Derived&>(*this); }
 	
@@ -66,33 +69,33 @@ public:
 	 * @brief Solve the linear system Hx = -g using the provided Hessian operator.
 	 * @param H Hessian operator (must satisfy IsHessianOp).
 	 * @param g Gradient vector.
-	 * @param size Problem size (dimension).
+	 * @param size Problem size (must satisfy IsSize).
 	 * @param x Solution vector (output).
 	 */
-	template<typename Op> 
-	void solve(const Op& H, const Scalar* g, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); solve(H, I, g, size, x); }
+	template<typename Op, typename ASize> 
+	void solve(const Op& H, const Scalar* g, const ASize size, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); solve(H, I, g, size, x); }
 	
 	/**
 	 * @brief Solve the preconditioned linear system Hx = -g using the provided Hessian operator.
 	 * @param H Hessian operator (must satisfy IsHessianOp).
 	 * @param invB a preconditioner operator (must satisfy IsHessianOp).
 	 * @param g Gradient vector.
-	 * @param size Problem size (dimension).
+	 * @param size Problem size (must satisfy IsSize).
 	 * @param x Solution vector (output).
 	 */
-	template<typename HesOp, typename PrecOp> 
-	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { derived().solveImpl(H, invB, g, size, std::false_type{}, x); }
+	template<typename HesOp, typename PrecOp, typename ASize> 
+	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value) { derived().solveImpl(H, invB, g, size, std::false_type{}, x); }
 	
 	/**
 	 * @brief Solve the system with an initial guess.
 	 * @param H Hessian operator  (must satisfy IsHessianOp).
 	 * @param g Gradient vector.
 	 * @param x0 Initial guess vector.
-	 * @param size Problem size.
+	 * @param size Problem size (must satisfy IsSize).
 	 * @param x Solution vector (output).
 	 */
-	template<typename Op> 
-	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (IsHessianOp<Op>::value) { IdOp I(size); solveWithGuess(H, I, g, x0, size, x);  }
+	template<typename Op, typename ASize> 
+	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); solveWithGuess(H, I, g, x0, size, x);  }
 	
 	/**
 	 * @brief Solve the preconditioned system with an initial guess.
@@ -100,11 +103,11 @@ public:
 	 * @param invB a preconditioner operator (must satisfy IsHessianOp).
 	 * @param g Gradient vector.
 	 * @param x0 Initial guess vector.
-	 * @param size Problem size.
+	 * @param size Problem size (must satisfy IsSize).
 	 * @param x Solution vector (output).
 	 */	
-	template<typename HesOp, typename PrecOp> 
-	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const Size size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value) { std::copy(x0, x0 + size, x); derived().solveImpl(H, invB, g, size, std::true_type{}, x);  }
+	template<typename HesOp, typename PrecOp, typename ASize>  
+	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); derived().solveImpl(H, invB, g, size, std::true_type{}, x);  }
 	
 	Scalar getError        () const { return derived().getErrorImpl();        } ///<  @brief Get the final error after solving. Delegates to `Derived::getError()`.
 	Scalar getSquaredError () const { return derived().getSquaredErrorImpl(); } ///<  @brief Get the final squared error after solving. Delegates to `Derived::getSquaredError()`.

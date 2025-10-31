@@ -22,13 +22,14 @@ public:
 	using Info   = typename Base::Info;   ///<  @brief Enumeration indicating solver termination status.
 
 	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>; ///<  @brief Trait to check if two types are both valid Hessian operators.
+	template<typename ASize> using IsSize = typename Base::template IsSize<ASize>; ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`
 	
 	void clearWorkSpace();
 	
 	void resizeWorkSpace(const Size newSize); ///<  @brief reallocate internal memory if `newSize` > `Base::m_workCapacity`.
 
-	template<typename HesOp, typename PrecOp, bool solveInPlace> 
-	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value);
+	template<typename HesOp, typename PrecOp, typename ASize, bool solveInPlace> 
+	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value);
 
 	Scalar getErrorImpl        () const { return std::sqrt(m_precSqNormR); } 
 	Scalar getSquaredErrorImpl () const { return m_precSqNormR;            } 

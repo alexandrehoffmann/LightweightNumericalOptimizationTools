@@ -2,6 +2,7 @@
 #define LNOT_BASIC_LINALG_IMPL_HPP
 
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
+#include <BIC/Core.hpp>
 
 #include <numeric>
 
@@ -20,7 +21,7 @@ void stridedCopy(const Scalar* x, const Size xStride, const Size N, Scalar* y, c
 	{
 #endif // LNOT_WITH_BLAS
 		#pragma omp simd 
-		for (Size i=0; i!=N; ++i) 
+		for (BIC::Mutable<Size> i=0; i!=N; ++i) 
 		{ 
 			y[i*yStride] = x[i*xStride]; 
 		} 
@@ -39,7 +40,7 @@ Scalar squaredNorm(const Scalar* x, const Size N)
 	{
 #endif // LNOT_WITH_BLAS
 		Scalar res(0); 
-		for (Size i=0; i!=N; ++i) { res += x[i]*x[i]; } 
+		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res += x[i]*x[i]; } 
 		return res; 
 #ifdef LNOT_WITH_BLAS
 	}
@@ -66,7 +67,7 @@ Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N)
 {
 	Scalar res(0);
 	
-	for (Size i=0; i!=N; ++i) {  res += x[i]*x[i]*w[i]; }
+	for (BIC::Mutable<Size> i=0; i!=N; ++i) {  res += x[i]*x[i]*w[i]; }
 	
 	return res;
 }
@@ -81,7 +82,7 @@ Scalar inner(const Scalar* x, const Scalar* y, const Size N)
 	{
 #endif // LNOT_WITH_BLAS
 		Scalar res(0); 
-		for (Size i=0; i!=N; ++i) { res += x[i]*y[i]; } 
+		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res += x[i]*y[i]; } 
 		return res; 
 #ifdef LNOT_WITH_BLAS
 	}
@@ -92,7 +93,7 @@ template<typename Scalar, typename Size>
 Scalar weightedInner(const Scalar* x, const Scalar* y, const Scalar* w, const Size N)
 { 
 	Scalar res(0); 
-	for (Size i=0; i!=N; ++i) { res += x[i]*y[i]*w[i]; } 
+	for (BIC::Mutable<Size> i=0; i!=N; ++i) { res += x[i]*y[i]*w[i]; } 
 	return res; 
 }
 
@@ -105,9 +106,9 @@ void axpy(const Scalar alpha, const Scalar* x, const Size N, Scalar* y)
 	else
 	{
 #else
-#endif // LNOT_WITH_BLAS
+#endif // LNOT_WITH_BLAS	
 		#pragma omp simd 
-		for (Size i=0; i!=N; ++i)
+		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
 			y[i] += alpha*x[i];
 		}
@@ -126,7 +127,7 @@ void scal(const Scalar alpha, const Size N, Scalar* x)
 	{
 #endif // LNOT_WITH_BLAS
 		#pragma omp simd 
-		for (Size i=0; i!=N; ++i)
+		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
 			x[i] *= alpha;
 		}
@@ -154,13 +155,13 @@ void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scala
 			const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
 			const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N;
 			
-			for (Size i=0; i!=N; ++i)
+			for (BIC::Mutable<Size> i=0; i!=N; ++i)
 			{
-				for (Size j=0; j!=(i+1); ++j)
+				for (BIC::Mutable<Size> j=0; j!=(i+1); ++j)
 				{
 					y[i] += alpha*A[i*iStride + j*jStride]*x[j];
 				}
-				for (Size j=i+1; j!=N; ++j)
+				for (BIC::Mutable<Size> j=i+1; j!=N; ++j)
 				{
 					y[i] += alpha*A[j*iStride + i*jStride]*x[j];
 				}
@@ -187,9 +188,9 @@ void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha
 		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
 		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
 	
-		for (Size i=0; i!=N; ++i)
+		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
-			for (Size j=0; j!=(i+1); ++j)
+			for (BIC::Mutable<Size> j=0; j!=(i+1); ++j)
 			{
 				A[i*iStride + j*jStride] += alpha*x[i]*x[j];
 			}
@@ -213,9 +214,9 @@ void symRk2Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scal
 		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
 		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
 	
-		for (Size i=0; i!=N; ++i)
+		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
-			for (Size j=0; j!=(i+1); ++j)
+			for (BIC::Mutable<Size> j=0; j!=(i+1); ++j)
 			{
 				A[i*iStride + j*jStride] += alpha*x[i]*y[j] + alpha*y[i]*x[j];
 			}
@@ -238,7 +239,7 @@ Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 
 		Scalar res = std::abs(alpha[0]) + std::abs(beta[0]);
 		#pragma omp simd reduction(max:res)
-		for (Size i=1; i!=Size(N-1); ++i)
+		for (BIC::Mutable<Size> i=1; i!=Size(N-1); ++i)
 		{
 			res = std::max(res, std::abs(alpha[i]) + std::abs(beta[i]) + std::abs(beta[i-1]));
 		}
@@ -265,7 +266,7 @@ bool compute(const Scalar* alpha, const Scalar* beta, const Size size, const Sca
 		if (size == 1) { return true; } 
 		l[0] = beta[0]*invDelta[0];
 		
-		for (Size i=1; i!=Size(size-1);++i)
+		for (BIC::Mutable<Size> i=1; i!=Size(size-1);++i)
 		{
 			const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
 			if (delta_i < epsilon) { return false; }
@@ -287,19 +288,19 @@ template<typename Scalar, typename Size>
 void solveLowerUnit(const Scalar* l, const Size size, const Scalar b1, Scalar* x)
 {
 	x[0] = b1;
-	for (Size i=1; i!=size; ++i) { x[i] = -l[i-1]*x[i-1]; }
+	for (BIC::Mutable<Size> i=1; i!=size; ++i) { x[i] = -l[i-1]*x[i-1]; }
 }
 
 template<typename Scalar, typename Size>
 void solveInplaceLower(const Scalar* l, const Size size, Scalar* x)
 {
-	for (Size i=1; i!=size; ++i) { x[i] -= l[i-1]*x[i-1]; }
+	for (BIC::Mutable<Size> i=1; i!=size; ++i) { x[i] -= l[i-1]*x[i-1]; }
 }
 
 template<typename Scalar, typename Size>
 void solveInplaceUpper(const Scalar* l, const Size size, Scalar* x)
 {
-	for (Size i=Size(size-2); i!=Size(-1); --i) { x[i] -= l[i]*x[i+1]; }
+	for (BIC::Mutable<Size> i=Size(size-2); i!=Size(-1); --i) { x[i] -= l[i]*x[i+1]; }
 }
 
 template<typename Scalar, typename Size>
@@ -312,7 +313,7 @@ void solveUnit(const Scalar* invD, const Scalar* l, const Size size, const Scala
 	{
 		solveLowerUnit(l, size, b1, x);     // Solve Lz = b
 		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { x[i] *= invD[i]; }
+		for (BIC::Mutable<Size> i=0; i!=size; ++i) { x[i] *= invD[i]; }
 		solveInplaceUpper(l, size, x);   // Solve L^T x = y
 	}
 }
