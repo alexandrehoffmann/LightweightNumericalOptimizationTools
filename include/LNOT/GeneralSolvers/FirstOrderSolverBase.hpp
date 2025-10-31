@@ -87,7 +87,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<typename Function, typename Gradient, typename ASize>
-	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { solveImpl(f, g, size, std::false_type{}, x); }
+	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { solve(f, g, size, std::false_type{}, x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function and gradient functors.
@@ -111,7 +111,7 @@ public:
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
 	template<typename Function, typename Gradient, typename ASize, bool solveInPlace> 
-	void solveImpl(Function f, Gradient g, const ASize size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solveImpl(oracle, bc, x); }
+	void solve(Function f, Gradient g, const ASize size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solve(oracle, bc, x); }
 	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle with or without an initial guess.
@@ -124,7 +124,7 @@ public:
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
 	template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x) { derived().solveImpl(oracle, bc, x); }
+	void solve(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x) { derived().solveImpl(oracle, bc, x); }
 	
 	// ========================================================================
 	// MONITORING METHODS
