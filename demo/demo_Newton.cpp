@@ -61,37 +61,37 @@ int main()
 	double x[N];
 	std::span<const double> x_view(x, N);
 	
-	LNOT::ConjugateGradient<double> cg;
-	LNOT::BisectionLineSearch<double> bisectLs;
-	LNOT::BacktrackingLineSearch<double> backtrackLs;
+	using CG          = LNOT::ConjugateGradient<double>;
+	using BisectLS    = LNOT::BisectionLineSearch<double>;
+	using BacktrackLS = LNOT::BacktrackingLineSearch<double>;
 	
-	LNOT::TruncatedConjugateGradient<double> tcg;
-	LNOT::LanczosTRSSolver<double> lanczosTrs;
+	using TCG        = LNOT::TruncatedConjugateGradient<double>;
+	using LanczosTRS = LNOT::LanczosTRSSolver<double>;
 	
 	std::FILE* newtonBisectLsOut       = std::fopen("newton_bisect_ls.log", "w");
 	std::FILE* newtonBacktrackLsOut    = std::fopen("newton_backtrack_ls.log", "w");
 	std::FILE* newtonTCGOut            = std::fopen("newton_tcg.log", "w");
 	std::FILE* newtonLanczosOut        = std::fopen("newton_lanczos.log", "w");
 	
-	auto newtonSolver1 = LNOT::makeNewtonSolver(cg, bisectLs);
+	LNOT::NewtonSolver<CG, BisectLS> newtonSolver1;
 	newtonSolver1.setOutput(newtonBisectLsOut);
 	newtonSolver1.solve(func, grad, hessOp, precOp, N, x);
 	
 	fmt::print("Newton with Bisection LineSrearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver1.getIterations(), newtonSolver1.getError(), newtonSolver1.getValue());
 	
-	auto newtonSolver2 = LNOT::makeNewtonSolver(cg, backtrackLs);
+	LNOT::NewtonSolver<CG, BacktrackLS> newtonSolver2;
 	newtonSolver2.setOutput(newtonBacktrackLsOut);
 	newtonSolver2.solve(func, grad, hessOp, precOp, N, x);
 	
 	fmt::print("Newton with Bisection Backtracking LineSearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver2.getIterations(), newtonSolver2.getError(), newtonSolver2.getValue());
 	
-	auto newtonSolver3 = LNOT::makeNewtonSolver(tcg);
+	LNOT::NewtonTrustRegionSolver<TCG> newtonSolver3;
 	newtonSolver3.setOutput(newtonTCGOut);
 	newtonSolver3.solve(func, grad, hessOp, N, x);
 	
 	fmt::print("Trut Region Newton with TCG found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver3.getIterations(), newtonSolver3.getError(), newtonSolver3.getValue());
 	
-	auto newtonSolver4 = LNOT::makeNewtonSolver(lanczosTrs);
+	LNOT::NewtonTrustRegionSolver<LanczosTRS> newtonSolver4;
 	newtonSolver4.setOutput(newtonLanczosOut);
 	newtonSolver4.solve(func, grad, hessOp, N, x);
 	

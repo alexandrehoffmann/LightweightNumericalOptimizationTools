@@ -5,6 +5,7 @@ namespace LNOT
 
 template class CoupledLanczosTRSSolver<float>;
 template class CoupledLanczosTRSSolver<double>;
+template class CoupledLanczosTRSSolver<long double>;
 
 // explicit instanciation for float
 template void CoupledLanczosTRSSolver<float>::solve(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);

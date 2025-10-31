@@ -31,14 +31,15 @@ public:
 	using Size   = typename Base::Size;
 	using Info   = typename Base::Info;
 	
-	SR1TrustRegionSolver(TRSSolver& trsSolver, const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : Base(maxIt, tol), m_trsSolver(trsSolver) {}
-	
 	void clearWorkSpaceImpl();
 	
 	template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
 	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
+	
+	const TRSSolver& getSubproblemSolver() const { return m_trsSolver; }
+	      TRSSolver& getSubproblemSolver()       { return m_trsSolver; }
 private:
-	TRSSolver& m_trsSolver;
+	TRSSolver m_trsSolver;
 	
 	Scalar* m_gk     = nullptr;
 	Scalar* m_gkp1   = nullptr;
@@ -47,9 +48,6 @@ private:
 	Scalar* m_Bk     = nullptr;
 	Scalar* m_xTrial = nullptr;
 };
-
-template<TRSSolver_concept TRSSolver>
-SR1TrustRegionSolver<TRSSolver> makeSR1Solver(TRSSolver& trsSolver, const typename TRSSolver::Size maxIt = 200000, const typename TRSSolver::Scalar tol = std::numeric_limits<typename TRSSolver::Scalar>::epsilon()) { return SR1TrustRegionSolver<TRSSolver>(trsSolver, maxIt, tol); }
 
 } // namespace LNOT
 

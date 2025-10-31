@@ -10,6 +10,7 @@ namespace LNOT
 
 extern template class CircularBuffer<float>;
 extern template class CircularBuffer<double>;
+extern template class CircularBuffer<long double>;
 
 //// method implementations ////
 	

@@ -31,22 +31,23 @@ public:
 	using Size   = typename Base::Size;
 	using Info   = typename Base::Info;
 	
-	NewtonSolver(LinSolver& linSolver, LineSearch& lineSearch, const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : Base(maxIt, tol), m_linsSolver(linSolver), m_lineSearch(lineSearch) {}
-	
 	void clearWorkSpaceImpl();
 	
 	template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
 	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
+	
+	const LinSolver& getLinearSolver() const { return m_linsSolver; }
+	      LinSolver& getLinearSolver()       { return m_linsSolver; }
+	
+	const LineSearch& getLinesearch() const { return m_lineSearch; }
+	      LineSearch& getLinesearch()       { return m_lineSearch; }
 private:
 	Scalar* m_gk = nullptr;
 	Scalar* m_sk = nullptr;
 	
-	LinSolver&  m_linsSolver;
-	LineSearch& m_lineSearch;
+	LinSolver  m_linsSolver;
+	LineSearch m_lineSearch;
 };
-
-template<LinearSolver_concept LinSolver, LineSearch_concept LineSearch>
-NewtonSolver<LinSolver, LineSearch> makeNewtonSolver(LinSolver& linSolver, LineSearch& lineSearch, const typename LinSolver::Size maxIt = 200000, const typename LinSolver::Scalar tol = std::numeric_limits<typename LinSolver::Scalar>::epsilon()) { return NewtonSolver<LinSolver, LineSearch>(linSolver, lineSearch, maxIt, tol); }
 
 } // namespace LNOT
 

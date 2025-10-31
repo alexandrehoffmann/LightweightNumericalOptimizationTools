@@ -24,6 +24,7 @@ extern template class NewtonSolver<CoupledLanczosSolver<float>, BisectionLineSea
 extern template class NewtonSolver<ConjugateGradient<float>,    BacktrackingLineSearch<float> >;
 extern template class NewtonSolver<LanczosSolver<float>,        BacktrackingLineSearch<float> >;
 extern template class NewtonSolver<CoupledLanczosSolver<float>, BacktrackingLineSearch<float> >;
+
 // explicit instanciation for double
 extern template class NewtonSolver<ConjugateGradient<double>,    BisectionLineSearch<double> >;
 extern template class NewtonSolver<LanczosSolver<double>,        BisectionLineSearch<double> >;
@@ -32,6 +33,15 @@ extern template class NewtonSolver<CoupledLanczosSolver<double>, BisectionLineSe
 extern template class NewtonSolver<ConjugateGradient<double>,    BacktrackingLineSearch<double> >;
 extern template class NewtonSolver<LanczosSolver<double>,        BacktrackingLineSearch<double> >;
 extern template class NewtonSolver<CoupledLanczosSolver<double>, BacktrackingLineSearch<double> >;
+
+// explicit instanciation for long double
+extern template class NewtonSolver<ConjugateGradient<long double>,    BisectionLineSearch<long double> >;
+extern template class NewtonSolver<LanczosSolver<long double>,        BisectionLineSearch<long double> >;
+extern template class NewtonSolver<CoupledLanczosSolver<long double>, BisectionLineSearch<long double> >;
+
+extern template class NewtonSolver<ConjugateGradient<long double>,    BacktrackingLineSearch<long double> >;
+extern template class NewtonSolver<LanczosSolver<long double>,        BacktrackingLineSearch<long double> >;
+extern template class NewtonSolver<CoupledLanczosSolver<long double>, BacktrackingLineSearch<long double> >;
 
 //// method implementations ////
 

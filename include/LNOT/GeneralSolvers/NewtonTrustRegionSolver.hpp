@@ -31,22 +31,20 @@ public:
 	using Size   = typename Base::Size;
 	using Info   = typename Base::Info;
 	
-	NewtonTrustRegionSolver(TRSSolver& trsSolver, const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : Base(maxIt, tol), m_trsSolver(trsSolver) {}
-	
 	void clearWorkSpaceImpl();
 	
 	template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
 	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
+	
+	const TRSSolver& getSubproblemSolver() const { return m_trsSolver; }
+	      TRSSolver& getSubproblemSolver()       { return m_trsSolver; }
 private:
-	TRSSolver& m_trsSolver;
+	TRSSolver m_trsSolver;
 	
 	Scalar* m_gk     = nullptr;
 	Scalar* m_sk     = nullptr;
 	Scalar* m_xTrial = nullptr;
 };
-
-template<TRSSolver_concept TRSSolver>
-NewtonTrustRegionSolver<TRSSolver> makeNewtonSolver(TRSSolver& trsSolver, const typename TRSSolver::Size maxIt = 200000, const typename TRSSolver::Scalar tol = std::numeric_limits<typename TRSSolver::Scalar>::epsilon()) { return NewtonTrustRegionSolver<TRSSolver>(trsSolver, maxIt, tol); }
 
 } // namespace LNOT
 

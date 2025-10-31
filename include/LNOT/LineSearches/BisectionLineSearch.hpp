@@ -26,6 +26,12 @@ public:
 	template<FirstOrderOracle_concept Oracle>
 	Scalar solveImpl(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle);
 	
+	Scalar getFirstWolfConditionConst  () const { return m_firstWolfConditionConst;  }
+	Scalar getSecondWolfConditionConst () const { return m_secondWolfConditionConst; }
+	
+	void setFirstWolfConditionConst  (const Scalar& firstWolfConditionConst)  { m_firstWolfConditionConst  = firstWolfConditionConst;  }
+	void setSecondWolfConditionConst (const Scalar& secondWolfConditionConst) { m_secondWolfConditionConst = secondWolfConditionConst; }
+	
 private:
 	Scalar m_firstWolfConditionConst;
 	Scalar m_secondWolfConditionConst;

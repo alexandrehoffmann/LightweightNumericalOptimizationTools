@@ -35,5 +35,21 @@ template class NonLinearConjugateGradient<BacktrackingLineSearch<double>, NLCGUp
 template class NonLinearConjugateGradient<BacktrackingLineSearch<double>, NLCGUpdateStrategy::LIU_STOREY>;
 template class NonLinearConjugateGradient<BacktrackingLineSearch<double>, NLCGUpdateStrategy::DAI_YUAN>;
 template class NonLinearConjugateGradient<BacktrackingLineSearch<double>, NLCGUpdateStrategy::HAGER_ZHANG>;
+//// for long doubles
+template class NonLinearConjugateGradient<BisectionLineSearch<long double>, NLCGUpdateStrategy::HESTENES_STIEFEL>;
+template class NonLinearConjugateGradient<BisectionLineSearch<long double>, NLCGUpdateStrategy::FLETCHER_REEVES>;
+template class NonLinearConjugateGradient<BisectionLineSearch<long double>, NLCGUpdateStrategy::POLAK_RIBIERE>;
+template class NonLinearConjugateGradient<BisectionLineSearch<long double>, NLCGUpdateStrategy::FLETCHER>;
+template class NonLinearConjugateGradient<BisectionLineSearch<long double>, NLCGUpdateStrategy::LIU_STOREY>;
+template class NonLinearConjugateGradient<BisectionLineSearch<long double>, NLCGUpdateStrategy::DAI_YUAN>;
+template class NonLinearConjugateGradient<BisectionLineSearch<long double>, NLCGUpdateStrategy::HAGER_ZHANG>;
+
+template class NonLinearConjugateGradient<BacktrackingLineSearch<long double>, NLCGUpdateStrategy::HESTENES_STIEFEL>;
+template class NonLinearConjugateGradient<BacktrackingLineSearch<long double>, NLCGUpdateStrategy::FLETCHER_REEVES>;
+template class NonLinearConjugateGradient<BacktrackingLineSearch<long double>, NLCGUpdateStrategy::POLAK_RIBIERE>;
+template class NonLinearConjugateGradient<BacktrackingLineSearch<long double>, NLCGUpdateStrategy::FLETCHER>;
+template class NonLinearConjugateGradient<BacktrackingLineSearch<long double>, NLCGUpdateStrategy::LIU_STOREY>;
+template class NonLinearConjugateGradient<BacktrackingLineSearch<long double>, NLCGUpdateStrategy::DAI_YUAN>;
+template class NonLinearConjugateGradient<BacktrackingLineSearch<long double>, NLCGUpdateStrategy::HAGER_ZHANG>;
 	
 } // namespace LNOT

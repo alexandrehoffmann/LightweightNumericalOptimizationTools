@@ -22,6 +22,11 @@ extern template class SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, Up
 extern template class SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>; 
 extern template class SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>; 
 
+extern template class SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::LOWER>; 
+extern template class SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::UPPER>; 
+extern template class SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::LOWER>; 
+extern template class SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::UPPER>; 
+
 } // namespace LNOT
 
 #endif // LNOT_SYMMETRIC_DENSE_MATRIX_OP_IMPL_HPP

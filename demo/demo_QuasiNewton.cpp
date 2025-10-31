@@ -33,11 +33,11 @@ int main()
 	double x[N];
 	std::span<const double> x_view(x, N);
 	
-	LNOT::BisectionLineSearch<double> bisectLs;
-	LNOT::BacktrackingLineSearch<double> backtrackLs;
-	
-	LNOT::TruncatedConjugateGradient<double> tcg;
-	LNOT::LanczosTRSSolver<double> lanczosTrs;
+	using BisectLs    = LNOT::BisectionLineSearch<double>;
+	using BacktrackLs = LNOT::BacktrackingLineSearch<double>;
+
+	using TCG        = LNOT::TruncatedConjugateGradient<double>;
+	using LanczosTrs = LNOT::LanczosTRSSolver<double>;
 	
 	std::FILE* nlcgBisectLsOut       = std::fopen("nlcg_bisect_ls.log", "w");
 	std::FILE* nlcgBacktrackLsOut    = std::fopen("nlcg_backtrack_ls.log", "w");
@@ -48,70 +48,70 @@ int main()
 	std::FILE* lsr1TCGOut            = std::fopen("lsr1_tcg.log", "w");
 	std::FILE* lsr1LanczosOut        = std::fopen("lsr1_lanczos.log", "w");
 	
-	auto nlcg1 = LNOT::makeNLCG(bisectLs);
+	LNOT::NonLinearConjugateGradient<BisectLs> nlcg1;
 	nlcg1.setTol(1.0e-11);
 	nlcg1.setOutput(nlcgBisectLsOut);
 	nlcg1.solve(func, grad, N, x);
 	
 	fmt::print("NLCG found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), nlcg1.getIterations(), nlcg1.getError(), nlcg1.getValue());
 
-	auto nlcg2 = LNOT::makeNLCG(backtrackLs);
+	LNOT::NonLinearConjugateGradient<BacktrackLs> nlcg2;
 	nlcg2.setTol(1.0e-11);
 	nlcg2.setOutput(nlcgBacktrackLsOut);
 	nlcg2.solve(func, grad, N, x);
 	
 	fmt::print("NLCG found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), nlcg2.getIterations(), nlcg2.getError(), nlcg2.getValue());
 	
-	auto bfgs1 = LNOT::makeBFGS(bisectLs);
+	LNOT::BFGS<BisectLs> bfgs1;
 	bfgs1.setTol(1.0e-11);
 	bfgs1.setOutput(lbfgsBisectLsOut);
 	bfgs1.solve(func, grad, N, x);
 	
 	fmt::print("BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), bfgs1.getIterations(), bfgs1.getError(), bfgs1.getValue());
 
-	auto bfgs2 = LNOT::makeBFGS(backtrackLs);
+	LNOT::BFGS<BacktrackLs> bfgs2;
 	bfgs2.setTol(1.0e-11);
 	bfgs2.setOutput(lbfgsBacktrackLsOut);
 	bfgs2.solve(func, grad, N, x);
 	
 	fmt::print("BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), bfgs2.getIterations(), bfgs2.getError(), bfgs2.getValue());
 	
-	auto lbfgs1 = LNOT::makeLBFGS(bisectLs, 5);
+	LNOT::LBFGS<BisectLs> lbfgs1;
 	lbfgs1.setTol(1.0e-11);
 	lbfgs1.setOutput(lbfgsBisectLsOut);
 	lbfgs1.solve(func, grad, N, x);
 	
 	fmt::print("L-BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs1.getIterations(), lbfgs1.getError(), lbfgs1.getValue());
 
-	auto lbfgs2 = LNOT::makeLBFGS(backtrackLs, 5);
+	LNOT::LBFGS<BacktrackLs> lbfgs2;
 	lbfgs2.setTol(1.0e-11);
 	lbfgs2.setOutput(lbfgsBacktrackLsOut);
 	lbfgs2.solve(func, grad, N, x);
 	
 	fmt::print("L-BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs2.getIterations(), lbfgs2.getError(), lbfgs2.getValue());
 
-	auto sr1TR1 = LNOT::makeSR1Solver(tcg);
+	LNOT::SR1TrustRegionSolver<TCG> sr1TR1;
 	sr1TR1.setTol(1.0e-11);
 	sr1TR1.setOutput(sr1TCGOut);
 	sr1TR1.solve(func, grad, N, x);
 	
 	fmt::print("TR-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), sr1TR1.getIterations(), sr1TR1.getError(), sr1TR1.getValue());
 
-	auto sr1TR2 = LNOT::makeSR1Solver(lanczosTrs);
+	LNOT::SR1TrustRegionSolver<LanczosTrs> sr1TR2;
 	sr1TR2.setTol(1.0e-11);
 	sr1TR2.setOutput(sr1LanczosOut);
 	sr1TR2.solve(func, grad, N, x);
 	
 	fmt::print("TR-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), sr1TR2.getIterations(), sr1TR2.getError(), sr1TR2.getValue());
 
-	auto lsr1TR1 = LNOT::makeLSR1Solver(tcg, 5);
+	LNOT::LSR1TrustRegionSolver<TCG> lsr1TR1;
 	lsr1TR1.setTol(1.0e-11);
 	lsr1TR1.setOutput(lsr1TCGOut);
 	lsr1TR1.solve(func, grad, N, x);
 	
 	fmt::print("TR-L-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lsr1TR1.getIterations(), lsr1TR1.getError(), lsr1TR1.getValue());
 
-	auto lsr1TR2 = LNOT::makeLSR1Solver(lanczosTrs, 5);
+	LNOT::LSR1TrustRegionSolver<LanczosTrs> lsr1TR2;
 	lsr1TR2.setTol(1.0e-11);
 	lsr1TR2.setOutput(lsr1LanczosOut);
 	lsr1TR2.solve(func, grad, N, x);

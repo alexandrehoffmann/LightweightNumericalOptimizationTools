@@ -7,6 +7,7 @@ namespace LNOT
 
 template class TruncatedConjugateGradient<float>;
 template class TruncatedConjugateGradient<double>;
+template class TruncatedConjugateGradient<long double>;
 
 // explicit instanciation for float
 template void TruncatedConjugateGradient<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const IdentityPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);

@@ -19,6 +19,9 @@ extern template class LBFGS< BacktrackingLineSearch<float> >;
 extern template class LBFGS< BisectionLineSearch<double> >;
 extern template class LBFGS< BacktrackingLineSearch<double> >;
 
+extern template class LBFGS< BisectionLineSearch<long double> >;
+extern template class LBFGS< BacktrackingLineSearch<long double> >;
+
 //// method implementations ////
 
 template<typename LineSearch> 

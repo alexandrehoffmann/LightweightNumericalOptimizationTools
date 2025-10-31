@@ -25,6 +25,13 @@ public:
 
 	template<FirstOrderOracle_concept Oracle>
 	Scalar solveImpl(const Scalar* x, const Scalar fx, const Scalar* gx, const Scalar* s, Oracle& oracle);
+	
+	Scalar getTau                   () const { return m_tau;                  }
+	Scalar getmArmijoConditionConst () const { return m_armijoConditionConst; }
+	
+	void setTau                   (const Scalar& tau)                  { m_tau = tau; }
+	void setmArmijoConditionConst (const Scalar& armijoConditionConst) { m_armijoConditionConst = armijoConditionConst; }
+	
 private:	
 	Scalar m_tau;
 	Scalar m_armijoConditionConst;

@@ -9,4 +9,7 @@ template class LSR1TrustRegionSolver< LanczosTRSSolver<float> >;
 template class LSR1TrustRegionSolver< TruncatedConjugateGradient<double> >;
 template class LSR1TrustRegionSolver< LanczosTRSSolver<double> >;
 
+template class LSR1TrustRegionSolver< TruncatedConjugateGradient<long double> >;
+template class LSR1TrustRegionSolver< LanczosTRSSolver<long double> >;
+
 } // namespace LNOT

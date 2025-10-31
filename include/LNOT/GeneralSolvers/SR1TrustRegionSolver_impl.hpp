@@ -17,6 +17,9 @@ extern template class SR1TrustRegionSolver< LanczosTRSSolver<float> >;
 extern template class SR1TrustRegionSolver< TruncatedConjugateGradient<double> >;
 extern template class SR1TrustRegionSolver< LanczosTRSSolver<double> >;
 
+extern template class SR1TrustRegionSolver< TruncatedConjugateGradient<long double> >;
+extern template class SR1TrustRegionSolver< LanczosTRSSolver<long double> >;
+
 //// method implementations ////
 
 template<typename TRSSolver>

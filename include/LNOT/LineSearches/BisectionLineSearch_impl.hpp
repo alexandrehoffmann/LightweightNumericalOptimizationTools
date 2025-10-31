@@ -10,6 +10,14 @@
 namespace LNOT
 {
 	
+//// explicit template instanciations ////
+
+extern template class BisectionLineSearch<float>;
+extern template class BisectionLineSearch<double>;
+extern template class BisectionLineSearch<long double>;
+
+//// method implementations ////
+	
 template<typename T>
 BisectionLineSearch<T>::BisectionLineSearch(const Size maxIt, const Scalar firstWolfConditionConst, const Scalar secondWolfConditionConst)
 	: Base(maxIt)

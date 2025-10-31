@@ -5,6 +5,7 @@ namespace LNOT
 
 template class LanczosTRSSolver<float>;
 template class LanczosTRSSolver<double>;
+template class LanczosTRSSolver<long double>;
 
 // explicit instanciation for float
 template void LanczosTRSSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&  H, const IdentityPreconditionerOp<float>& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x);

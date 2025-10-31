@@ -10,6 +10,7 @@ namespace LNOT
 
 extern template class DiagonalPreconditionerOp<float>;
 extern template class DiagonalPreconditionerOp<double>;
+extern template class DiagonalPreconditionerOp<long double>;
 
 //// method implementations ////
 

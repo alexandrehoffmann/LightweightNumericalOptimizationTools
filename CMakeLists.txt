@@ -25,7 +25,8 @@ set(LNOT_GENERAL_COMPILE_COMPILE_OPTIONS
     -flax-vector-conversions
     -pedantic
     -pedantic-errors
-	-Wno-error=array-bounds
+    -Wno-error=array-bounds
+    -Wno-c99-extensions
 )
 
 set(LNOT_COMPILE_C_COMPILE_OPTIONS

@@ -22,17 +22,6 @@ enum class NLCGUpdateStrategy
 	DAI_YUAN,         ///<  @brief \f$\beta_k = \frac{\|g_{k+1}\|^2}{d_k^T y_k}\f$
 	HAGER_ZHANG       ///<  @brief \f$\beta_k = \left(y_k - 2d_k\frac{\|y_k\|^2}{d_k^Ty_k}\right)^T\frac{g_{k+1}}{d_k^T y_k}\f$
 }; 
-
-template<NLCGUpdateStrategy UpdateStrategy>
-using NLCGUpdateStrategy_constant = std::integral_constant<NLCGUpdateStrategy, UpdateStrategy>;
-
-using NLCGHestenesStiefelStrategy = NLCGUpdateStrategy_constant<NLCGUpdateStrategy::HESTENES_STIEFEL>;
-using NLCGFletcherReevesStrategy  = NLCGUpdateStrategy_constant<NLCGUpdateStrategy::FLETCHER_REEVES>;
-using NLCGPolakRibiereStrategy    = NLCGUpdateStrategy_constant<NLCGUpdateStrategy::POLAK_RIBIERE>;
-using NLCGFletcherStrategy        = NLCGUpdateStrategy_constant<NLCGUpdateStrategy::FLETCHER>;
-using NLCGLiuStoreyStrategy       = NLCGUpdateStrategy_constant<NLCGUpdateStrategy::LIU_STOREY>;
-using NLCGDaiYuanStrategy         = NLCGUpdateStrategy_constant<NLCGUpdateStrategy::DAI_YUAN>;
-using NLCGHagerZhangStrategy      = NLCGUpdateStrategy_constant<NLCGUpdateStrategy::HAGER_ZHANG>;
 	
 } // namespace LNOT
 

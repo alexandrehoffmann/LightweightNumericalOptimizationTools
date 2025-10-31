@@ -27,12 +27,13 @@ public:
 	using Size   = typename Base::Size;
 	using Info   = typename Base::Info;
 	
-	BFGS(LineSearch& lineSearch, const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : Base(maxIt, tol), m_lineSearch(lineSearch) {}
-	
 	void clearWorkSpaceImpl();
 	
 	template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
+	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x);
+	
+	const LineSearch& getLinesearch() const { return m_lineSearch; }
+	      LineSearch& getLinesearch()       { return m_lineSearch; }
 private:
 	Scalar* m_gk    = nullptr;
 	Scalar* m_gkp1  = nullptr;
@@ -41,11 +42,8 @@ private:
 	Scalar* m_uk    = nullptr;
 	Scalar* m_invBk = nullptr;
 	
-	LineSearch& m_lineSearch;
+	LineSearch m_lineSearch;
 };
-
-template<LineSearch_concept LineSearch>
-BFGS<LineSearch> makeBFGS(LineSearch& lineSearch, const typename LineSearch::Size maxIt = 200000, const typename LineSearch::Scalar tol = std::numeric_limits<typename LineSearch::Scalar>::epsilon()) { return BFGS<LineSearch>(lineSearch, maxIt, tol); }
 
 } // namespace LNOT
 

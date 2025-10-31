@@ -10,6 +10,14 @@
 namespace LNOT
 {
 
+//// explicit template instanciations ////
+
+extern template class BacktrackingLineSearch<float>;
+extern template class BacktrackingLineSearch<double>;
+extern template class BacktrackingLineSearch<long double>;
+
+//// method implementations ////
+
 template<typename T>
 void BacktrackingLineSearch<T>::clearWorkSpace()
 {

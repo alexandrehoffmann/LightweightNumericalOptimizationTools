@@ -16,6 +16,9 @@ extern template class NewtonTrustRegionSolver< LanczosTRSSolver<float> >;
 extern template class NewtonTrustRegionSolver< TruncatedConjugateGradient<double> >;
 extern template class NewtonTrustRegionSolver< LanczosTRSSolver<double> >;
 
+extern template class NewtonTrustRegionSolver< TruncatedConjugateGradient<long double> >;
+extern template class NewtonTrustRegionSolver< LanczosTRSSolver<long double> >;
+
 //// method implementations ////
 
 template<typename TRSSolver>
