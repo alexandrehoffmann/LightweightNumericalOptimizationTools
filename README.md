@@ -154,10 +154,17 @@ LNOT::NewtonTrustRegionSolver<LanczosTrs> trNewtonSolver;
 trNewtonSolver.solve(func, grad, hessOp, N, x);
 ```
 We can also solve the problem with both Symmetric Rank 1 (SR1) update of the Hessian matrix or Limited-memory SR1 (L-SR1) methods [6, 7]:
-```
+```cpp
 LNOT::SR1TrustRegionSolver<LanczosTrs> sr1TR2;
 sr1TR2.solve(func, grad, N, x);
 ```
+### When the size is known at compile time
+
+If the dimension of the problem is known at compile time, one may call the solve method with a `BIC::fixed`:
+```cpp
+solver.solve(func, grad, BIC::fixed<Size,N>, x);
+```
+A `BIC::fixed` is essentially an integral constant that lets the solver know, at compile time what will be the dimensionality of the problem, letting the compiler optimize the inner loops accordingly.
 
 # Reference
 [1] 4. Basic Iterative Methods. (2003). In Other Titles in Applied Mathematics. Iterative Methods for Sparse Linear Systems (pp. 103–128). doi:10.1137/1.9780898718003.ch4
