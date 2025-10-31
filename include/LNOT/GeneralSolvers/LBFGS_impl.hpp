@@ -38,9 +38,10 @@ void LBFGS<LineSearch>::clearWorkSpaceImpl()
 template<typename LineSearch> template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
 void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
-	using CircularBuffer_size = typename CircularBuffer<Scalar>::size_type;
+	using Oracle_Size         = typename Oracle::Size;
+	using CircularBuffer_Size = typename CircularBuffer<Scalar>::size_type;
 	
-	const Size size = oracle.getNDims();
+	const Oracle_Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{
@@ -81,7 +82,7 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlac
 		//// two loop recursion
 		#pragma omp simd
 		for (Size j=0; j!=size; ++j) { m_dk[j] = -m_gk[j]; }
-		rho.reverseForeach([&alpha, this, size](const CircularBuffer_size i, const Scalar& rho_i)
+		rho.reverseForeach([&alpha, this, size](const CircularBuffer_Size i, const Scalar& rho_i)
 		{
 			alpha[i] = rho_i*BasicLinalg::inner(m_S + i*size, m_dk, size);
 			BasicLinalg::axpy(-alpha[i], m_Y + i*size, size, m_dk);
@@ -89,7 +90,7 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlac
 		const Size offset = Size(size*rho.firstInsertedIndex());
 		const Scalar gamma = rho.empty() ? Scalar(1) : BasicLinalg::inner(m_S + offset, m_Y + offset, size) / BasicLinalg::squaredNorm(m_Y + offset, size);
 		BasicLinalg::scal(gamma, size, m_dk);
-		rho.foreach([this, size, &alpha](const CircularBuffer_size i, const Scalar& rho_i)
+		rho.foreach([this, size, &alpha](const CircularBuffer_Size i, const Scalar& rho_i)
 		{
 			const Scalar beta = rho_i*BasicLinalg::inner(m_Y + i*size, m_dk, size);
 			BasicLinalg::axpy((alpha[i] - beta), m_S + i*size, size, m_dk);

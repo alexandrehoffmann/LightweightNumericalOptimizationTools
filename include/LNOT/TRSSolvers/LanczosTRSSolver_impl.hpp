@@ -81,9 +81,9 @@ void LanczosTRSSolver<T>::resizeWorkSpace(const Size newSize)
 	}
 }
 
-template<typename T> template<typename HesOp, typename PrecOp> 
-void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value)
-{
+template<typename T> template<typename HesOp, typename PrecOp, typename ASize> 
+void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value)
+{	
 	resizeWorkSpace(size);
 	
 	m_alpha.clear();

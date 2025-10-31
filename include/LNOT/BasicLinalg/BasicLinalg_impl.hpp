@@ -239,7 +239,7 @@ Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 
 		Scalar res = std::abs(alpha[0]) + std::abs(beta[0]);
 		#pragma omp simd reduction(max:res)
-		for (BIC::Mutable<Size> i=1; i!=Size(N-1); ++i)
+		for (BIC::Mutable<Size> i=1; i!=BIC::Mutable<Size>(N-1); ++i)
 		{
 			res = std::max(res, std::abs(alpha[i]) + std::abs(beta[i]) + std::abs(beta[i-1]));
 		}
@@ -266,7 +266,7 @@ bool compute(const Scalar* alpha, const Scalar* beta, const Size size, const Sca
 		if (size == 1) { return true; } 
 		l[0] = beta[0]*invDelta[0];
 		
-		for (BIC::Mutable<Size> i=1; i!=Size(size-1);++i)
+		for (BIC::Mutable<Size> i=1; i!=BIC::Mutable<Size>(size-1);++i)
 		{
 			const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
 			if (delta_i < epsilon) { return false; }
@@ -300,7 +300,7 @@ void solveInplaceLower(const Scalar* l, const Size size, Scalar* x)
 template<typename Scalar, typename Size>
 void solveInplaceUpper(const Scalar* l, const Size size, Scalar* x)
 {
-	for (BIC::Mutable<Size> i=Size(size-2); i!=Size(-1); --i) { x[i] -= l[i]*x[i+1]; }
+	for (BIC::Mutable<Size> i=BIC::Mutable<Size>(size-2); i!=BIC::Mutable<Size>(-1); --i) { x[i] -= l[i]*x[i+1]; }
 }
 
 template<typename Scalar, typename Size>

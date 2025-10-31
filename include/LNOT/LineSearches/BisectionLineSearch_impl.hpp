@@ -37,10 +37,12 @@ void BisectionLineSearch<T>::clearWorkSpace()
 template<typename T> template<FirstOrderOracle_concept Oracle>
 auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
 {
+	using Oracle_Size = typename Oracle::Size;
+	
 	constexpr Scalar inf = std::numeric_limits<Scalar>::infinity();
 	
-	const Size   size     = oracle.getNDims();
-	const Scalar sDotGrad = BasicLinalg::inner(s, gx, size);
+	const Oracle_Size size     = oracle.getNDims();
+	const Scalar      sDotGrad = BasicLinalg::inner(s, gx, size);
 	
 	if (Base::m_workCapacity < size)
 	{

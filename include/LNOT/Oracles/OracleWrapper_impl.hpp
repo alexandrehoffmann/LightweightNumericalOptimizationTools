@@ -6,8 +6,8 @@
 namespace LNOT
 {
 
-template<typename T, class Function, class Gradient, class HessianOp, class PrecondOp> 
-void OracleWrapper<T, Function, Gradient, HessianOp, PrecondOp>::applyPrecondImpl(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) 
+template<typename T, typename S, class Function, class Gradient, class HessianOp, class PrecondOp> 
+void OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondOp>::applyPrecondImpl(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) 
 { 
 	if constexpr (hasApplyPrecond) { m_precondOp(m_x, d, invBd);           } 
 	else                           { Base::applyIdentityPrecond(d, invBd); } 

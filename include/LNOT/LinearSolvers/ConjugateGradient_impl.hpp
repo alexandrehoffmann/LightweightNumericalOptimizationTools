@@ -109,7 +109,7 @@ void ConjugateGradient<T>::resizeWorkSpace(const Size newSize)
 
 template<typename T> template<typename HesOp, typename PrecOp, typename ASize, bool solveInPlace> 
 void ConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, std::bool_constant<solveInPlace>, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value)
-{	
+{		
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
 	{

@@ -48,8 +48,7 @@ public:
 	
 	template<typename HesOp>                  struct IsHessianOp   : std::bool_constant< std::is_invocable<HesOp, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if a type is a valid Hessian operator.
 	template<typename HesOp, typename PrecOp> struct AreHessianOps : std::bool_constant< IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
-
-	template<typename ASize> struct IsSize : std::bool_constant< BIC::MutOrFixed<Size, ASize> > {}; ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`
+	template<typename ASize>                  struct IsSize        : std::bool_constant< std::is_same<Size, BIC::Mutable<ASize>>::value > {};          ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`
 
 	const Derived& derived() const { return static_cast<const Derived&>(*this); }
 	      Derived& derived()       { return static_cast<      Derived&>(*this); }
@@ -62,8 +61,7 @@ public:
 	LinearSolverBase(const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : m_maxIt(maxIt), m_tol(tol) {}
 	~LinearSolverBase() { clearWorkSpace(); }
 	
-	/// @brief Clear any internal memory or workspace used by the solver.
-	void clearWorkSpace() { derived().clearWorkSpace(); }
+	void clearWorkSpace() { derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
 	
 	/**
 	 * @brief Solve the linear system Hx = -g using the provided Hessian operator.

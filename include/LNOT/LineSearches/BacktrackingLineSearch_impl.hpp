@@ -28,8 +28,10 @@ void BacktrackingLineSearch<T>::clearWorkSpace()
 template<typename T> template<FirstOrderOracle_concept Oracle>
 auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
 {	
-	const Size   size     = oracle.getNDims();
-	const Scalar sDotGrad = BasicLinalg::inner(s, gx, size);
+	using Oracle_Size = typename Oracle::Size;
+	
+	const Oracle_Size size     = oracle.getNDims();
+	const Scalar      sDotGrad = BasicLinalg::inner(s, gx, size);
 	
 	if (Base::m_workCapacity < size)
 	{

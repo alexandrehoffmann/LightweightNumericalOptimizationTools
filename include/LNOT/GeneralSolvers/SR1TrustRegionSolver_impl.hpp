@@ -37,8 +37,11 @@ void SR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 template<typename TRSSolver> template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
 void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
+	using Oracle_Size = typename Oracle::Size;
+	
 	const Scalar sr1DropTol = std::sqrt( std::numeric_limits<Scalar>::epsilon() );
-	const Size size = oracle.getNDims();
+		
+	const Oracle_Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{

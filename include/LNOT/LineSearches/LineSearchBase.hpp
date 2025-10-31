@@ -15,10 +15,10 @@ class LineSearchBase
 {
 	using DerivedTraits = LineSearchTraits<Derived>;
 public:
-	using Scalar = typename DerivedTraits::Scalar;
-	using Size   = typename DerivedTraits::Size;
+	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
+	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
 	
-	enum class Info {SUCCESS, FAILURE};
+	enum class Info {SUCCESS, FAILURE}; ///<  @brief Enumeration indicating solver termination status.
 
 	const Derived& derived() const { return static_cast<const Derived&>(*this); }
 	      Derived& derived()       { return static_cast<      Derived&>(*this); }
@@ -26,7 +26,7 @@ public:
 	LineSearchBase(const Size maxIt = 200000) : m_maxIt(maxIt) {}
 	~LineSearchBase() { clearWorkSpace(); }
 	
-	void clearWorkSpace() { derived().clearWorkSpace(); }
+	void clearWorkSpace() { derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
 	
 	template<FirstOrderOracle_concept Oracle>
 	Scalar solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) { return derived().solveImpl(x, fx, gx, s, oracle); }

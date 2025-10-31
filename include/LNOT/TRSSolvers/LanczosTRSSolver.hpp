@@ -16,11 +16,12 @@ class LanczosTRSSolver : public TRSSolverBase< LanczosTRSSolver<T> >
 {
 	using Base = TRSSolverBase< LanczosTRSSolver<T> >;
 public:
-	using Scalar = typename Base::Scalar;
-	using Size   = typename Base::Size;
-	using Info   = typename Base::Info;
+	using Scalar = typename Base::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
+	using Size   = typename Base::Size;   ///<  @brief The size type used for indexing and loop counters
+	using Info   = typename Base::Info;   ///<  @brief Enumeration indicating solver termination status.
 
-	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>;
+	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>; ///<  @brief Trait to check if two types are both valid Hessian operators.
+	template<typename ASize>                  using IsSize        = typename Base::template IsSize<ASize>;               ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`.
 	
 	LanczosTRSSolver(const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon(), const Size maxItTr = 200000, const Scalar tolTr = std::sqrt(std::numeric_limits<Scalar>::epsilon()));
 	
@@ -28,8 +29,8 @@ public:
 	
 	void resizeWorkSpace(const Size newSize);
 	
-	template<typename HesOp, typename PrecOp> 
-	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value);
+	template<typename HesOp, typename PrecOp, typename ASize> 
+	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value);
 	
 	Scalar getErrorImpl        () const { return m_precNormR;             }
 	Scalar getSquaredErrorImpl () const { return m_precNormR*m_precNormR; }

@@ -43,13 +43,13 @@ int main()
 	
 	LNOT::ConjugateGradient<double> cg;
 	cg.setOutput(stdout);
-	cg.solve(Aop, Bop, b, N, x);
+	cg.solve(Aop, Bop, b, BIC::fixed<unsigned int, N>, x);
 	
 	fmt::print("CG found : {:.2f} in {} iterations with a final error of {}\n", fmt::join(x_view, " "), cg.getIterations(), cg.getError());
 	
 	LNOT::LanczosSolver<double> lanczos;
 	lanczos.setOutput(stdout);
-	lanczos.solve(Aop, Bop, b, N, x);
+	lanczos.solve(Aop, Bop, b, BIC::fixed<unsigned int, N>, x);
 	
 	fmt::print("Lanczos found : {:.2f} in {} iterations with a final error of {}\n", fmt::join(x_view, " "), lanczos.getIterations(), lanczos.getError());
 	

@@ -2,6 +2,7 @@
 #define LNOT_FIRST_ORDER_SOLVER_BASE_HPP
 
 #include <LNOT/Oracles/OracleWrapper.hpp>
+#include <BIC/Core.hpp>
 
 #include <cstdio>
 #include <cmath>
@@ -37,7 +38,8 @@ public:
 		FAILURE,  ///<  Failed to converge
 		BREAKDOWN ///<  Numerical breakdown (e.g., division by zero)
 	};
-		
+	
+	template<typename ASize>     struct IsSize      : std::bool_constant< std::is_same<Size, BIC::Mutable<ASize>>::value > {};                              ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
 	template<typename Function>  struct IsFunction  : std::bool_constant< std::is_invocable<Function, const Scalar*>::value > {};                           ///<  @brief Trait to check if Function is a valid callable with signature Scalar(const Scalar*)
 	template<typename Gradient>  struct IsGradient  : std::bool_constant< std::is_invocable<Gradient, const Scalar*, Scalar*>::value > {};                  ///<  @brief Trait to check if Gradient is a valid callable with signature void(const Scalar*, Scalar*)
 	template<typename Function, typename Gradient> struct IsProgram : std::bool_constant< IsFunction<Function>::value and IsGradient<Gradient>::value > {}; ///<  @brief Trait to check if Function + Gradient pair is valid
@@ -84,8 +86,8 @@ public:
 	 * @param size Problem dimension.
 	 * @param x Output solution vector.
 	 */
-	template<typename Function, typename Gradient>
-	void solve(Function f, Gradient g, const Size size, Scalar* x) requires (IsProgram<Function,Gradient>::value) { solveImpl(f, g, size, std::false_type{}, x); }
+	template<typename Function, typename Gradient, typename ASize>
+	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { solveImpl(f, g, size, std::false_type{}, x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function and gradient functors.
@@ -95,8 +97,8 @@ public:
 	 * @param size Problem dimension.
 	 * @param x Output solution vector.
 	 */
-	template<typename Function, typename Gradient>
-	void solveWithGuess(Function f, Gradient g, const Scalar* x0, const Size size, Scalar* x) requires (IsProgram<Function,Gradient>::value) { std::copy(x0, x0 + size, x); solveImpl(f, g, size, std::true_type{}, x);  }
+	template<typename Function, typename Gradient, typename ASize>
+	void solveWithGuess(Function f, Gradient g, const Scalar* x0, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); solveImpl(f, g, size, std::true_type{}, x);  }
 	
 	/**
 	 * @brief Internal function to create an OracleWrapper from functors and solve with or without an initial guess.
@@ -108,8 +110,8 @@ public:
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
-	template<typename Function, typename Gradient, bool solveInPlace> 
-	void solveImpl(Function f, Gradient g, const Size size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsProgram<Function,Gradient>::value) { OracleWrapper<Scalar,Function,Gradient> oracle(size, f, g); solveImpl(oracle, bc, x); }
+	template<typename Function, typename Gradient, typename ASize, bool solveInPlace> 
+	void solveImpl(Function f, Gradient g, const ASize size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solveImpl(oracle, bc, x); }
 	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle with or without an initial guess.

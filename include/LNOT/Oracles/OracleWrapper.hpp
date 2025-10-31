@@ -14,13 +14,13 @@ struct VoidFunctor {}; ///<  @brief Marker functor representing absence of a cal
 
 template<class Function> struct IsVoidFunctor : std::bool_constant< std::is_same<Function, VoidFunctor>::value > {}; ///<  @brief Trait to determine whether a type is VoidFunctor.
 
-template<typename T, class Function, class Gradient, class HessianOp, class PrecondOp>  class OracleWrapper; 
+template<typename T, typename S, class Function, class Gradient, class HessianOp, class PrecondOp>  class OracleWrapper; 
 
 
-template<typename T, class Function, class Gradient, class HessianOp, class PrecondOp> 
-struct OracleTraits< OracleWrapper<T, Function, Gradient, HessianOp, PrecondOp> > 
+template<typename T, typename S, class Function, class Gradient, class HessianOp, class PrecondOp> 
+struct OracleTraits< OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondOp> > 
 {
-	using Size   = unsigned int; 
+	using Size   = S; 
 	using Scalar = T; 
 
 	static_assert(not IsVoidFunctor<Function>::value  and std::is_invocable<Function,  const Scalar*>::value and std::is_same<std::invoke_result_t<Function, Scalar*>, Scalar>::value);
@@ -39,10 +39,10 @@ struct OracleTraits< OracleWrapper<T, Function, Gradient, HessianOp, PrecondOp> 
  * @tparam Gradient Optional gradient functor. Callable as `void grad(const T*, T*)`.
  * @tparam HessianOp Optional Hessian-vector product functor. Callable as `void hessOp(const T*, const T*, T*)`.
  */
-template<typename T, class Function, class Gradient = VoidFunctor, class HessianOp = VoidFunctor, class PrecondOp=VoidFunctor> 
-class OracleWrapper : public OracleBase< OracleWrapper<T, Function, Gradient, HessianOp, PrecondOp> >
+template<typename T, typename S, class Function, class Gradient = VoidFunctor, class HessianOp = VoidFunctor, class PrecondOp=VoidFunctor> 
+class OracleWrapper : public OracleBase< OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondOp> >
 {
-	using Base = OracleBase< OracleWrapper<T, Function, Gradient, HessianOp, PrecondOp> >;
+	using Base = OracleBase< OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondOp> >;
 public:
 	using Size   = typename Base::Size;
 	using Scalar = typename Base::Scalar;
@@ -71,7 +71,7 @@ public:
 	
 	void applyPrecondImpl(const Scalar* d, Scalar* invBd) const requires (hasHessianProd);
 private:
-	Size    m_nDims;
+	Size m_nDims;
 	const Scalar* m_x = nullptr;
 	
 	Function  m_function;

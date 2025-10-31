@@ -37,21 +37,22 @@ void LSR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 template<typename TRSSolver> template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
 void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
-	using CircularBuffer_size = typename CircularBuffer<Scalar>::size_type;
+	using Oracle_Size         = typename Oracle::Size;
+	using CircularBuffer_Size = typename CircularBuffer<Scalar>::size_type;
 	
 	const Scalar sr1DropTol = std::sqrt( std::numeric_limits<Scalar>::epsilon() );
-	const Size size = oracle.getNDims();
+	const Oracle_Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{
 		clearWorkSpaceImpl();
 		Base::m_workCapacity = size;
 		m_gk     = new Scalar[Base::m_workCapacity];
-	  m_gkp1   = new Scalar[Base::m_workCapacity];
-	  m_xTrial = new Scalar[Base::m_workCapacity];
-	  m_P      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
-	  m_Y      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
-	  m_S      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
+		m_gkp1   = new Scalar[Base::m_workCapacity];
+		m_xTrial = new Scalar[Base::m_workCapacity];
+		m_P      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
+		m_Y      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
+		m_S      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }	
 	
@@ -72,7 +73,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_const
 		
 		#pragma omp simd
 		for (Size k=0; k!=size; ++k) { Bd[k] = gamma0*d[k]; }
-		invRho.foreach([this, &isVectorKept, size, d, Bd](const CircularBuffer_size i, const Scalar& invRho_i) { if (isVectorKept[i])
+		invRho.foreach([this, &isVectorKept, size, d, Bd](const CircularBuffer_Size i, const Scalar& invRho_i) { if (isVectorKept[i])
 		{
 			const Scalar* pi   = m_P + i*size;
 			const Scalar alpha = BasicLinalg::inner(pi, d, size) / invRho_i;
@@ -101,7 +102,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_const
 		// building the Bk matrix from the last saved vectors
 		// c.f. https://optimization-online.org/wp-content/uploads/2015/10/5167.pdf
 		std::fill(isVectorKept.begin(), isVectorKept.end(), false);
-		invRho.foreach([this, &BkOp, &isVectorKept, &sr1DropTol, size](CircularBuffer_size i, Scalar& invRho_i)
+		invRho.foreach([this, &BkOp, &isVectorKept, &sr1DropTol, size](CircularBuffer_Size i, Scalar& invRho_i)
 		{
 			const Scalar* si = m_S + i*size;
 			const Scalar* yi = m_Y + i*size;

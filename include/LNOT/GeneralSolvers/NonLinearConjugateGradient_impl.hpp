@@ -76,7 +76,9 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::clearWorkSpaceImpl(
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy>  template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
 void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
 {
-	const Size size = oracle.getNDims();
+	using Oracle_Size = typename Oracle::Size;
+	
+	const Oracle_Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{

@@ -57,7 +57,9 @@ void NewtonSolver<LinSolver,LineSearch>::clearWorkSpaceImpl()
 template<typename LinSolver, typename LineSearch> template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
 void NewtonSolver<LinSolver,LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x) 
 {
-	const Size size = oracle.getNDims();
+	using Oracle_Size = typename Oracle::Size;
+	
+	const Oracle_Size size = oracle.getNDims();
 	
 	if (Base::m_workCapacity < size)
 	{

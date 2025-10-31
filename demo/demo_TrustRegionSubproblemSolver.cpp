@@ -43,7 +43,7 @@ int main()
 	
 	LNOT::LanczosTRSSolver<double> lanczosTrs;
 	lanczosTrs.setOutput(stdout);
-	lanczosTrs.solve(Aop, b, N, delta, x);
+	lanczosTrs.solve(Aop, b, BIC::fixed<unsigned int, N>, delta, x);
 	
 	fmt::print("Lanczos Trust Region found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), lanczosTrs.getIterations(), lanczosTrs.getError());
 	
@@ -64,7 +64,7 @@ int main()
 	
 	LNOT::TruncatedConjugateGradient<double> tcg;
 	tcg.setOutput(stdout);
-	tcg.solve(Aop, b, N, delta, x);
+	tcg.solve(Aop, b, BIC::fixed<unsigned int, N>, delta, x);
 	
 	fmt::print("Truncated CG found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), tcg.getIterations(), tcg.getError());
 	fmt::print("|x| <= Delta ? {}\n", LNOT::BasicLinalg::norm(x, N) <= delta + tcg.getTolTR());

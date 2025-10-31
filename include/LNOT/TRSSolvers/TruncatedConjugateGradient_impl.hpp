@@ -65,9 +65,9 @@ void TruncatedConjugateGradient<T>::resizeWorkSpace(const Size newSize)
 	}
 }
 
-template<typename T> template<typename HesOp, typename PrecOp> 
-void TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const Size size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value)
-{
+template<typename T> template<typename HesOp, typename PrecOp, typename ASize> 
+void TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value)
+{	
 	resizeWorkSpace(size);
 	
 	std::fill(x, x+size, 0);

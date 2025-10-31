@@ -20,7 +20,7 @@ public:
 	using Info   = typename Base::Info;   ///<  @brief Enumeration indicating solver termination status.
 
 	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>; ///<  @brief Trait to check if two types are both valid Hessian operators.
-	template<typename ASize> using IsSize = typename Base::template IsSize<ASize>; ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`
+	template<typename ASize>                  using IsSize        = typename Base::template IsSize<ASize>;               ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`
 	
 	void clearWorkSpace();
 	
