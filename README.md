@@ -125,7 +125,7 @@ A Newton/quasi-Newton method first computes a descent direction as \f$d_k = -B_k
 Lets solve our problem with Newton's method:
 ```cpp
 using GC = LNOT::ConjugateGradient<double>; // we will compute \f$d_k\f$ with the Conjgate Gradient 
-using LS  = LNOT::BacktrackingLineSearch<double>; // we will compute \f$\alpha_k\f$ with a Backtracking Linesearch
+using LS = LNOT::BacktrackingLineSearch<double>; // we will compute \f$\alpha_k\f$ with a Backtracking Linesearch
 LNOT::NewtonSolver<CG,LS> newtonSolver;
 newtonSolver1.solve(func, grad, hessOp, N, x);
 ```
