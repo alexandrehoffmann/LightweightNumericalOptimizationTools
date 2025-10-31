@@ -19,7 +19,7 @@ public:
 	using Size   = typename Base::Size;
 	using Info   = typename Base::Info;
 	
-	BisectionLineSearch(const Size maxIt = 200000, const Scalar firstWolfConditionConst = 1.0e-4, const Scalar secondWolfConditionConst = 0.9);
+	BisectionLineSearch(const Size maxIt = 200000, const Scalar firstWolfConditionConst = Scalar(1.0e-4), const Scalar secondWolfConditionConst = Scalar(0.9));
 	
 	void clearWorkSpace();
 	

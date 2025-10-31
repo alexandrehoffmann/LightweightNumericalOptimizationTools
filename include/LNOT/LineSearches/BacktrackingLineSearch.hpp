@@ -19,7 +19,7 @@ public:
 	using Size   = typename Base::Size;
 	using Info   = typename Base::Info;
 	
-	BacktrackingLineSearch(const Size maxIt = 200000, const Scalar tau = 0.5, const Scalar armijoConditionConst = 1.0e-4) : Base(maxIt), m_tau(tau), m_armijoConditionConst(armijoConditionConst) {}
+	BacktrackingLineSearch(const Size maxIt = 200000, const Scalar tau = Scalar(0.5), const Scalar armijoConditionConst = Scalar(1.0e-4)) : Base(maxIt), m_tau(tau), m_armijoConditionConst(armijoConditionConst) {}
 
 	void clearWorkSpace();
 

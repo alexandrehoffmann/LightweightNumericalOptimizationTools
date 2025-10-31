@@ -2,6 +2,7 @@
 #define LNOT_LBFGS_HPP
 
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
+#include <LNOT/GeneralSolvers/LimitedMemorySolverBase.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
 
 namespace LNOT
@@ -19,9 +20,12 @@ struct FirstOrderSolverTraits< LBFGS<LineSearch> >
 };
 
 template<typename LineSearch>
-class LBFGS : public FirstOrderSolverBase< LBFGS<LineSearch> >
+class LBFGS 
+	: public FirstOrderSolverBase< LBFGS<LineSearch> >
+	, public LimitedMemorySolverBase<typename LineSearch::Size>
 {
-	using Base = FirstOrderSolverBase< LBFGS<LineSearch> >;
+	using Base   = FirstOrderSolverBase< LBFGS<LineSearch> >;
+	using LMBase = LimitedMemorySolverBase<typename LineSearch::Size>;
 public:
 	using Scalar = typename Base::Scalar;
 	using Size   = typename Base::Size;
@@ -40,8 +44,6 @@ private:
 	Scalar* m_S    = nullptr;
 	Scalar* m_Y    = nullptr;
 	Scalar* m_dk   = nullptr;
-	
-	Size m_memory;
 	
 	LineSearch m_lineSearch;
 };

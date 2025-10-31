@@ -3,6 +3,7 @@
 
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
 #include <LNOT/GeneralSolvers/TrustRegionMethodBase.hpp>
+#include <LNOT/GeneralSolvers/LimitedMemorySolverBase.hpp>
 #include <LNOT/TRSSolvers/TRSSolverBase.hpp>
 
 namespace LNOT
@@ -23,9 +24,11 @@ template<typename TRSSolver>
 class LSR1TrustRegionSolver 
 	: public FirstOrderSolverBase< LSR1TrustRegionSolver<TRSSolver> >
 	, public TrustRegionMethodBase<typename TRSSolver::Scalar, typename TRSSolver::Size>
+	, public LimitedMemorySolverBase<typename TRSSolver::Size>
 {
-	using Base = FirstOrderSolverBase< LSR1TrustRegionSolver<TRSSolver> >;
+	using Base    = FirstOrderSolverBase< LSR1TrustRegionSolver<TRSSolver> >;
 	using TRSBase = TrustRegionMethodBase<typename TRSSolver::Scalar, typename TRSSolver::Size>;
+	using LMBase  = LimitedMemorySolverBase<typename TRSSolver::Size>;
 public:
 	using Scalar = typename Base::Scalar;
 	using Size   = typename Base::Size;
@@ -40,8 +43,6 @@ public:
 	      TRSSolver& getSubproblemSolver()       { return m_trsSolver; }
 private:
 	TRSSolver m_trsSolver;
-	
-	Size m_memory;
 	
 	Scalar* m_gk     = nullptr;
 	Scalar* m_gkp1   = nullptr;

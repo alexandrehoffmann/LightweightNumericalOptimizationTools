@@ -49,20 +49,20 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_const
 		m_gk     = new Scalar[Base::m_workCapacity];
 	  m_gkp1   = new Scalar[Base::m_workCapacity];
 	  m_xTrial = new Scalar[Base::m_workCapacity];
-	  m_P      = new Scalar[Base::m_workCapacity*m_memory];
-	  m_Y      = new Scalar[Base::m_workCapacity*m_memory];
-	  m_S      = new Scalar[Base::m_workCapacity*m_memory];
+	  m_P      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
+	  m_Y      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
+	  m_S      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }	
 	
-	CircularBuffer<Scalar> invRho(m_memory);
-	std::vector<bool>      isVectorKept(m_memory);
+	CircularBuffer<Scalar> invRho(LMBase::m_memory);
+	std::vector<bool>      isVectorKept(LMBase::m_memory);
 	
 	Size curr_idx = 0;
 	auto BkOp = [this, &curr_idx, &invRho, &isVectorKept, size](const Scalar* d, Scalar* Bd) -> void
 	{
 		// from https://home.cs.colorado.edu/~richard/lu_dissertation.pdf
-		const Size prev_idx = (curr_idx == 0) ? m_memory-1 : curr_idx-1;
+		const Size prev_idx = (curr_idx == 0) ? LMBase::m_memory-1 : curr_idx-1;
 		const Scalar* skm1 = m_S + prev_idx*size;
 		const Scalar* ykm1 = m_Y + prev_idx*size;
 		//~ const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::inner(ykm1, skm1, size) / BasicLinalg::squaredNorm(skm1, size);
@@ -135,7 +135,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_const
 		invRho.push(0);
 		
 		++curr_idx; 
-		if (curr_idx == m_memory) { curr_idx = 0; }
+		if (curr_idx == LMBase::m_memory) { curr_idx = 0; }
 		
 		const bool isStepFeasible       = oracle.isFeasible();
 		const bool isStepSuccessful     = ared > 0 and ared > pred*TRSBase::m_etaSuccessful;

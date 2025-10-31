@@ -50,14 +50,14 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlac
 		m_gk   = new Scalar[Base::m_workCapacity];
 		m_gkp1 = new Scalar[Base::m_workCapacity];
 		m_dk   = new Scalar[Base::m_workCapacity];
-		m_S    = new Scalar[m_memory*Base::m_workCapacity];
-		m_Y    = new Scalar[m_memory*Base::m_workCapacity];
+		m_S    = new Scalar[LMBase::m_memory*Base::m_workCapacity];
+		m_Y    = new Scalar[LMBase::m_memory*Base::m_workCapacity];
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	CircularBuffer<Scalar> rho(m_memory);
+	CircularBuffer<Scalar> rho(LMBase::m_memory);
 	
-	std::vector<Scalar> alpha(m_memory);
+	std::vector<Scalar> alpha(LMBase::m_memory);
 	
 	Base::m_innerIts.clear();
 	
@@ -115,7 +115,7 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlac
 		
 		if (yk_dot_sk > 0)
 		{
-			++curr_i; if (curr_i == m_memory) { curr_i = 0; }
+			++curr_i; if (curr_i == LMBase::m_memory) { curr_i = 0; }
 			rho.push(1. / yk_dot_sk);	
 		}
 		
