@@ -131,7 +131,7 @@ newtonSolver1.solve(func, grad, hessOp, N, x);
 ```
 We can also solve the problem witn the L-BFGS method [5]:
 ```cpp
-LNOT::LBFGS<LS> lbfgs1(5); // 5 is the number of steps used to estimate \f$B_k^{-1}\f$
+LNOT::LBFGS<LS> lbfgs1; 
 lbfgs1.solve(func, grad, N, x); // here we do not need hessOp
 ```
 
