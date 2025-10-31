@@ -124,14 +124,14 @@ A Newton/quasi-Newton method first computes a descent direction as \f$d_k = -B_k
 
 Lets solve our problem with Newton's method:
 ```cpp
-LNOT::ConjugateGradient<double> cg; // we will compute \f$d_k\f$ with the Conjgate Gradient 
-LNOT::BacktrackingLineSearch<double> ls; // we will compute \f$\alpha_k\f$ with a Backtracking Linesearch
-auto newtonSolver = LNOT::makeNewtonSolver(cg, ls);
+using GC = LNOT::ConjugateGradient<double>; // we will compute \f$d_k\f$ with the Conjgate Gradient 
+uing LS  = LNOT::BacktrackingLineSearch<double>; // we will compute \f$\alpha_k\f$ with a Backtracking Linesearch
+LNOT::NewtonSolver<CG,LS> newtonSolver;
 newtonSolver1.solve(func, grad, hessOp, N, x);
 ```
 We can also solve the problem witn the L-BFGS method [5]:
 ```cpp
-auto lbfgs1 = LNOT::makeLBFGS(ls, 5); // 5 is the number of steps used to estimate \f$B_k^{-1}\f$
+LNOT::LBFGS<LS> lbfgs1(5); // 5 is the number of steps used to estimate \f$B_k^{-1}\f$
 lbfgs1.solve(func, grad, N, x); // here we do not need hessOp
 ```
 
@@ -149,13 +149,13 @@ Available LineSearches:
 
 A TRM first fixes the step length, and searches a step \f$s_k\f$ within an *trust region* : \f$s_k = \arg\min_{s\in\mathbb{R}^n} (s, Hs) + (g,s) \text{s.t.} \|s\|\leq\Delta_k\f$. 
 ```cpp
-LNOT::LanczosTRSSolver<double> lanczosTrs;
-auto trNewtonSolver = LNOT::makeNewtonSolver(lanczosTrs);
+using LanczosTrs = LNOT::LanczosTRSSolver<double>;
+LNOT::NewtonTrustRegionSolver<LanczosTrs> trNewtonSolver;
 trNewtonSolver.solve(func, grad, hessOp, N, x);
 ```
 We can also solve the problem with both Symmetric Rank 1 (SR1) update of the Hessian matrix or Limited-memory SR1 (L-SR1) methods [6, 7]:
 ```
-auto sr1TR2 = LNOT::makeSR1Solver(lanczosTrs);
+LNOT::SR1TrustRegionSolver<LanczosTrs> sr1TR2;
 sr1TR2.solve(func, grad, N, x);
 ```
 
