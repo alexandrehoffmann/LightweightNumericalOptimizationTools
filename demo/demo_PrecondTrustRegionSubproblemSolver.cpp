@@ -61,7 +61,7 @@ int main()
 	
 	fmt::print("KKT : \n");
 	fmt::print("  * (A + lambda B)x + b = {:10.2e}\n", fmt::join(r_view, " "));
-	fmt::print("  * |x|_B <= Delta ? {}\n", LNOT::BasicLinalg::weightedNorm(x, diagA, N) <= delta + lanczosTrs.getTolTR());
+	fmt::print("  * |x|_B <= Delta ? {}\n", LNOT::BasicLinalg::weightedNorm(x, diagA, N) <= delta + lanczosTrs.getRelTolTR());
 	fmt::print("  * lambda >= 0 ? {}\n", lanczosTrs.getLambda() >= 0);
 	fmt::print("  * lambda*(|x| - Delta) = {:10.2e}\n", lanczosTrs.getLambda()*(LNOT::BasicLinalg::weightedNorm(x, diagA, N) - delta));
 	Aop(x, r); 
@@ -73,7 +73,7 @@ int main()
 	tcg.solve(Aop, Bop, b, BIC::fixed<unsigned int, N>, delta, x);
 	
 	fmt::print("Truncated CG found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), tcg.getIterations(), tcg.getError());
-	fmt::print("|x| <= Delta ? {}\n", LNOT::BasicLinalg::norm(x, N) <= delta + tcg.getTolTR());
+	fmt::print("|x| <= Delta ? {}\n", LNOT::BasicLinalg::norm(x, N) <= delta + tcg.getRelTolTR());
 	Aop(x, r); 
 	fmt::print("Predicted model reduction : {}\n", tcg.getModelReduction());
 	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));

@@ -68,10 +68,10 @@ int main()
 	using TCG        = LNOT::TruncatedConjugateGradient<double>;
 	using LanczosTRS = LNOT::LanczosTRSSolver<double>;
 	
-	std::FILE* newtonBisectLsOut       = std::fopen("newton_bisect_ls.log", "w");
-	std::FILE* newtonBacktrackLsOut    = std::fopen("newton_backtrack_ls.log", "w");
-	std::FILE* newtonTCGOut            = std::fopen("newton_tcg.log", "w");
-	std::FILE* newtonLanczosOut        = std::fopen("newton_lanczos.log", "w");
+	std::FILE* newtonBisectLsOut    = std::fopen("newton_bisect_ls.log", "w");
+	std::FILE* newtonBacktrackLsOut = std::fopen("newton_backtrack_ls.log", "w");
+	std::FILE* newtonTCGOut         = std::fopen("newton_tcg.log", "w");
+	std::FILE* newtonLanczosOut     = std::fopen("newton_lanczos.log", "w");
 	
 	LNOT::NewtonSolver<CG, BisectLS> newtonSolver1;
 	newtonSolver1.setOutput(newtonBisectLsOut);
@@ -83,7 +83,7 @@ int main()
 	newtonSolver2.setOutput(newtonBacktrackLsOut);
 	newtonSolver2.solve(func, grad, hessOp, precOp, N, x);
 	
-	fmt::print("Newton with Bisection Backtracking LineSearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver2.getIterations(), newtonSolver2.getError(), newtonSolver2.getValue());
+	fmt::print("Newton with Backtracking LineSearch found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver2.getIterations(), newtonSolver2.getError(), newtonSolver2.getValue());
 	
 	LNOT::NewtonTrustRegionSolver<TCG> newtonSolver3;
 	newtonSolver3.setOutput(newtonTCGOut);

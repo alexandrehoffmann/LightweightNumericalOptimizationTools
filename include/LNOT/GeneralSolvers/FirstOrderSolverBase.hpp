@@ -2,6 +2,8 @@
 #define LNOT_FIRST_ORDER_SOLVER_BASE_HPP
 
 #include <LNOT/Oracles/OracleWrapper.hpp>
+#include <LNOT/CRTPBase.hpp>
+
 #include <BIC/Core.hpp>
 
 #include <cstdio>
@@ -24,9 +26,10 @@ template<class Derived> struct FirstOrderSolverTraits;
  * @tparam Derived The actual solver class inheriting from this base.
  */
 template<class Derived>
-class FirstOrderSolverBase
+class FirstOrderSolverBase : public CRTPBase<Derived>
 {
 	using DerivedTraits = FirstOrderSolverTraits<Derived>;
+	using CRTP          = CRTPBase<Derived>;
 public:
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
 	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
@@ -39,13 +42,14 @@ public:
 		BREAKDOWN ///<  Numerical breakdown (e.g., division by zero)
 	};
 	
-	template<typename ASize>     struct IsSize      : std::bool_constant< std::is_same<Size, BIC::Mutable<ASize>>::value > {};                              ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
-	template<typename Function>  struct IsFunction  : std::bool_constant< std::is_invocable<Function, const Scalar*>::value > {};                           ///<  @brief Trait to check if Function is a valid callable with signature Scalar(const Scalar*)
-	template<typename Gradient>  struct IsGradient  : std::bool_constant< std::is_invocable<Gradient, const Scalar*, Scalar*>::value > {};                  ///<  @brief Trait to check if Gradient is a valid callable with signature void(const Scalar*, Scalar*)
-	template<typename Function, typename Gradient> struct IsProgram : std::bool_constant< IsFunction<Function>::value and IsGradient<Gradient>::value > {}; ///<  @brief Trait to check if Function + Gradient pair is valid
+	template<typename ABool>     struct IsBool      : BIC::Fixed<bool, std::is_same<bool, BIC::Mutable<ABool> >::value > {};            ///<  @brief Trait to check if a type is either a `bool` or a `BIC::Fixed<bool, VALUE>`	
+	template<typename ASize>     struct IsSize      : BIC::Fixed<bool, std::is_same<Size,  BIC::Mutable<ASize> >::value > {};           ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
+	template<typename Function>  struct IsFunction  : BIC::Fixed<bool, std::is_invocable<Function, const Scalar*>::value > {};          ///<  @brief Trait to check if Function is a valid callable with signature Scalar(const Scalar*)
+	template<typename Gradient>  struct IsGradient  : BIC::Fixed<bool, std::is_invocable<Gradient, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if Gradient is a valid callable with signature void(const Scalar*, Scalar*)
 	
-	const Derived& derived() const { return static_cast<const Derived&>(*this); }
-	      Derived& derived()       { return static_cast<      Derived&>(*this); }
+	template<typename Function, typename Gradient> struct IsProgram : BIC::Fixed<bool, IsFunction<Function>::value and IsGradient<Gradient>::value > {}; ///<  @brief Trait to check if Function + Gradient pair is valid
+	
+	static constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon(); ///<  @brief Default value for relative and absolute tolerance of the solver.  
 	
 	// ========================================================================
 	// SOLVER INTERFACES
@@ -56,11 +60,11 @@ public:
 	 * @param maxIt Maximum number of iterations (default: 200000).
 	 * @param tol Convergence tolerance (default: machine epsilon).
 	 */
-	FirstOrderSolverBase(const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon()) : m_maxIt(maxIt), m_tol(tol) {}
+	FirstOrderSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar absTol = defaultEps) : m_maxIt(maxIt), m_relTol(relTol), m_absTol(absTol) {}
 	~FirstOrderSolverBase() { clearWorkSpace(); }
 	
 	/// @brief Clear any internal memory or workspace used by the solver.
-	void clearWorkSpace() { derived().clearWorkSpaceImpl(); }
+	void clearWorkSpace() { CRTP::derived().clearWorkSpaceImpl(); }
 	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle (no initial guess).
@@ -68,7 +72,7 @@ public:
 	 * @param x Output vector for the solution.
 	 */
 	template<FirstOrderOracle_concept Oracle>
-	void solve(Oracle& oracle, Scalar* x) { solveImpl(oracle, std::false_type{}, x); }
+	void solve(Oracle& oracle, Scalar* x) { solveImpl(oracle, BIC::fixed<bool,false>, x); }
 	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle with an initial guess.
@@ -77,7 +81,7 @@ public:
 	 * @param x Output vector for the solution.
 	 */
 	template<FirstOrderOracle_concept Oracle>
-	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); solveImpl(oracle, std::true_type{}, x); }
+	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); solveImpl(oracle, BIC::fixed<bool,true>, x); }
 	
 	/**
 	 * @brief Solve using raw function and gradient functors.
@@ -87,7 +91,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<typename Function, typename Gradient, typename ASize>
-	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { solve(f, g, size, std::false_type{}, x); }
+	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { solve(f, g, size, BIC::fixed<bool,false>, x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function and gradient functors.
@@ -98,33 +102,29 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<typename Function, typename Gradient, typename ASize>
-	void solveWithGuess(Function f, Gradient g, const Scalar* x0, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); solveImpl(f, g, size, std::true_type{}, x);  }
+	void solveWithGuess(Function f, Gradient g, const Scalar* x0, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); solveImpl(f, g, size, BIC::fixed<bool,true>, x);  }
 	
 	/**
 	 * @brief Internal function to create an OracleWrapper from functors and solve with or without an initial guess.
 	 * @param f Function functor.
 	 * @param g Gradient functor.
 	 * @param size Problem dimension.
-	 * @param bc a placeholder for `solveInPlace`.
+	 * @param solveInPlace specify if x should be used as an initial guess
 	 * @param x Output solution vector.
-	 * 
-	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
-	template<typename Function, typename Gradient, typename ASize, bool solveInPlace> 
-	void solve(Function f, Gradient g, const ASize size, std::bool_constant<solveInPlace> bc, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solve(oracle, bc, x); }
+	template<typename Function, typename Gradient, typename ASize, typename ABool> 
+	void solve(Function f, Gradient g, const ASize size, const ABool solveInPlace, Scalar* x) requires (IsProgram<Function,Gradient>::value and IsSize<ASize>::value and IsBool<ABool>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solve(oracle, solveInPlace, x); }
 	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle with or without an initial guess.
 	 * @param oracle An oracle object.
-	 * @param bc a placeholder for `solveInPlace`.
+	 * @param solveInPlace specify if x should be used as an initial guess
 	 * @param x Output solution vector.
 	 * 
 	 * Delegates to `Derived::solveImpl()`.
-	 * 
-	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
-	template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-	void solve(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x) { derived().solveImpl(oracle, bc, x); }
+	template<FirstOrderOracle_concept Oracle, typename ABool> 
+	void solve(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value) { CRTP::derived().solveImpl(oracle, solveInPlace, x); }
 	
 	// ========================================================================
 	// MONITORING METHODS
@@ -134,15 +134,19 @@ public:
 	Scalar getError        () const { return std::sqrt(m_squaredNormGrad); } ///<  @brief Get L2 norm of the last computed gradient.
 	Scalar getSquaredError () const { return m_squaredNormGrad; }            ///<  @brief Get squared L2 norm of the last computed gradient.
 	
-	Size   getMaxIt      () const { return m_maxIt; } ///<  @brief Get the maximum number of iterations allowed.
-	Scalar getTol        () const { return m_tol;   } ///<  @brief Get the convergence tolerance.
-	Size   getIterations () const { return m_nIt;   } ///<  @brief Get the actual number of iterations performed.
-	Info   getInfo       () const { return m_info;  } ///<  @brief Get the solver exit status.
+	Size   getMaxIt      () const { return m_maxIt;  } ///<  @brief Get the maximum number of iterations allowed.
+	Scalar getRelTol     () const { return m_relTol; } ///<  @brief Get the convergence relative tolerance.
+	Scalar getAbsTol     () const { return m_absTol; } ///<  @brief Get the convergence absolute tolerance.
+	Size   getIterations () const { return m_nIt;    } ///<  @brief Get the actual number of iterations performed.
+	Info   getInfo       () const { return m_info;   } ///<  @brief Get the solver exit status.
 	
 	Size getInnerIterations(const Size it) const { return m_innerIts[it]; } ///<  @brief  Get number of inner iterations required to compute a step.
 	
-	void setMaxIt (const Size    maxIt) { m_maxIt = maxIt; } ///<  @brief Set the maximum number of iterations.
-	void setTol   (const Scalar& tol)   { m_tol   = tol;   } ///<  @brief Set the convergence tolerance.
+	void setMaxIt  (const Size    maxIt) { m_maxIt  = maxIt; } ///<  @brief Set the maximum number of iterations.
+	void setRelTol (const Scalar& tol)   { m_relTol = tol;   } ///<  @brief Set the convergence relative tolerance.
+	void setAbsTol (const Scalar& tol)   { m_absTol = tol;   } ///<  @brief Set the convergence absolute tolerance.
+	
+	void setTol(const Scalar& tol) { setRelTol(tol); setAbsTol(tol); } ///<  @brief Set both relative and absolute tolerance.
 	
 	/**
 	 * @brief Set a file stream for solver logging output (e.g., stdout or file).
@@ -151,7 +155,8 @@ public:
 	void setOutput(std::FILE* out) { m_out = out; }
 protected:
 	Size   m_maxIt;           ///<  @brief Maximum number of iterations
-	Scalar m_tol;             ///<  @brief Tolerance for convergence
+	Scalar m_relTol;          ///<  @brief Relative tolerance for convergence
+	Scalar m_absTol;          ///<  @brief Absolute tolerance for convergence
 	Size   m_nIt;             ///<  @brief Number of iterations actually performed
 	Info   m_info;            ///<  @brief Status of the solver after termination
 	Scalar m_squaredNormGrad; ///<  @brief Squared norm of the gradient
@@ -164,7 +169,30 @@ protected:
 	std::FILE* m_out = nullptr; ///<  @brief Optional output stream
 };
 
-template<class T> struct IsFirstOrderSolver : std::bool_constant< std::is_base_of<FirstOrderSolverBase<T>, T>::value > {}; ///<  @brief Trait to determine if a type derives from FirstOrderSolverBase.
+#define LNOT_DEFINE_FIRST_ORDER_SOLVER \
+	using Base   = FirstOrderSolverBase<Self>; \
+	using Size   = typename Base::Size; \
+	using Scalar = typename Base::Scalar; \
+	using Info   = typename Base::Info; \
+	\
+	template<typename ABool> using IsBool = typename Base::template IsBool<ABool>; \
+	template<typename ASize> using IsSize = typename Base::template IsSize<ASize>; \
+	\
+	template<typename Function, typename Gradient> using IsProgram = typename Base::template IsProgram<Function, Gradient>; \
+
+#define LNOT_FIRST_ORDER_SOLVER_ATTRIBUTE \
+	using Base::m_maxIt; \
+	using Base::m_relTol; \
+	using Base::m_absTol; \
+	using Base::m_nIt; \
+	using Base::m_info; \
+	using Base::m_squaredNormGrad; \
+	using Base::m_fx; \
+	using Base::m_workCapacity; \
+	using Base::m_innerIts; \
+	using Base::m_out; \
+
+template<class T> struct IsFirstOrderSolver : BIC::Fixed<bool, std::is_base_of<FirstOrderSolverBase<T>, T>::value > {}; ///<  @brief Trait to determine if a type derives from FirstOrderSolverBase.
 
 template<class T> concept FirstOrderSolver_concept = IsFirstOrderSolver<T>::value;
 

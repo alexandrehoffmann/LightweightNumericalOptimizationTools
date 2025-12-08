@@ -1,6 +1,10 @@
 #ifndef LNOT_ORACLE_BASE_HPP
 #define LNOT_ORACLE_BASE_HPP
 
+#include <LNOT/CRTPBase.hpp>
+
+#include <BIC/Core.hpp>
+
 #include <type_traits> // std::bool_constant and std::is_base_of
 #include <algorithm>   // std::copy
 
@@ -41,18 +45,16 @@ template<class Derived> struct OracleTraits;
  * - hasApplyPrecond, a boolean constexpr true, if Derived implements applyPrecond()
  */
 template<class Derived>
-class OracleBase
+class OracleBase : public CRTPBase<Derived>
 {
 	using DerivedTraits = OracleTraits<Derived>;
+	using CRTP          = CRTPBase<Derived>;
 public:
 	using Size   = typename DerivedTraits::Size;   ///<  @brief Type representing the number of dimensions (variables) of the function.
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief Scalar type used in evaluations.
 
 	static constexpr bool hasGradient     = DerivedTraits::hasGradient;
 	static constexpr bool hasHessianProd  = DerivedTraits::hasHessianProd;
-
-	const Derived& derived_cast() const { return static_cast<const Derived&>(*this); }
-	      Derived& derived_cast()       { return static_cast<      Derived&>(*this); }
 	
 	/**
 	 * @brief Get the number of dimensions (variables) of the function.
@@ -61,7 +63,7 @@ public:
 	 * 
 	 * @return Number of variables (dimension of the domain).
 	 */
-	Size getNDims() const { return derived_cast().getNDimsImpl(); }
+	Size getNDims() const { return CRTP::derived().getNDimsImpl(); }
 	
 	/**
 	 * @brief Set the point at which the function will be evaluated.
@@ -71,7 +73,7 @@ public:
 	 * 
 	 * @param x Pointer to an array representing the current point \f$x \in \mathbb{R}^d\f$.
 	 */
-	void setCurrentPoint(const Scalar* x) { derived_cast().setCurrentPointImpl(x); }
+	void setCurrentPoint(const Scalar* x) { CRTP::derived().setCurrentPointImpl(x); }
 	
 	/**
 	 * @brief True if the current point is feasible
@@ -80,7 +82,7 @@ public:
 	 * 
 	 * @return true if the current point is feasible.
 	 */
-	 bool isFeasible() const { return derived_cast().isFeasibleImpl(); }
+	 bool isFeasible() const { return CRTP::derived().isFeasibleImpl(); }
 	
 	/**
 	 * @brief Get the function value \f$f(x)\f$ at the current point.
@@ -89,7 +91,7 @@ public:
 	 * 
 	 * @return The function value at the current point.
 	 */
-	Scalar getValue() const { return derived_cast().getValueImpl(); }
+	Scalar getValue() const { return CRTP::derived().getValueImpl(); }
 	
 	/**
 	 * @brief Get the gradient \f$\nabla f(x)\f$ at the current point.
@@ -100,7 +102,7 @@ public:
 	 * 
 	 * @param g Pointer to an array to store the gradient values.
 	 */
-	void getGradient(Scalar* g) const requires (hasGradient) { derived_cast().getGradientImpl(g); }
+	void getGradient(Scalar* g) const requires (hasGradient) { CRTP::derived().getGradientImpl(g); }
 	
 	/**
 	 * @brief Compute the Hessian-vector product \f$\nabla^2 f(x)d\f$.
@@ -112,7 +114,7 @@ public:
 	 * @param d  Input direction vector.
 	 * @param Hd Output array for the result of the Hessian-vector product.
 	 */
-	void getHessianProd(const Scalar* d, Scalar* Hd) const requires (hasHessianProd) { derived_cast().getHessianProdImpl(d, Hd); }
+	void getHessianProd(const Scalar* d, Scalar* Hd) const requires (hasHessianProd) { CRTP::derived().getHessianProdImpl(d, Hd); }
 	
 	/**
 	 * @brief Approximatively solves \f$B x = y\f$ where \f$B\approx\nabla^2 f(x)\f$.
@@ -124,7 +126,7 @@ public:
 	 * @param d  Input direction vector.
 	 * @param invBd Output array for the result.
 	 */
-	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) { derived_cast().applyPrecondImpl(d, invBd); }
+	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) { CRTP::derived().applyPrecondImpl(d, invBd); }
 	
 	/**
 	 * @brief dafault implementation for applyPrecondImpl. Copy d into invBd.
@@ -132,7 +134,15 @@ public:
 	void applyIdentityPrecond(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) { std::copy(d, d + getNDims(), invBd); }
 };
 
-template<class T> struct IsOracle : std::bool_constant< std::is_base_of<OracleBase<T>, T>::value > {};
+#define LNOT_DEFINE_ORACLE \
+	using Base   = OracleBase<Self>; \
+	using Size   = typename Base::Size; \
+	using Scalar = typename Base::Scalar; \
+	\
+	using Base::hasGradient; \
+	using Base::hasHessianProd; \
+
+template<class T> struct IsOracle : BIC::Fixed<bool, std::is_base_of<OracleBase<T>, T>::value > {};
 
 template<class T> concept Oracle_concept            = IsOracle<T>::value;
 template<class T> concept FirstOrderOracle_concept  = IsOracle<T>::value and T::hasGradient;

@@ -11,25 +11,24 @@ namespace LNOT
 template<class LineSearch> struct LineSearchTraits;
 
 template<class Derived>
-class LineSearchBase
+class LineSearchBase : public CRTPBase<Derived>
 {
 	using DerivedTraits = LineSearchTraits<Derived>;
 public:
+	using CRTP = CRTPBase<Derived>;
+	
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
 	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
 	
 	enum class Info {SUCCESS, FAILURE}; ///<  @brief Enumeration indicating solver termination status.
-
-	const Derived& derived() const { return static_cast<const Derived&>(*this); }
-	      Derived& derived()       { return static_cast<      Derived&>(*this); }
 	
 	LineSearchBase(const Size maxIt = 200000) : m_maxIt(maxIt) {}
 	~LineSearchBase() { clearWorkSpace(); }
 	
-	void clearWorkSpace() { derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
+	void clearWorkSpace() { CRTP::derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
 	
 	template<FirstOrderOracle_concept Oracle>
-	Scalar solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) { return derived().solveImpl(x, fx, gx, s, oracle); }
+	Scalar solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) { return CRTP::derived().solveImpl(x, fx, gx, s, oracle); }
 	
 	Size getMaxIt   () const { return m_maxIt; }
 	Size iterations () const { return m_nIt;   }
@@ -48,7 +47,20 @@ protected:
 	std::FILE* m_out = nullptr;
 };
 
-template<class T> struct IsLineSearch : std::bool_constant< std::is_base_of<LineSearchBase<T>, T>::value > {};
+#define LNOT_DEFINE_LINESEARCH \
+	using Base   = LineSearchBase<Self>; \
+	using Size   = typename Base::Size; \
+	using Scalar = typename Base::Scalar; \
+	using Info   = typename Base::Info; \
+	
+#define LNOT_LINESEARCH_ATTRIBUTE \
+	using Base::m_maxIt; \
+	using Base::m_nIt; \
+	using Base::m_info; \
+	using Base::m_workCapacity; \
+	using Base::m_out; \
+
+template<class T> struct IsLineSearch : BIC::Fixed<bool, std::is_base_of<LineSearchBase<T>, T>::value > {};
 
 template<class T> concept LineSearch_concept = IsLineSearch<T>::value;
 

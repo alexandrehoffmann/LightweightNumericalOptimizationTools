@@ -41,6 +41,8 @@ int main()
 	
 	std::FILE* nlcgBisectLsOut       = std::fopen("nlcg_bisect_ls.log", "w");
 	std::FILE* nlcgBacktrackLsOut    = std::fopen("nlcg_backtrack_ls.log", "w");
+	std::FILE* bfgsBisectLsOut       = std::fopen("bfgs_bisect_ls.log", "w");
+	std::FILE* bfgsBacktrackLsOut    = std::fopen("bfgs_backtrack_ls.log", "w");
 	std::FILE* lbfgsBisectLsOut      = std::fopen("lbfgs_bisect_ls.log", "w");
 	std::FILE* lbfgsBacktrackLsOut   = std::fopen("lbfgs_backtrack_ls.log", "w");
 	std::FILE* sr1TCGOut             = std::fopen("sr1_tcg.log", "w");
@@ -64,14 +66,14 @@ int main()
 	
 	LNOT::BFGS<BisectLs> bfgs1;
 	bfgs1.setTol(1.0e-11);
-	bfgs1.setOutput(lbfgsBisectLsOut);
+	bfgs1.setOutput(bfgsBisectLsOut);
 	bfgs1.solve(func, grad, N, x);
 	
 	fmt::print("BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), bfgs1.getIterations(), bfgs1.getError(), bfgs1.getValue());
 
 	LNOT::BFGS<BacktrackLs> bfgs2;
 	bfgs2.setTol(1.0e-11);
-	bfgs2.setOutput(lbfgsBacktrackLsOut);
+	bfgs2.setOutput(bfgsBacktrackLsOut);
 	bfgs2.solve(func, grad, N, x);
 	
 	fmt::print("BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), bfgs2.getIterations(), bfgs2.getError(), bfgs2.getValue());
@@ -89,28 +91,28 @@ int main()
 	lbfgs2.solve(func, grad, N, x);
 	
 	fmt::print("L-BFGS found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lbfgs2.getIterations(), lbfgs2.getError(), lbfgs2.getValue());
-
+	
 	LNOT::SR1TrustRegionSolver<TCG> sr1TR1;
 	sr1TR1.setTol(1.0e-11);
 	sr1TR1.setOutput(sr1TCGOut);
 	sr1TR1.solve(func, grad, N, x);
 	
 	fmt::print("TR-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), sr1TR1.getIterations(), sr1TR1.getError(), sr1TR1.getValue());
-
+	
 	LNOT::SR1TrustRegionSolver<LanczosTrs> sr1TR2;
 	sr1TR2.setTol(1.0e-11);
 	sr1TR2.setOutput(sr1LanczosOut);
 	sr1TR2.solve(func, grad, N, x);
 	
 	fmt::print("TR-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), sr1TR2.getIterations(), sr1TR2.getError(), sr1TR2.getValue());
-
+	
 	LNOT::LSR1TrustRegionSolver<TCG> lsr1TR1;
 	lsr1TR1.setTol(1.0e-11);
 	lsr1TR1.setOutput(lsr1TCGOut);
 	lsr1TR1.solve(func, grad, N, x);
 	
 	fmt::print("TR-L-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lsr1TR1.getIterations(), lsr1TR1.getError(), lsr1TR1.getValue());
-
+	
 	LNOT::LSR1TrustRegionSolver<LanczosTrs> lsr1TR2;
 	lsr1TR2.setTol(1.0e-11);
 	lsr1TR2.setOutput(lsr1LanczosOut);
@@ -118,6 +120,8 @@ int main()
 	
 	fmt::print("TR-L-SR1 found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), lsr1TR2.getIterations(), lsr1TR2.getError(), lsr1TR2.getValue());
 
+	std::fclose(bfgsBisectLsOut);
+	std::fclose(bfgsBacktrackLsOut);
 	std::fclose(lbfgsBisectLsOut);
 	std::fclose(lbfgsBacktrackLsOut);
 	std::fclose(sr1TCGOut);

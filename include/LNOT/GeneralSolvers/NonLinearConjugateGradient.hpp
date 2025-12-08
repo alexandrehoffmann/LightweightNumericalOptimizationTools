@@ -22,21 +22,21 @@ struct FirstOrderSolverTraits< NonLinearConjugateGradient<LineSearch, UpdateStra
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy = NLCGUpdateStrategy::HESTENES_STIEFEL> 
 class NonLinearConjugateGradient : public FirstOrderSolverBase< NonLinearConjugateGradient<LineSearch, UpdateStrategy> >
 {
-	using Base = FirstOrderSolverBase< NonLinearConjugateGradient<LineSearch, UpdateStrategy> >;
+	using Self = NonLinearConjugateGradient<LineSearch, UpdateStrategy>;
 public:
-	using Scalar = typename Base::Scalar;
-	using Size   = typename Base::Size;
-	using Info   = typename Base::Info;
+	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	
 	void clearWorkSpaceImpl();
 	
-	template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
+	template<FirstOrderOracle_concept Oracle, typename ABool> 
+	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
 	Scalar getBeta(const Size size);
 	
 	const LineSearch& getLinesearch() const { return m_lineSearch; }
 	      LineSearch& getLinesearch()       { return m_lineSearch; }
+protected:
+	LNOT_FIRST_ORDER_SOLVER_ATTRIBUTE
 private:
 	Scalar* m_dk   = nullptr;
 	Scalar* m_yk   = nullptr;

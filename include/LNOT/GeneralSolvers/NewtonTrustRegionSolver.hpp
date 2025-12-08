@@ -24,20 +24,21 @@ class NewtonTrustRegionSolver
 	: public SecondOrderSolverBase< NewtonTrustRegionSolver<TRSSolver> >
 	, public TrustRegionMethodBase<typename TRSSolver::Scalar, typename TRSSolver::Size>
 {
-	using Base = SecondOrderSolverBase< NewtonTrustRegionSolver<TRSSolver> >;
-	using TRSBase = TrustRegionMethodBase<typename TRSSolver::Scalar, typename TRSSolver::Size>;
+	using Self = NewtonTrustRegionSolver<TRSSolver>;
 public:
-	using Scalar = typename Base::Scalar;
-	using Size   = typename Base::Size;
-	using Info   = typename Base::Info;
+	LNOT_DEFINE_SECOND_ORDER_SOLVER
+	LNOT_DEFINE_TRUST_REGION_SOLVER
 	
 	void clearWorkSpaceImpl();
 	
-	template<SecondOrderOracle_concept Oracle, bool solveInPlace> 
-	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace> bc, Scalar* x);
+	template<SecondOrderOracle_concept Oracle, typename ABool> 
+	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
 	const TRSSolver& getSubproblemSolver() const { return m_trsSolver; }
 	      TRSSolver& getSubproblemSolver()       { return m_trsSolver; }
+protected:
+	LNOT_SECOND_ORDER_SOLVER_ATTRIBUTE
+	LNOT_TRUST_REGION_SOLVER_ATTRIBUTE
 private:
 	TRSSolver m_trsSolver;
 	

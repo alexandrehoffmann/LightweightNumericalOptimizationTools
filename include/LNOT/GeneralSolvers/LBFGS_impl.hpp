@@ -32,52 +32,55 @@ void LBFGS<LineSearch>::clearWorkSpaceImpl()
 	if (m_dk   != nullptr) { delete[] m_dk;   m_dk   = nullptr; }
 	if (m_S    != nullptr) { delete[] m_S;    m_S    = nullptr; }
 	if (m_Y    != nullptr) { delete[] m_Y;    m_Y    = nullptr; }
-	Base::m_workCapacity = 0;
+	m_workCapacity = 0;
 }
 
-template<typename LineSearch> template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
+template<typename LineSearch> template<FirstOrderOracle_concept Oracle, typename ABool> 
+void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size         = typename Oracle::Size;
 	using CircularBuffer_Size = typename CircularBuffer<Scalar>::size_type;
 	
 	const Oracle_Size size = oracle.getNDims();
 	
-	if (Base::m_workCapacity < size)
+	if (m_workCapacity < size)
 	{
 		clearWorkSpaceImpl();
-		Base::m_workCapacity = size;
+		m_workCapacity = size;
 
-		m_gk   = new Scalar[Base::m_workCapacity];
-		m_gkp1 = new Scalar[Base::m_workCapacity];
-		m_dk   = new Scalar[Base::m_workCapacity];
-		m_S    = new Scalar[LMBase::m_memory*Base::m_workCapacity];
-		m_Y    = new Scalar[LMBase::m_memory*Base::m_workCapacity];
+		m_gk   = new Scalar[m_workCapacity];
+		m_gkp1 = new Scalar[m_workCapacity];
+		m_dk   = new Scalar[m_workCapacity];
+		m_S    = new Scalar[m_memory*m_workCapacity];
+		m_Y    = new Scalar[m_memory*m_workCapacity];
 	}
-	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }
+	if (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	CircularBuffer<Scalar> rho(LMBase::m_memory);
+	CircularBuffer<Scalar> rho(m_memory);
 	
-	std::vector<Scalar> alpha(LMBase::m_memory);
+	std::vector<Scalar> alpha(m_memory);
 	
-	Base::m_innerIts.clear();
+	m_innerIts.clear();
 	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk);
 	
-	Base::m_fx = oracle.getValue();
-	Base::m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+	m_fx = oracle.getValue();
+	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
 	
-	const Scalar tol2 = Base::m_tol*Base::m_tol*std::max(Scalar(1), Base::m_squaredNormGrad);
+	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
+	const Scalar absTol2 = m_absTol*m_absTol;
 	
-	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#L-BFGS method\n#Iteration f(x) residual tol\n"); }
+	const FPComparator<Scalar> cmp;
+	
+	if (m_out != nullptr) { fmt::print(m_out, "#L-BFGS method\n#Iteration f(x) residual relative_tol absolute_tol\n"); }
 	
 	Size curr_i = 0;
-	Base::m_info = Info::FAILURE;
-	for (Base::m_nIt=0;Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
+	m_info = Info::FAILURE;
+	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, Base::m_fx, Base::m_squaredNormGrad, tol2); }
-		if (Base::m_squaredNormGrad < tol2) { Base::m_info = Info::SUCCESS; break; }
+		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); }
+		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		
 		//// two loop recursion
 		#pragma omp simd
@@ -95,11 +98,11 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlac
 			const Scalar beta = rho_i*BasicLinalg::inner(m_Y + i*size, m_dk, size);
 			BasicLinalg::axpy((alpha[i] - beta), m_S + i*size, size, m_dk);
 		});
-		Base::m_innerIts.push_back(1);
+		m_innerIts.push_back(1);
 		////
-		const Scalar step_len = m_lineSearch.solve(x, Base::m_fx, m_gk, m_dk, oracle);
+		const Scalar step_len = m_lineSearch.solve(x, m_fx, m_gk, m_dk, oracle);
 		
-		if (step_len < std::numeric_limits<Scalar>::epsilon()) { Base::m_info = Info::BREAKDOWN; break; }
+		if (not cmp.isDefPositive(step_len)) { m_info = Info::BREAKDOWN; break; }
 		
 		BasicLinalg::axpy(step_len, m_dk, size, x);
 		oracle.setCurrentPoint(x);
@@ -116,15 +119,15 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlac
 		
 		if (yk_dot_sk > 0)
 		{
-			++curr_i; if (curr_i == LMBase::m_memory) { curr_i = 0; }
+			++curr_i; if (curr_i == m_memory) { curr_i = 0; }
 			rho.push(1. / yk_dot_sk);	
 		}
 		
 		////
 		
 		std::copy(m_gkp1, m_gkp1 + size, m_gk);
-		Base::m_fx = oracle.getValue();
-		Base::m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+		m_fx = oracle.getValue();
+		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
 	}
 }
 	

@@ -145,8 +145,7 @@ target_include_directories(LNOT
         $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(LNOT PUBLIC fmt::fmt)
-target_link_libraries(LNOT PUBLIC BIC)
+target_link_libraries(LNOT PUBLIC fmt::fmt BIC)
 
 if(LNOT_WITH_BLAS)
     target_include_directories(LNOT PUBLIC ${OpenBLAS_INCLUDE_DIRS})

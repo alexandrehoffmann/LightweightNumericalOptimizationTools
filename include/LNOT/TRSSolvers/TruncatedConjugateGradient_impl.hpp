@@ -5,6 +5,7 @@
 #include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
 #include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
+#include <LNOT/FloatingPoint/FPComparator.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -48,20 +49,20 @@ void TruncatedConjugateGradient<T>::clearWorkSpace()
 	if (m_r  != nullptr) { delete[] m_r;  } 
 	if (m_p  != nullptr) { delete[] m_p;  } 
 	if (m_Hp != nullptr) { delete[] m_Hp; }
-	Base::m_workCapacity = 0;
+	m_workCapacity = 0;
 }
 
 template<typename T> 
 void TruncatedConjugateGradient<T>::resizeWorkSpace(const Size newSize)
 {
-	if (Base::m_workCapacity < newSize)
+	if (m_workCapacity < newSize)
 	{
 		clearWorkSpace();
-		Base::m_workCapacity = newSize;
-		m_z  = new Scalar[Base::m_workCapacity];
-		m_r  = new Scalar[Base::m_workCapacity];
-		m_p  = new Scalar[Base::m_workCapacity];
-		m_Hp = new Scalar[Base::m_workCapacity];
+		m_workCapacity = newSize;
+		m_z  = new Scalar[m_workCapacity];
+		m_r  = new Scalar[m_workCapacity];
+		m_p  = new Scalar[m_workCapacity];
+		m_Hp = new Scalar[m_workCapacity];
 	}
 }
 
@@ -71,7 +72,7 @@ void TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 	resizeWorkSpace(size);
 	
 	std::fill(x, x+size, 0);
-	Base::m_modelReduction = 0;
+	m_modelReduction = 0;
 	Scalar sqNormX = 0;
 	
 	#pragma omp simd
@@ -85,34 +86,38 @@ void TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 	Scalar precSqNormP = m_precSqNormR;
 	Scalar precInnerXP = 0; // x = 0, thus (x, p)_B = 0
 	
-	const Scalar tol2      = Base::getSquaredResidualThreshold();
-	const Scalar deltaTol2 = (delta + Base::m_tolTr)*(delta + Base::m_tolTr);
+	const Scalar relTol2 = m_relTol*m_relTol*m_precSqNormR;
+	const Scalar absTol2 = m_absTol*m_absTol;
+	const Scalar delta2  = delta*delta;
 	
-	Base::m_info = Info::FAILURE;
-	if (Base::m_out) { fmt::print(Base::m_out, "#Truncated Preconditioned CG solver : \n#Iteration residual tol\n"); }
-	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
+	const FPComparator<Scalar> cmp;
+	const FPComparator<Scalar> cmpTr(m_relTolTr, m_absTolTr);
+	
+	m_info = Info::FAILURE;
+	if (m_out) { fmt::print(m_out, "#Truncated Preconditioned CG solver : \n#Iteration residual relative_tol absolute_tol\n"); }
+	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e}\n", Base::m_nIt, std::sqrt(m_precSqNormR), std::sqrt(tol2)); }
- 		if (m_precSqNormR < tol2) { Base::m_info = Info::SUCCESS; break; }
+		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, std::sqrt(m_precSqNormR), std::sqrt(relTol2), std::sqrt(m_absTol)); }
+ 		if (m_precSqNormR < relTol2 or m_precSqNormR < absTol2) { m_info = Info::SUCCESS; break; }
  		
  		H(m_p, m_Hp);
  		
  		const Scalar alpha = m_precSqNormR / BasicLinalg::inner(m_p, m_Hp, size);
  		const Scalar sqNormXnext = sqNormX + 2*alpha*precInnerXP + alpha*alpha*precSqNormP;
  		
- 		if (alpha < std::numeric_limits<Scalar>::epsilon() or sqNormXnext >= deltaTol2) 
+ 		if ((not cmp.isDefPositive(alpha)) or cmpTr.isDefGreaterThan(sqNormXnext, delta2)) 
  		{
 			// we need to find tau > 0 such that |x + tau*p|^2 = delta^2
 			const Scalar tau = getPolyMaxRoot(precSqNormP, 2*precInnerXP, sqNormX - delta*delta);
 			
-			if (tau < 0) { Base::m_info = Info::BREAKDOWN; break; } 
+			if (cmp.isDefNegative(tau)) { m_info = Info::BREAKDOWN; break; } 
 			
-			for (Size i=0;i !=size; ++i) { Base::m_modelReduction += tau*(x[i]*m_Hp[i] + Scalar(0.5)*tau*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
+			for (Size i=0;i !=size; ++i) { m_modelReduction += tau*(x[i]*m_Hp[i] + Scalar(0.5)*tau*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
 			BasicLinalg::axpy(tau, m_p, size, x);
 			break;
 		}
 		
- 		for (Size i=0;i !=size; ++i) { Base::m_modelReduction += alpha*(x[i]*m_Hp[i] + Scalar(0.5)*alpha*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
+ 		for (Size i=0;i !=size; ++i) { m_modelReduction += alpha*(x[i]*m_Hp[i] + Scalar(0.5)*alpha*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
 		
 		BasicLinalg::axpy( alpha, m_p,  size, x);
 		BasicLinalg::axpy(-alpha, m_Hp, size, m_r);

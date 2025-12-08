@@ -13,14 +13,9 @@ template<typename T> struct TRSSolverTraits< TruncatedConjugateGradient<T> > { u
 template<typename T>
 class TruncatedConjugateGradient : public TRSSolverBase< TruncatedConjugateGradient<T> >
 {
-	using Base = TRSSolverBase< TruncatedConjugateGradient<T> >;
+	using Self = TruncatedConjugateGradient<T>;
 public:
-	using Scalar = typename Base::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
-	using Size   = typename Base::Size;   ///<  @brief The size type used for indexing and loop counters
-	using Info   = typename Base::Info;   ///<  @brief Enumeration indicating solver termination status.
-
-	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>; ///<  @brief Trait to check if two types are both valid Hessian operators.
-	template<typename ASize>                  using IsSize        = typename Base::template IsSize<ASize>;               ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`.
+	LNOT_DEFINE_TRS_SOLVER
 	
 	void clearWorkSpace();
 	
@@ -31,6 +26,8 @@ public:
 	
 	Scalar getErrorImpl        () const { return std::sqrt(m_precSqNormR); }
 	Scalar getSquaredErrorImpl () const { return m_precSqNormR;            }
+protected:
+	LNOT_TRS_SOLVER_ATTRIBUTE
 private:
 	static Scalar getPolyMaxRoot(const Scalar a, const Scalar b, const Scalar c);
 
@@ -41,9 +38,6 @@ private:
 	Scalar* m_p  = nullptr;
 	Scalar* m_Hp = nullptr;
 };
-
-using TruncatedConjugateGradientF = TruncatedConjugateGradient<float>;
-using TruncatedConjugateGradientD = TruncatedConjugateGradient<double>;
 
 } // namespace LNOT
 

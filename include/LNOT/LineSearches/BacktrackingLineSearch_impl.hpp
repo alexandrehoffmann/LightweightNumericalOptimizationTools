@@ -3,6 +3,7 @@
 
 #include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
+#include <LNOT/FloatingPoint/FPComparator.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -22,7 +23,7 @@ template<typename T>
 void BacktrackingLineSearch<T>::clearWorkSpace()
 {
 	if (m_newX != nullptr) { delete[] m_newX; m_newX = nullptr; }
-	Base::m_workCapacity = 0;
+	m_workCapacity = 0;
 }
 
 template<typename T> template<FirstOrderOracle_concept Oracle>
@@ -33,39 +34,41 @@ auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, cons
 	const Oracle_Size size     = oracle.getNDims();
 	const Scalar      sDotGrad = BasicLinalg::inner(s, gx, size);
 	
-	if (Base::m_workCapacity < size)
+	const FPComparator<Scalar> cmp;
+	
+	if (m_workCapacity < size)
 	{
 		clearWorkSpace();
-		Base::m_workCapacity = size;
-		m_newX = new Scalar[Base::m_workCapacity];
+		m_workCapacity = size;
+		m_newX = new Scalar[m_workCapacity];
 	}
 	
 	Scalar alpha = 1;
 	
-	Base::m_info = Info::FAILURE;
-	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#Backtracking LineSearch : \n#Iteration alpha f(x+alpha s) f(x) tol\n"); }
-	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
+	m_info = Info::FAILURE;
+	if (m_out != nullptr) { fmt::print(m_out, "#Backtracking LineSearch : \n#Iteration alpha f(x+alpha s) f(x) tol\n"); }
+	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (alpha < std::numeric_limits<Scalar>::epsilon()) { break; }
+		if (not cmp.isDefPositive(alpha)) { break; }
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_newX[i] = x[i] + alpha*s[i]; }
 		
 		oracle.setCurrentPoint(m_newX);
 		const Scalar fx_new = oracle.getValue();
 		
-		if (Base::m_out != nullptr) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, alpha, fx_new, fx, m_armijoConditionConst*alpha*sDotGrad); }
+		if (m_out != nullptr) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, alpha, fx_new, fx, m_armijoConditionConst*alpha*sDotGrad); }
 		
 		if (not oracle.isFeasible())
 		{
 			alpha *= m_tau;
 		}
-		else if (fx_new - fx > m_armijoConditionConst*alpha*sDotGrad)
+		else if (cmp.isDefGreaterThan(fx_new - fx, m_armijoConditionConst*alpha*sDotGrad))
 		{
 			alpha *= m_tau;
 		}
 		else
 		{
-			Base::m_info = Info::SUCCESS;
+			m_info = Info::SUCCESS;
 			break;
 		}
 	}

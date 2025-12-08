@@ -14,14 +14,9 @@ template<typename T> struct TRSSolverTraits< LanczosTRSSolver<T> > { using Scala
 template<typename T>
 class LanczosTRSSolver : public TRSSolverBase< LanczosTRSSolver<T> >
 {
-	using Base = TRSSolverBase< LanczosTRSSolver<T> >;
+	using Self = LanczosTRSSolver<T>;
 public:
-	using Scalar = typename Base::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
-	using Size   = typename Base::Size;   ///<  @brief The size type used for indexing and loop counters
-	using Info   = typename Base::Info;   ///<  @brief Enumeration indicating solver termination status.
-
-	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>; ///<  @brief Trait to check if two types are both valid Hessian operators.
-	template<typename ASize>                  using IsSize        = typename Base::template IsSize<ASize>;               ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`.
+	LNOT_DEFINE_TRS_SOLVER
 	
 	LanczosTRSSolver(const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon(), const Size maxItTr = 200000, const Scalar tolTr = std::sqrt(std::numeric_limits<Scalar>::epsilon()));
 	
@@ -40,6 +35,8 @@ public:
 	void setMaxItTr(const Size maxItTr) { m_maxItTr = maxItTr; }
 	
 	Scalar getLambda() const { return m_lambda; } 
+protected:
+	LNOT_TRS_SOLVER_ATTRIBUTE
 private:
 	bool solveBoundary(const Scalar& gamma, const Scalar& delta);
 
@@ -63,9 +60,6 @@ private:
 	std::vector<Scalar> m_l;
 	std::vector<Scalar> m_h;
 };
-
-using LanczosTRSSolverF = LanczosTRSSolver<float>;
-using LanczosTRSSolverD = LanczosTRSSolver<double>;
 
 } // namespace LNOT
 

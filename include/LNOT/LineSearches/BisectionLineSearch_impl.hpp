@@ -3,6 +3,7 @@
 
 #include <LNOT/LineSearches/BisectionLineSearch.hpp>
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
+#include <LNOT/FloatingPoint/FPComparator.hpp>
 
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -31,7 +32,7 @@ void BisectionLineSearch<T>::clearWorkSpace()
 {
 	if (m_newX    != nullptr) { delete[] m_newX;    m_newX    = nullptr; } 
 	if (m_newGrad != nullptr) { delete[] m_newGrad; m_newGrad = nullptr; }
-	Base::m_workCapacity = 0;
+	m_workCapacity = 0;
 }
 	
 template<typename T> template<FirstOrderOracle_concept Oracle>
@@ -44,24 +45,26 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 	const Oracle_Size size     = oracle.getNDims();
 	const Scalar      sDotGrad = BasicLinalg::inner(s, gx, size);
 	
-	if (Base::m_workCapacity < size)
+	const FPComparator<Scalar> cmp;
+	
+	if (m_workCapacity < size)
 	{
 		clearWorkSpace();
-		Base::m_workCapacity = size;
-		m_newX    = new Scalar[Base::m_workCapacity];
-		m_newGrad = new Scalar[Base::m_workCapacity];
+		m_workCapacity = size;
+		m_newX    = new Scalar[m_workCapacity];
+		m_newGrad = new Scalar[m_workCapacity];
 	}
 	
 	Scalar alpha = 1;
 	Scalar alpha_min = 0;
 	Scalar alpha_max = inf;
 	
-	Base::m_info = Info::FAILURE;
-	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#Bisection LineSearch : \n#Iteration alpha\n"); }
-	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
+	m_info = Info::FAILURE;
+	if (m_out != nullptr) { fmt::print(m_out, "#Bisection LineSearch : \n#Iteration alpha\n"); }
+	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{		
-		if (Base::m_out != nullptr) { fmt::print(Base::m_out, "{} {:10.2e}\n", Base::m_nIt, alpha); }
-		if (alpha_max - alpha_min < alpha_max*std::numeric_limits<Scalar>::epsilon()) { break; } // (alpha_min, alpha_max) is empty
+		if (m_out != nullptr) { fmt::print(m_out, "{} {:10.2e}\n", m_nIt, alpha); }
+		if (cmp.isApproxEq(alpha_max, alpha_min)) { break; } // (alpha_min, alpha_max) is empty
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_newX[i] = x[i] + alpha*s[i]; }
 		
@@ -71,8 +74,8 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 		const Scalar fx_new = oracle.getValue();
 		const Scalar new_sDotGrad = BasicLinalg::inner(s, m_newGrad, size);
 		
-		const bool isStepTooShort = new_sDotGrad < m_secondWolfConditionConst*sDotGrad;
-		const bool isStepTooLong  = fx_new > fx + m_firstWolfConditionConst*alpha*sDotGrad;
+		const bool isStepTooShort = cmp.isDefLessThan(new_sDotGrad, m_secondWolfConditionConst*sDotGrad);
+		const bool isStepTooLong  = cmp.isDefGreaterThan(fx_new, fx + m_firstWolfConditionConst*alpha*sDotGrad);
 				
 		if (not oracle.isFeasible())
 		{
@@ -91,7 +94,7 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 		}
 		else
 		{
-			Base::m_info = Info::SUCCESS;
+			m_info = Info::SUCCESS;
 			break;
 		}
 	}

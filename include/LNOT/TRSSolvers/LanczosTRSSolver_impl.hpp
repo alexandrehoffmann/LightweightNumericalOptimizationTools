@@ -5,6 +5,7 @@
 #include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
 #include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
+#include <LNOT/FloatingPoint/FPComparator.hpp>
 
 #include <algorithm>
 
@@ -61,23 +62,23 @@ void LanczosTRSSolver<T>::clearWorkSpace()
 	if (m_Hp     != nullptr) { delete[] m_Hp;     m_Hp     = nullptr; }
 	if (m_w      != nullptr) { delete[] m_w;      m_w      = nullptr; }
 	
-	Base::m_workCapacity = 0;
+	m_workCapacity = 0;
 }
 
 template<typename T>
 void LanczosTRSSolver<T>::resizeWorkSpace(const Size newSize)
 {
-	if (Base::m_workCapacity < newSize)
+	if (m_workCapacity < newSize)
 	{
 		clearWorkSpace();
-		Base::m_workCapacity = newSize;
-		m_Bv_old  = new Scalar[Base::m_workCapacity];
-		m_Bv      = new Scalar[Base::m_workCapacity];
-		m_v       = new Scalar[Base::m_workCapacity];
-		m_p       = new Scalar[Base::m_workCapacity];
-		m_Bp      = new Scalar[Base::m_workCapacity];
-		m_Hp      = new Scalar[Base::m_workCapacity];
-		m_w       = new Scalar[Base::m_workCapacity];
+		m_workCapacity = newSize;
+		m_Bv_old  = new Scalar[m_workCapacity];
+		m_Bv      = new Scalar[m_workCapacity];
+		m_v       = new Scalar[m_workCapacity];
+		m_p       = new Scalar[m_workCapacity];
+		m_Bp      = new Scalar[m_workCapacity];
+		m_Hp      = new Scalar[m_workCapacity];
+		m_w       = new Scalar[m_workCapacity];
 	}
 }
 
@@ -93,7 +94,7 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 	Scalar precSqNormX = 0;
 	
 	m_lambda = 0;
-	Base::m_modelReduction = 0;
+	m_modelReduction = 0;
 	
 	bool isInterior = true;
 	std::fill(m_Bv_old, m_Bv_old + size, 0);
@@ -118,17 +119,20 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 	
 	m_precNormR = precNormR0;
 	
-	const Scalar tol       = Base::getResidualThreshold();
-	const Scalar deltaTol2 = (delta + Base::m_tolTr)*(delta + Base::m_tolTr);
+	const Scalar relTol = m_relTol*m_precNormR;
+	const Scalar delta2 = delta*delta;
 	
-	Base::m_info = Info::FAILURE;
-	if (Base::m_out) { fmt::print(Base::m_out, "#Preconditioned Lanczos TRS solver : \n#Iteration residual lambda tol\n"); }
+	const FPComparator<Scalar> cmp;
+	const FPComparator<Scalar> cmpTr(m_relTolTr, m_absTolTr);
+	
+	m_info = Info::FAILURE;
+	if (m_out) { fmt::print(m_out, "#Preconditioned Lanczos TRS solver : \n#Iteration residual lambda relative_tol absolute_tol\n"); }
 	
 	// first try to solve within the trust region
-	for (Base::m_nIt=0; Base::m_nIt!=Base::m_maxIt and isInterior; ++Base::m_nIt)
+	for (m_nIt=0; m_nIt!=m_maxIt and isInterior; ++m_nIt)
 	{
-		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, m_precNormR, m_lambda, tol); }
-		if (m_precNormR < tol) { Base::m_info = Info::SUCCESS; return; }
+		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_precNormR, m_lambda, relTol, m_absTol); }
+		if (m_precNormR < relTol or m_precNormR < m_absTol) { m_info = Info::SUCCESS; return; }
 		
 		H(m_v, m_w);
 		// m_w = Hv_{k}
@@ -137,10 +141,10 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 		const Scalar d = m_alpha.back() - m_beta.back()*l_old;
 		const Scalar invD = Scalar(1) / d;
 		
-		if (d < std::numeric_limits<Scalar>::epsilon()) 
+		if (not cmp.isDefPositive(d)) 
 		{
 			isInterior = false; 
-			if (not solveBoundary(precNormR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
+			if (not solveBoundary(precNormR0, delta)) { m_info = Info::BREAKDOWN; return; }
 		}
 		else
 		{
@@ -151,15 +155,15 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 				m_Bp[i] = invD*(m_Bv[i] - m_beta.back()*m_Bp[i]); 
 				m_Hp[i] = invD*(m_w[i]  - m_beta.back()*m_Hp[i]); 
 			} 
-			for (Size i=0; i!=size; ++i) { Base::m_modelReduction += eta*(x[i]*m_Hp[i] + Scalar(0.5)*eta*m_p[i]*m_Hp[i] + m_p[i]*g[i]); }
+			for (Size i=0; i!=size; ++i) { m_modelReduction += eta*(x[i]*m_Hp[i] + Scalar(0.5)*eta*m_p[i]*m_Hp[i] + m_p[i]*g[i]); }
 			
 			precSqNormX += 2*eta*BasicLinalg::inner(x, m_Bp, size) + eta*eta*BasicLinalg::inner(m_p, m_Bp, size);
 			BasicLinalg::axpy(eta, m_p, size, x);
 			
-			if (precSqNormX > deltaTol2)
+			if (cmpTr.isDefGreaterThan(precSqNormX, delta2))
 			{
 				isInterior = false;
-				if (not solveBoundary(precNormR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
+				if (not solveBoundary(precNormR0, delta)) { m_info = Info::BREAKDOWN; return; }
 			}
 		}
 		// resume Lanczos iteration
@@ -189,16 +193,16 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 		}
 	}
 	// The solution is located on the boundary of the trust region
-	for (; Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
+	for (; m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (Base::m_out)       { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", Base::m_nIt, m_precNormR, m_lambda, tol); }
-		if (m_precNormR < tol) { Base::m_info = Info::SUCCESS; break; }
+		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_precNormR, m_lambda, relTol, m_absTol); }
+		if (m_precNormR < relTol or m_precNormR < m_absTol) { m_info = Info::SUCCESS; break; }
 		
 		H(m_v, m_w);
 		// m_w = Hv
 		m_alpha.push_back( BasicLinalg::inner(m_v, m_w, size) );
 		
-		if (not solveBoundary(precNormR0, delta)) { Base::m_info = Info::BREAKDOWN; return; }
+		if (not solveBoundary(precNormR0, delta)) { m_info = Info::BREAKDOWN; return; }
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_w[i] += -m_alpha.back()*m_Bv[i] - m_beta.back()*m_Bv_old[i]; }
@@ -219,7 +223,7 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 	
 	std::fill(x, x + size, 0);
 	std::fill(m_Bv_old, m_Bv_old + size, 0);
-	Base::m_modelReduction = 0;
+	m_modelReduction = 0;
 	#pragma omp simd
 	for (Size i=0; i!=size; ++i) { m_Bv[i] = g[i] / precNormR0; } 
 	
@@ -227,10 +231,10 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 	
 	Iterator it_alpha = m_alpha.cbegin();
 	Iterator it_beta  = m_beta.cbegin();
-	for (Iterator it_h = m_h.cbegin(); it_h!=m_h.cend()-1; ++it_h, ++it_alpha, ++it_beta, ++Base::m_nIt)
+	for (Iterator it_h = m_h.cbegin(); it_h!=m_h.cend()-1; ++it_h, ++it_alpha, ++it_beta, ++m_nIt)
 	{
 		H(m_v, m_w);
-		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += (*it_h)*(x[i]*m_w[i] + Scalar(0.5)*(*it_h)*m_v[i]*m_w[i] + m_v[i]*g[i]); }
+		for (Size i=0; i!=size; ++i) { m_modelReduction += (*it_h)*(x[i]*m_w[i] + Scalar(0.5)*(*it_h)*m_v[i]*m_w[i] + m_v[i]*g[i]); }
 		
 		BasicLinalg::axpy(*it_h, m_v, size, x);
 		const Scalar invNextBeta = Scalar(1) / *std::next(it_beta);
@@ -246,11 +250,11 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 	}
 	{
 		H(m_v, m_w);
-		for (Size i=0; i!=size; ++i) { Base::m_modelReduction += m_h.back()*(x[i]*m_w[i] + Scalar(0.5)*m_h.back()*m_v[i]*m_w[i] + m_v[i]*g[i]); }
+		for (Size i=0; i!=size; ++i) { m_modelReduction += m_h.back()*(x[i]*m_w[i] + Scalar(0.5)*m_h.back()*m_v[i]*m_w[i] + m_v[i]*g[i]); }
 		
 		BasicLinalg::axpy(m_h.back(), m_v, size, x);
 		
-		++Base::m_nIt;
+		++m_nIt;
 	}	
 }
 
@@ -261,8 +265,9 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta
 	
 	const Size   size      = Size(m_alpha.size());
 	const Scalar delta2    = delta*delta;
-	const Scalar tol_delta = std::max(delta*Base::m_tolTr, std::numeric_limits<Scalar>::epsilon());
 	const Scalar norm1_T   = BasicLinalg::Tridiag::norm1(m_alpha.data(), std::next(m_beta.data()), size);
+	
+	const FPComparator<Scalar> cmp(m_relTolTr, m_absTolTr);
 
 	m_h.reserve(m_alpha.capacity());
 	m_invD.reserve(m_alpha.capacity());
@@ -277,12 +282,12 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta
 	// then put our initial guess m_lambda, in [lambdaMin, lambdaMax].
 	Scalar lambdaMin = std::max(Scalar(0), std::abs(gamma) / delta - norm1_T);
 	Scalar lambdaMax = std::abs(gamma) / delta + norm1_T;
-	m_lambda = std::max(lambdaMin, std::min(m_lambda, lambdaMax));
+	m_lambda = std::clamp(m_lambda, lambdaMin, lambdaMax);
 		
 	for (size_t it=0;it!=m_maxItTr;++it)
 	{	
 		const bool ldltSuccess = TridiagLDLt::compute(m_alpha.data(), std::next(m_beta.data()), size, m_lambda, m_invD.data(), m_l.data());
-		const bool isSpd       = std::ranges::all_of(m_invD, [](const Scalar& invDi) -> bool { return invDi > std::numeric_limits<Scalar>::epsilon(); });
+		const bool isSpd       = std::ranges::all_of(m_invD, [&cmp](const Scalar& invDi) -> bool { return cmp.isDefPositive(invDi); });
 		const bool cholSuccess = ldltSuccess and isSpd;
 		
 		if (cholSuccess)
@@ -291,19 +296,19 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta
 			const Scalar sqNormH = BasicLinalg::squaredNorm(m_h.data(), size);
 			const Scalar   normH = std::sqrt(sqNormH);
 			
-			if (std::abs(normH - delta) < tol_delta) { return true; }
-			if (lambdaMax - lambdaMin < std::numeric_limits<Scalar>::epsilon()*std::max(lambdaMax, lambdaMin)) { return false; } // empty interval
+			if (cmp.isApproxEq(normH, delta))         { return true;  }
+			if (cmp.isApproxEq(lambdaMax, lambdaMin)) { return false; } // empty interval
 			
 			TridiagLDLt::solveInplaceLower(m_l.data(), size, m_h.data());
 			
 			const Scalar sqnorm_w    = BasicLinalg::weightedSquaredNorm(m_h.data(), m_invD.data(), size);
 			const Scalar deltaLambda = ((normH - delta) / delta)*(sqNormH / sqnorm_w);
 			
-			if (sqNormH < delta2) { lambdaMax = m_lambda; }
-			else                  { lambdaMin = m_lambda; }
+			if (cmp.isDefLessThan(sqNormH, delta2)) { lambdaMax = m_lambda; }
+			else                                    { lambdaMin = m_lambda; }
 			
 			const Scalar gap = (lambdaMax - lambdaMin)*Scalar(0.005);
-			m_lambda = std::max(lambdaMin + gap, std::min(m_lambda + deltaLambda, lambdaMax - gap));
+			m_lambda = std::clamp(m_lambda + deltaLambda, lambdaMin + gap, lambdaMax - gap);
 		}
 		else
 		{

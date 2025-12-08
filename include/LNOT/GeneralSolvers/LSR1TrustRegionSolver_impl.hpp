@@ -31,11 +31,11 @@ void LSR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 	if (m_P      != nullptr) { delete[] m_P;      m_P      = nullptr; }
 	if (m_Y      != nullptr) { delete[] m_Y;      m_Y      = nullptr; }
 	if (m_S      != nullptr) { delete[] m_S;      m_S      = nullptr; }
-	Base::m_workCapacity = 0;
+	m_workCapacity = 0;
 }
 
-template<typename TRSSolver> template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x)
+template<typename TRSSolver> template<FirstOrderOracle_concept Oracle, typename ABool> 
+void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size         = typename Oracle::Size;
 	using CircularBuffer_Size = typename CircularBuffer<Scalar>::size_type;
@@ -43,27 +43,27 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_const
 	const Scalar sr1DropTol = std::sqrt( std::numeric_limits<Scalar>::epsilon() );
 	const Oracle_Size size = oracle.getNDims();
 	
-	if (Base::m_workCapacity < size)
+	if (m_workCapacity < size)
 	{
 		clearWorkSpaceImpl();
-		Base::m_workCapacity = size;
-		m_gk     = new Scalar[Base::m_workCapacity];
-		m_gkp1   = new Scalar[Base::m_workCapacity];
-		m_xTrial = new Scalar[Base::m_workCapacity];
-		m_P      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
-		m_Y      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
-		m_S      = new Scalar[Base::m_workCapacity*LMBase::m_memory];
+		m_workCapacity = size;
+		m_gk     = new Scalar[m_workCapacity];
+		m_gkp1   = new Scalar[m_workCapacity];
+		m_xTrial = new Scalar[m_workCapacity];
+		m_P      = new Scalar[m_workCapacity*m_memory];
+		m_Y      = new Scalar[m_workCapacity*m_memory];
+		m_S      = new Scalar[m_workCapacity*m_memory];
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }	
 	
-	CircularBuffer<Scalar> invRho(LMBase::m_memory);
-	std::vector<bool>      isVectorKept(LMBase::m_memory);
+	CircularBuffer<Scalar> invRho(m_memory);
+	std::vector<bool>      isVectorKept(m_memory);
 	
 	Size curr_idx = 0;
 	auto BkOp = [this, &curr_idx, &invRho, &isVectorKept, size](const Scalar* d, Scalar* Bd) -> void
 	{
 		// from https://home.cs.colorado.edu/~richard/lu_dissertation.pdf
-		const Size prev_idx = (curr_idx == 0) ? LMBase::m_memory-1 : curr_idx-1;
+		const Size prev_idx = (curr_idx == 0) ? m_memory-1 : curr_idx-1;
 		const Scalar* skm1 = m_S + prev_idx*size;
 		const Scalar* ykm1 = m_Y + prev_idx*size;
 		//~ const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::inner(ykm1, skm1, size) / BasicLinalg::squaredNorm(skm1, size);
@@ -81,24 +81,28 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_const
 		}});
 	};
 
-	Base::m_innerIts.clear();
+	m_innerIts.clear();
 	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk);
 	
-	Base::m_fx = oracle.getValue();
-	Base::m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+	m_fx = oracle.getValue();
+	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
 	
 	Scalar delta = std::pow(10.0, std::floor(std::log10(std::sqrt(Scalar(size)))));
 	
-	const Scalar tol2 = Base::m_tol*Base::m_tol*std::max(Scalar(1), Base::m_squaredNormGrad);
+	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
+	const Scalar absTol2 = m_absTol*m_absTol;
 	
-	if (Base::m_out != nullptr) { fmt::print(Base::m_out, "#L-SR1 Trust region method\n#Iteration f(x) delta usedVectors residual tol\n"); }
-	Base::m_info = Info::FAILURE;
-	for (Base::m_nIt=0;Base::m_nIt!=Base::m_maxIt; ++Base::m_nIt)
+	const FPComparator<Scalar> cmp;
+	const FPComparator<Scalar> cmpTr(m_trsSolver.getRelTolTR(), m_trsSolver.getAbsTolTR());
+	
+	if (m_out != nullptr) { fmt::print(m_out, "#L-SR1 Trust region method\n#Iteration f(x) delta usedVectors residual relative_tol absolute_tol\n"); }
+	m_info = Info::FAILURE;
+	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{				
-		if (Base::m_out) { fmt::print(Base::m_out, "{} {:10.2e} {:10.2e} {} {:10.2e} {:10.2e}\n", Base::m_nIt, Base::m_fx, delta, std::ranges::count(isVectorKept, true), Base::m_squaredNormGrad, tol2); }
-		if (Base::m_squaredNormGrad < tol2) { Base::m_info = Info::SUCCESS; break; }
+		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_fx, delta, std::ranges::count(isVectorKept, true), m_squaredNormGrad, relTol2, absTol2); }
+		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		// building the Bk matrix from the last saved vectors
 		// c.f. https://optimization-online.org/wp-content/uploads/2015/10/5167.pdf
 		std::fill(isVectorKept.begin(), isVectorKept.end(), false);
@@ -117,7 +121,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_const
 		// now resume as usual TR method
 		m_trsSolver.solve(BkOp, m_gk, size, delta, m_S + curr_idx*size); 
 		
-		Base::m_innerIts.push_back(m_trsSolver.getIterations());
+		m_innerIts.push_back(m_trsSolver.getIterations());
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_xTrial[i] = x[i] + m_S[i + curr_idx*size]; }
@@ -127,39 +131,38 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, std::bool_const
 		
 		const Scalar fxTrial   = oracle.getValue();
 		const Scalar pred      = -m_trsSolver.getModelReduction();
-		const Scalar ared      = Base::m_fx - fxTrial;
+		const Scalar ared      = m_fx - fxTrial;
 		const Scalar normS     = BasicLinalg::norm(m_S + curr_idx*size, size);
-		const Scalar tol_delta = std::max(delta*m_trsSolver.getTolTR(), std::numeric_limits<Scalar>::epsilon());
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Y[i + curr_idx*size] = m_gkp1[i] - m_gk[i]; } // u_k = y_k - Bks_k
 		invRho.push(0);
 		
 		++curr_idx; 
-		if (curr_idx == LMBase::m_memory) { curr_idx = 0; }
+		if (curr_idx == m_memory) { curr_idx = 0; }
 		
 		const bool isStepFeasible       = oracle.isFeasible();
-		const bool isStepSuccessful     = ared > 0 and ared > pred*TRSBase::m_etaSuccessful;
-		const bool isStepVerySuccessful = ared > 0 and ared > pred*TRSBase::m_etaVerySuccessful;
-		const bool isStepAccepted       = isStepFeasible and ared > 0 and ared > pred*TRSBase::m_etaAccept;
-		const bool normS_eq_delta       = std::abs(normS - delta) < tol_delta;
+		const bool isStepSuccessful     = TRMBase::isStepSuccessful(ared, pred, cmp);
+		const bool isStepVerySuccessful = TRMBase::isStepVerySuccessful(ared, pred, cmp);
+		const bool isStepAccepted       = TRMBase::isStepAccepted(ared, pred, cmp) and isStepFeasible;
+		const bool normS_eq_delta       = cmpTr.isApproxEq(normS, delta);
 		
-		if      (not (isStepSuccessful and isStepFeasible)) { delta *= TRSBase::m_gammaDecrease; }
-		else if (isStepVerySuccessful and normS_eq_delta)   { delta *= TRSBase::m_gammaIncrease; }
+		if      (not (isStepSuccessful and isStepFeasible)) { delta *= m_gammaDecrease; }
+		else if (isStepVerySuccessful and normS_eq_delta)   { delta *= m_gammaIncrease; }
 		
 		if (isStepAccepted) 
 		{ 
 			std::copy(m_xTrial, m_xTrial + size, x); 
 			std::copy(m_gkp1,   m_gkp1   + size, m_gk); 
-			Base::m_fx = fxTrial; 
-			Base::m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+			m_fx = fxTrial; 
+			m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
 		} 
 		else
 		{
 			oracle.setCurrentPoint(x);
 		}
 		
-		if (delta < std::numeric_limits<Scalar>::epsilon()) { Base::m_info = Info::BREAKDOWN; break; }    
+		if (not cmp.isDefPositive(delta)) { m_info = Info::BREAKDOWN; break; }    
 	}
 
 }

@@ -13,11 +13,9 @@ template<typename T> struct LineSearchTraits< BisectionLineSearch<T> > { using S
 template<typename T>
 class BisectionLineSearch : public LineSearchBase< BisectionLineSearch<T> >
 {
-	using Base = LineSearchBase< BisectionLineSearch<T> >;
+	using Self = BisectionLineSearch<T>;
 public:
-	using Scalar = typename Base::Scalar;
-	using Size   = typename Base::Size;
-	using Info   = typename Base::Info;
+	LNOT_DEFINE_LINESEARCH
 	
 	BisectionLineSearch(const Size maxIt = 200000, const Scalar firstWolfConditionConst = Scalar(1.0e-4), const Scalar secondWolfConditionConst = Scalar(0.9));
 	
@@ -31,7 +29,8 @@ public:
 	
 	void setFirstWolfConditionConst  (const Scalar& firstWolfConditionConst)  { m_firstWolfConditionConst  = firstWolfConditionConst;  }
 	void setSecondWolfConditionConst (const Scalar& secondWolfConditionConst) { m_secondWolfConditionConst = secondWolfConditionConst; }
-	
+protected:
+	LNOT_LINESEARCH_ATTRIBUTE
 private:
 	Scalar m_firstWolfConditionConst;
 	Scalar m_secondWolfConditionConst;
@@ -39,9 +38,6 @@ private:
 	Scalar* m_newX    = nullptr;
 	Scalar* m_newGrad = nullptr;
 };
-
-extern template class BisectionLineSearch<float>;
-extern template class BisectionLineSearch<double>;
 
 }
 

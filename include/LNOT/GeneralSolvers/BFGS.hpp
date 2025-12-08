@@ -21,19 +21,19 @@ struct FirstOrderSolverTraits< BFGS<LineSearch> >
 template<typename LineSearch>
 class BFGS : public FirstOrderSolverBase< BFGS<LineSearch> >
 {
-	using Base = FirstOrderSolverBase< BFGS<LineSearch> >;
+	using Self = BFGS<LineSearch>;
 public:
-	using Scalar = typename Base::Scalar;
-	using Size   = typename Base::Size;
-	using Info   = typename Base::Info;
+	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	
 	void clearWorkSpaceImpl();
 	
-	template<FirstOrderOracle_concept Oracle, bool solveInPlace> 
-	void solveImpl(Oracle& oracle, std::bool_constant<solveInPlace>, Scalar* x);
+	template<FirstOrderOracle_concept Oracle, typename ABool> 
+	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
 	const LineSearch& getLinesearch() const { return m_lineSearch; }
 	      LineSearch& getLinesearch()       { return m_lineSearch; }
+protected:
+	LNOT_FIRST_ORDER_SOLVER_ATTRIBUTE
 private:
 	Scalar* m_gk    = nullptr;
 	Scalar* m_gkp1  = nullptr;

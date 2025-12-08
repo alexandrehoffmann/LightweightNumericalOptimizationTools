@@ -13,11 +13,9 @@ template<typename T> struct LineSearchTraits< BacktrackingLineSearch<T> > { usin
 template<typename T> 
 class BacktrackingLineSearch : public LineSearchBase< BacktrackingLineSearch<T> >
 {
-	using Base = LineSearchBase< BacktrackingLineSearch<T> >;
+	using Self = BacktrackingLineSearch<T>;
 public:
-	using Scalar = typename Base::Scalar;
-	using Size   = typename Base::Size;
-	using Info   = typename Base::Info;
+	LNOT_DEFINE_LINESEARCH
 	
 	BacktrackingLineSearch(const Size maxIt = 200000, const Scalar tau = Scalar(0.5), const Scalar armijoConditionConst = Scalar(1.0e-4)) : Base(maxIt), m_tau(tau), m_armijoConditionConst(armijoConditionConst) {}
 
@@ -31,16 +29,14 @@ public:
 	
 	void setTau                   (const Scalar& tau)                  { m_tau = tau; }
 	void setmArmijoConditionConst (const Scalar& armijoConditionConst) { m_armijoConditionConst = armijoConditionConst; }
-	
+protected:
+	LNOT_LINESEARCH_ATTRIBUTE
 private:	
 	Scalar m_tau;
 	Scalar m_armijoConditionConst;
 	
 	Scalar* m_newX = nullptr;
 };
-
-extern template class BacktrackingLineSearch<float>;
-extern template class BacktrackingLineSearch<double>;
 	
 } // namespace LNOT
 

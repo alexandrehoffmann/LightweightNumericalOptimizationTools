@@ -42,13 +42,10 @@ struct OracleTraits< OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondO
 template<typename T, typename S, class Function, class Gradient = VoidFunctor, class HessianOp = VoidFunctor, class PrecondOp=VoidFunctor> 
 class OracleWrapper : public OracleBase< OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondOp> >
 {
-	using Base = OracleBase< OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondOp> >;
+	using Self = OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondOp>;
 public:
-	using Size   = typename Base::Size;
-	using Scalar = typename Base::Scalar;
+	LNOT_DEFINE_ORACLE
 	
-	static constexpr bool hasGradient     = Base::hasGradient;
-	static constexpr bool hasHessianProd  = Base::hasHessianProd;
 	static constexpr bool hasApplyPrecond = not IsVoidFunctor<PrecondOp>::value;
 
 	OracleWrapper() = delete;
