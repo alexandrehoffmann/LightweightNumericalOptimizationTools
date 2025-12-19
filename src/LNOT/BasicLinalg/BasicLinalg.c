@@ -115,13 +115,13 @@ LNOT_IMPLEMENT_TRIDIAG_NORM1(long double, ld)
 
 #define LNOT_IMPLEMENT_TRIDIAG_LDLT_COMPUTE(Scalar, Suffix)\
 	bool lnot_tridiag_ldlt_compute_##Suffix(\
-		const Scalar* restrict alpha, \
-		const Scalar* restrict beta, \
+		const Scalar* LNOT_RESTRICT alpha, \
+		const Scalar* LNOT_RESTRICT beta, \
 		const lnot_Size size, \
 		const Scalar shift, \
 		const Scalar epsilon, \
-		Scalar* restrict invDelta, \
-		Scalar* restrict l)\
+		Scalar* LNOT_RESTRICT invDelta, \
+		Scalar* LNOT_RESTRICT l)\
 	{\
 		if ((alpha[0] + shift) < epsilon) { return false; }\
 	\
@@ -153,10 +153,10 @@ LNOT_IMPLEMENT_TRIDIAG_LDLT_COMPUTE(long double, ld)
 
 #define LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_LOWER_UNIT(Scalar, Suffix)\
 	void lnot_tridiag_ldlt_solveLowerUnit_##Suffix(\
-		const Scalar* restrict l, \
+		const Scalar* LNOT_RESTRICT l, \
 		const lnot_Size size, \
 		const Scalar b1, \
-		Scalar* restrict x) \
+		Scalar* LNOT_RESTRICT x) \
 	{\
 		x[0] = b1;\
 		for (lnot_Size i=1; i!=size; ++i) { x[i] = -l[i-1]*x[i-1]; }\
@@ -169,9 +169,9 @@ LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_LOWER_UNIT(long double, ld)
 
 #define LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_INPLACE_UPPER(Scalar, Suffix)\
 	void lnot_tridiag_ldlt_solveInplaceUpper_##Suffix(\
-		const Scalar* restrict l, \
+		const Scalar* LNOT_RESTRICT l, \
 		const lnot_Size size, \
-		Scalar* restrict x)\
+		Scalar* LNOT_RESTRICT x)\
 	{\
 		for (lnot_Size i=(lnot_Size)(size-2); i!=(lnot_Size)(-1); --i) { x[i] -= l[i]*x[i+1]; }\
 	}\
@@ -183,11 +183,11 @@ LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_INPLACE_UPPER(long double, ld)
 
 #define LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_UNIT(Scalar, Suffix)\
 	void lnot_tridiag_ldlt_solveUnit_##Suffix(\
-		const Scalar* restrict invD, \
-		const Scalar* restrict l, \
+		const Scalar* LNOT_RESTRICT invD, \
+		const Scalar* LNOT_RESTRICT l, \
 		const lnot_Size size, \
 		const Scalar b1, \
-		Scalar* restrict x)\
+		Scalar* LNOT_RESTRICT x)\
 	{\
 		lnot_tridiag_ldlt_solveLowerUnit_##Suffix(l, size, b1, x);\
 		for (lnot_Size i=0; i!=size; ++i) { x[i] *= invD[i]; }\
