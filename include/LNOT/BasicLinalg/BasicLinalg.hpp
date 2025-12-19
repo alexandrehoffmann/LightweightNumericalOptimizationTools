@@ -55,8 +55,8 @@ template<typename Scalar, typename Size> void scal(const Scalar alpha, const Siz
  * @param N Vector/Matrix size
  * @param y An Input-Output array  
  */
-template<typename Scalar, typename Size, bool incrY> 
-void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, std::bool_constant<incrY>, Scalar* y);
+template<typename Scalar, typename Size, typename Bool> 
+void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, const Bool incrY, Scalar* y);
 /**
  * @brief Performs a Symmetric Rank 1 update of \f$A = A + \alpha xx^T\f$
  * @param layout Specifies whether two-dimensional array storage is row-major or column-major

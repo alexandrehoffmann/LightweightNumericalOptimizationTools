@@ -136,8 +136,8 @@ void scal(const Scalar alpha, const Size N, Scalar* x)
 #endif // LNOT_WITH_BLAS
 }
 
-template<typename Scalar, typename Size, bool incrY> 
-void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, std::bool_constant<incrY>, Scalar* y)
+template<typename Scalar, typename Size, typename Bool> 
+void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, const Bool incrY, Scalar* y)
 {
 #ifdef LNOT_WITH_BLAS
 	if      constexpr (std::is_same<Scalar, float>::value)  { cblas_ssymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
@@ -145,7 +145,7 @@ void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scala
 	else
 	{
 #endif // LNOT_WITH_BLAS
-		if constexpr (not incrY) { std::fill(y, y + N, 0); }
+		if (not incrY) { std::fill(y, y + N, 0); }
 		
 		if      constexpr (std::is_same<Scalar, float>::value)       { lnot_symMatrixVectorProd_f (lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
 		else if constexpr (std::is_same<Scalar, double>::value)      { lnot_symMatrixVectorProd_d (lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }

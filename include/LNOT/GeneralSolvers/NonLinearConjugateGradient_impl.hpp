@@ -154,9 +154,9 @@ auto NonLinearConjugateGradient<LineSearch, UpdateStrategy>::getBeta(const Size 
 	else                                                                       
 	{ 
 		const Scalar sqNormY = BasicLinalg::squaredNorm(m_yk, size);
-		const Scalar yDotG = BasicLinalg::inner(m_dk, m_gk, size);
-		const Scalar beta1 = BasicLinalg::inner(m_yk, m_gkp1, size) / yDotG;
-		const Scalar beta2 = -2*(sqNormY / (yDotG*yDotG))*BasicLinalg::inner(m_dk, m_gkp1, size);
+		const Scalar yDotG   = BasicLinalg::inner(m_dk, m_gk, size);
+		const Scalar beta1   = BasicLinalg::inner(m_yk, m_gkp1, size) / yDotG;
+		const Scalar beta2   = -2*(sqNormY / (yDotG*yDotG))*BasicLinalg::inner(m_dk, m_gkp1, size);
 		return beta1 + beta2;
 	}
 }

@@ -14,7 +14,7 @@ public:
 
 	SymmetricDenseMatrixOp(const Scalar* A, const Size size) : m_A(A), m_size(size) {}
 	
-	void operator() (const Scalar* x, Scalar* Ax) const { BasicLinalg::symMatrixVectorProd(storageOrder, uplo, Scalar(1), m_A, x, m_size, std::false_type{}, Ax); }
+	void operator() (const Scalar* x, Scalar* Ax) const { BasicLinalg::symMatrixVectorProd(storageOrder, uplo, Scalar(1), m_A, x, m_size, BIC::fixed<bool,false>, Ax); }
 	
 	constexpr StorageOrder getStorageOrder () const { return storageOrder; }
 	constexpr UpLo         getUplo         () const { return uplo;         }
