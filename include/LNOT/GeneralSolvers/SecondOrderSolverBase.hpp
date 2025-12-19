@@ -181,11 +181,11 @@ public:
 	Scalar getError        () const { return std::sqrt(m_squaredNormGrad); } ///<  @brief Get L2 norm of the last computed gradient
 	Scalar getSquaredError () const { return m_squaredNormGrad; }            ///<  @brief Get squared L2 norm of the last computed gradient
 	
-	Size   getMaxIt      () const { return m_maxIt; } ///<  @brief Get the maximum number of iterations allowed.
+	Size   getMaxIt      () const { return m_maxIt;  } ///<  @brief Get the maximum number of iterations allowed.
 	Scalar getRelTol     () const { return m_relTol; } ///<  @brief Get the convergence relative tolerance.
 	Scalar getAbsTol     () const { return m_absTol; } ///<  @brief Get the convergence absolute tolerance.
-	Size   getIterations () const { return m_nIt;   } ///<  @brief Get the actual number of iterations performed.
-	Info   getInfo       () const { return m_info;  } ///<  @brief Get the solver exit status.
+	Size   getIterations () const { return m_nIt;    } ///<  @brief Get the actual number of iterations performed.
+	Info   getInfo       () const { return m_info;   } ///<  @brief Get the solver exit status.
 	
 	Size getInnerIterations(const Size it) const { return m_innerIts[it]; } ///<  @brief  Get number of inner iterations required to compute a step.
 	

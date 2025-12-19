@@ -27,6 +27,7 @@ set(LNOT_GENERAL_COMPILE_COMPILE_OPTIONS
     -pedantic-errors
     -Wno-error=array-bounds
     -Wno-c99-extensions
+    -Wdouble-promotion
 )
 
 set(LNOT_COMPILE_C_COMPILE_OPTIONS
@@ -153,7 +154,7 @@ if(LNOT_WITH_BLAS)
     target_compile_definitions(LNOT PUBLIC LNOT_WITH_BLAS)
 endif()
 
-target_compile_options(LNOT PUBLIC
+target_compile_options(LNOT PRIVATE
 	$<$<COMPILE_LANGUAGE:C>:${LNOT_GENERAL_COMPILE_COMPILE_OPTIONS} ${LNOT_COMPILE_C_COMPILE_OPTIONS}>
     $<$<COMPILE_LANGUAGE:CXX>:${LNOT_GENERAL_COMPILE_COMPILE_OPTIONS} ${LNOT_COMPILE_CXX_COMPILE_OPTIONS}>
 )
