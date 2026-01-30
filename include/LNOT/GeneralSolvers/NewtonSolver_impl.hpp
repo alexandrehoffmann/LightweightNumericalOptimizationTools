@@ -47,7 +47,7 @@ void NewtonSolver<LinSolver,LineSearch>::clearWorkSpaceImpl()
 	m_workCapacity = 0;
 }
 
-template<typename LinSolver, typename LineSearch> template<SecondOrderOracle_concept Oracle, typename ABool> 
+template<typename LinSolver, typename LineSearch> template<CSecondOrderOracle Oracle, typename ABool> 
 void NewtonSolver<LinSolver,LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size = typename Oracle::Size;

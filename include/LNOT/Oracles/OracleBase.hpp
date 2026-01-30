@@ -144,9 +144,9 @@ public:
 
 template<class T> struct IsOracle : BIC::Fixed<bool, std::is_base_of<OracleBase<T>, T>::value > {};
 
-template<class T> concept Oracle_concept            = IsOracle<T>::value;
-template<class T> concept FirstOrderOracle_concept  = IsOracle<T>::value and T::hasGradient;
-template<class T> concept SecondOrderOracle_concept = IsOracle<T>::value and T::hasGradient and T::hasHessianProd;
+template<class T> concept COracle            = IsOracle<T>::value;
+template<class T> concept CFirstOrderOracle  = IsOracle<T>::value and T::hasGradient;
+template<class T> concept CSecondOrderOracle = IsOracle<T>::value and T::hasGradient and T::hasHessianProd;
 
 } // namespace LNOT
 

@@ -31,7 +31,7 @@ void NewtonTrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 	m_workCapacity = 0;
 }
 
-template<typename TRSSolver> template<SecondOrderOracle_concept Oracle, typename ABool> 
+template<typename TRSSolver> template<CSecondOrderOracle Oracle, typename ABool> 
 void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size = typename Oracle::Size;

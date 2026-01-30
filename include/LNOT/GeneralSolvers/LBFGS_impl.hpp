@@ -35,7 +35,7 @@ void LBFGS<LineSearch>::clearWorkSpaceImpl()
 	m_workCapacity = 0;
 }
 
-template<typename LineSearch> template<FirstOrderOracle_concept Oracle, typename ABool> 
+template<typename LineSearch> template<CFirstOrderOracle Oracle, typename ABool> 
 void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size         = typename Oracle::Size;

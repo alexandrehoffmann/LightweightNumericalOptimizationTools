@@ -13,7 +13,7 @@ template<typename LineSearch> class LBFGS;
 template<typename LineSearch> 
 struct FirstOrderSolverTraits< LBFGS<LineSearch> >
 {
-	static_assert(LineSearch_concept<LineSearch>);
+	static_assert(CLineSearch<LineSearch>);
 	
 	using Scalar = typename LineSearch::Scalar;
 	using Size   = typename LineSearch::Size;
@@ -32,7 +32,7 @@ public:
 	
 	void clearWorkSpaceImpl();
 	
-	template<FirstOrderOracle_concept Oracle, typename ABool> 
+	template<CFirstOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
 	const LineSearch& getLinesearch() const { return m_lineSearch; }

@@ -21,7 +21,7 @@ public:
 
 	void clearWorkSpace();
 
-	template<FirstOrderOracle_concept Oracle>
+	template<CFirstOrderOracle Oracle>
 	Scalar solveImpl(const Scalar* x, const Scalar fx, const Scalar* gx, const Scalar* s, Oracle& oracle);
 	
 	Scalar getTau                   () const { return m_tau;                  }

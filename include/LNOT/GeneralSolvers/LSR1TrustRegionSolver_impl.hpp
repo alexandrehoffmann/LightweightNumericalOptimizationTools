@@ -34,7 +34,7 @@ void LSR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 	m_workCapacity = 0;
 }
 
-template<typename TRSSolver> template<FirstOrderOracle_concept Oracle, typename ABool> 
+template<typename TRSSolver> template<CFirstOrderOracle Oracle, typename ABool> 
 void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size         = typename Oracle::Size;

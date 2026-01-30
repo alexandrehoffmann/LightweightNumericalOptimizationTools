@@ -13,8 +13,8 @@ template<typename LinSolver, typename LineSearch> class NewtonSolver;
 template<typename LinSolver, typename LineSearch> 
 struct SecondOrderSolverTraits< NewtonSolver<LinSolver, LineSearch> >
 {
-	static_assert(LinearSolver_concept<LinSolver>);
-	static_assert(LineSearch_concept<LineSearch>);
+	static_assert(CLinearSolver<LinSolver>);
+	static_assert(CLineSearch<LineSearch>);
 	static_assert(std::is_same<typename LinSolver::Scalar, typename LineSearch::Scalar>::value);
 	static_assert(std::is_same<typename LinSolver::Size,   typename LineSearch::Size>::value);
 	
@@ -31,7 +31,7 @@ public:
 	
 	void clearWorkSpaceImpl();
 	
-	template<SecondOrderOracle_concept Oracle, typename ABool> 
+	template<CSecondOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
 	const LinSolver& getLinearSolver() const { return m_linsSolver; }

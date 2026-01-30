@@ -13,7 +13,7 @@ template<typename TRSSolver> class NewtonTrustRegionSolver;
 template<typename TRSSolver>
 struct SecondOrderSolverTraits< NewtonTrustRegionSolver<TRSSolver> >
 {
-	static_assert(TRSSolver_concept<TRSSolver>);
+	static_assert(CTRSSolver<TRSSolver>);
 	
 	using Scalar = typename TRSSolver::Scalar;
 	using Size   = typename TRSSolver::Size;
@@ -31,7 +31,7 @@ public:
 	
 	void clearWorkSpaceImpl();
 	
-	template<SecondOrderOracle_concept Oracle, typename ABool> 
+	template<CSecondOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
 	const TRSSolver& getSubproblemSolver() const { return m_trsSolver; }

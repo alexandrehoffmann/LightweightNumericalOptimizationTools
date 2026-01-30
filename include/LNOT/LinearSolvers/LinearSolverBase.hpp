@@ -162,7 +162,7 @@ protected:
 
 template<class T> struct IsLinearSolver : BIC::Fixed<bool, std::is_base_of<LinearSolverBase<T>, T>::value > {};
 
-template<class T> concept LinearSolver_concept = IsLinearSolver<T>::value;
+template<class T> concept CLinearSolver = IsLinearSolver<T>::value;
 
 } // namespace LNOT
 

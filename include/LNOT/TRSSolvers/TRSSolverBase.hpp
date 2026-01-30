@@ -110,7 +110,7 @@ protected:
 
 template<class T> struct IsTRSSolver : BIC::Fixed<bool, std::is_base_of<TRSSolverBase<T>, T>::value > {};
 
-template<class T> concept TRSSolver_concept = IsTRSSolver<T>::value;
+template<class T> concept CTRSSolver = IsTRSSolver<T>::value;
 	
 } // namespace LNOT
 

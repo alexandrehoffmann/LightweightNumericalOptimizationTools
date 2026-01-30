@@ -13,7 +13,7 @@ template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy> class NonLinear
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy> 
 struct FirstOrderSolverTraits< NonLinearConjugateGradient<LineSearch, UpdateStrategy> >
 {
-	static_assert(LineSearch_concept<LineSearch>);
+	static_assert(CLineSearch<LineSearch>);
 	
 	using Scalar = typename LineSearch::Scalar;
 	using Size   = typename LineSearch::Size;
@@ -28,7 +28,7 @@ public:
 	
 	void clearWorkSpaceImpl();
 	
-	template<FirstOrderOracle_concept Oracle, typename ABool> 
+	template<CFirstOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
 	Scalar getBeta(const Size size);

@@ -73,7 +73,7 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::clearWorkSpaceImpl(
 	m_workCapacity = 0;	
 }
 
-template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy>  template<FirstOrderOracle_concept Oracle, typename ABool>
+template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy>  template<CFirstOrderOracle Oracle, typename ABool>
 void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size = typename Oracle::Size;

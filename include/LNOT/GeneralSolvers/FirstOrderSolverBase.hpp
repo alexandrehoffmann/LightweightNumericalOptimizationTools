@@ -68,10 +68,10 @@ public:
 	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle (no initial guess).
-	 * @param oracle An oracle object conforming to FirstOrderOracle_concept.
+	 * @param oracle An oracle object conforming to CFirstOrderOracle.
 	 * @param x Output vector for the solution.
 	 */
-	template<FirstOrderOracle_concept Oracle>
+	template<CFirstOrderOracle Oracle>
 	void solve(Oracle& oracle, Scalar* x) { solveImpl(oracle, BIC::fixed<bool,false>, x); }
 	
 	/**
@@ -80,7 +80,7 @@ public:
 	 * @param x0 Initial guess.
 	 * @param x Output vector for the solution.
 	 */
-	template<FirstOrderOracle_concept Oracle>
+	template<CFirstOrderOracle Oracle>
 	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); solveImpl(oracle, BIC::fixed<bool,true>, x); }
 	
 	/**
@@ -123,7 +123,7 @@ public:
 	 * 
 	 * Delegates to `Derived::solveImpl()`.
 	 */
-	template<FirstOrderOracle_concept Oracle, typename ABool> 
+	template<CFirstOrderOracle Oracle, typename ABool> 
 	void solve(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value) { CRTP::derived().solveImpl(oracle, solveInPlace, x); }
 	
 	// ========================================================================
@@ -194,7 +194,7 @@ protected:
 
 template<class T> struct IsFirstOrderSolver : BIC::Fixed<bool, std::is_base_of<FirstOrderSolverBase<T>, T>::value > {}; ///<  @brief Trait to determine if a type derives from FirstOrderSolverBase.
 
-template<class T> concept FirstOrderSolver_concept = IsFirstOrderSolver<T>::value;
+template<class T> concept CFirstOrderSolver = IsFirstOrderSolver<T>::value;
 
 } // namespace LightOptim
 

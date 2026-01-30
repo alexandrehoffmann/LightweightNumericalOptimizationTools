@@ -35,7 +35,7 @@ void BisectionLineSearch<T>::clearWorkSpace()
 	m_workCapacity = 0;
 }
 	
-template<typename T> template<FirstOrderOracle_concept Oracle>
+template<typename T> template<CFirstOrderOracle Oracle>
 auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
 {
 	using Oracle_Size = typename Oracle::Size;

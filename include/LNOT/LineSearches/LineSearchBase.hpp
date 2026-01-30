@@ -27,7 +27,7 @@ public:
 	
 	void clearWorkSpace() { CRTP::derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
 	
-	template<FirstOrderOracle_concept Oracle>
+	template<CFirstOrderOracle Oracle>
 	Scalar solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) { return CRTP::derived().solveImpl(x, fx, gx, s, oracle); }
 	
 	Size getMaxIt   () const { return m_maxIt; }
@@ -62,7 +62,7 @@ protected:
 
 template<class T> struct IsLineSearch : BIC::Fixed<bool, std::is_base_of<LineSearchBase<T>, T>::value > {};
 
-template<class T> concept LineSearch_concept = IsLineSearch<T>::value;
+template<class T> concept CLineSearch = IsLineSearch<T>::value;
 
 } // 
 
