@@ -72,7 +72,7 @@ public:
 	 * @param x Output vector for the solution.
 	 */
 	template<CSecondOrderOracle Oracle>
-	void solve(Oracle& oracle, Scalar* x) { solveImpl(oracle, BIC::fixed<bool,false>, x); }
+	void solve(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,false>, x); }
 	
 	/**
 	 * @brief Solve using a valid SecondOrderOracle with an initial guess.
@@ -81,7 +81,7 @@ public:
 	 * @param x Output vector for the solution.
 	 */
 	template<CSecondOrderOracle Oracle>
-	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); solveImpl(oracle, BIC::fixed<bool,true>, x); }
+	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); CRTP::derived().solveImpl(oracle, BIC::fixed<bool,true>, x); }
 	
 	/**
 	 * @brief Solve using raw function, gradient and Hessian product functors.
@@ -104,7 +104,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<typename Function, typename Gradient, typename HessianOp, typename ASize>
-	void solveWithGuess(Function f, Gradient g, HessianOp H, const Scalar* x0, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient,HessianOp>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); solveImpl(f, g, H, size, BIC::fixed<bool,true>, x);  }
+	void solveWithGuess(Function f, Gradient g, HessianOp H, const Scalar* x0, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient,HessianOp>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); CRTP::derived().solveImpl(f, g, H, size, BIC::fixed<bool,true>, x);  }
 	
 	/**
 	 * @brief Solve using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -170,8 +170,8 @@ public:
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
-	template<class Oracle, typename ABool> 
-	void solve(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(CSecondOrderOracle<Oracle> and IsBool<ABool>::value) { CRTP::derived().solveImpl(oracle, solveInPlace, x); }
+	template<CSecondOrderOracle Oracle, typename ABool> 
+	void solve(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value) { CRTP::derived().solveImpl(oracle, solveInPlace, x); }
 	
 	// ===================================================================
 	// MONITORING METHODS
