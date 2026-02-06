@@ -170,8 +170,8 @@ public:
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
-	template<CSecondOrderOracle Oracle, typename ABool> 
-	void solve(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value) { CRTP::derived().solveImpl(oracle, solveInPlace, x); }
+	template<class Oracle, typename ABool> 
+	void solve(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(CSecondOrderOracle<Oracle> and IsBool<ABool>::value) { CRTP::derived().solveImpl(oracle, solveInPlace, x); }
 	
 	// ===================================================================
 	// MONITORING METHODS
