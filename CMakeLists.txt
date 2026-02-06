@@ -29,9 +29,6 @@ set(LNOT_GENERAL_COMPILE_COMPILE_OPTIONS
     -Wno-c99-extensions
     -Wdouble-promotion
     -Wswitch-enum 
-    -Wlogical-op
-    -Wduplicated-cond 
-    -Wduplicated-branches
 )
 
 set(LNOT_COMPILE_C_COMPILE_OPTIONS
