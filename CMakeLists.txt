@@ -130,8 +130,9 @@ set(LNOT_SRC
 	src/LNOT/TRSSolvers/TruncatedConjugateGradient.cpp
 	src/LNOT/TRSSolvers/LanczosTRSSolver.cpp
 	#
-	src/LNOT/LineSearch/BacktrackingLineSearch.cpp
-	src/LNOT/LineSearch/BisectionLineSearch.cpp
+	src/LNOT/LineSearches/BacktrackingLineSearch.cpp
+	src/LNOT/LineSearches/BisectionLineSearch.cpp
+	src/LNOT/LineSearches/NoLineSearch.cpp
 	#
 	src/LNOT/GeneralSolvers/NewtonSolver.cpp
 	src/LNOT/GeneralSolvers/BFGS.cpp

@@ -4,6 +4,7 @@
 #include <LNOT/GeneralSolvers/NewtonSolver.hpp>
 #include <LNOT/LineSearches/BisectionLineSearch.hpp>
 #include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
+#include <LNOT/LineSearches/NoLineSearch.hpp>
 #include <LNOT/LinearSolvers/ConjugateGradient.hpp>
 #include <LNOT/LinearSolvers/LanczosSolver.hpp>
 
@@ -22,6 +23,9 @@ extern template class NewtonSolver<LanczosSolver<float>,     BisectionLineSearch
 extern template class NewtonSolver<ConjugateGradient<float>, BacktrackingLineSearch<float> >;
 extern template class NewtonSolver<LanczosSolver<float>,     BacktrackingLineSearch<float> >;
 
+extern template class NewtonSolver<ConjugateGradient<float>, NoLineSearch<float> >;
+extern template class NewtonSolver<LanczosSolver<float>,     NoLineSearch<float> >;
+
 // explicit instanciation for double
 extern template class NewtonSolver<ConjugateGradient<double>, BisectionLineSearch<double> >;
 extern template class NewtonSolver<LanczosSolver<double>,     BisectionLineSearch<double> >;
@@ -29,12 +33,18 @@ extern template class NewtonSolver<LanczosSolver<double>,     BisectionLineSearc
 extern template class NewtonSolver<ConjugateGradient<double>, BacktrackingLineSearch<double> >;
 extern template class NewtonSolver<LanczosSolver<double>,     BacktrackingLineSearch<double> >;
 
+extern template class NewtonSolver<ConjugateGradient<double>, NoLineSearch<double> >;
+extern template class NewtonSolver<LanczosSolver<double>,     NoLineSearch<double> >;
+
 // explicit instanciation for long double
 extern template class NewtonSolver<ConjugateGradient<long double>, BisectionLineSearch<long double> >;
 extern template class NewtonSolver<LanczosSolver<long double>,     BisectionLineSearch<long double> >;
 
 extern template class NewtonSolver<ConjugateGradient<long double>, BacktrackingLineSearch<long double> >;
 extern template class NewtonSolver<LanczosSolver<long double>,     BacktrackingLineSearch<long double> >;
+
+extern template class NewtonSolver<ConjugateGradient<long double>, NoLineSearch<long double> >;
+extern template class NewtonSolver<LanczosSolver<long double>,     NoLineSearch<long double> >;
 
 //// method implementations ////
 

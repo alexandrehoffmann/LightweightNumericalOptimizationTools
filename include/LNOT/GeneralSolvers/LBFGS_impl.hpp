@@ -5,6 +5,7 @@
 #include <LNOT/Containers/CircularBuffer.hpp>
 #include <LNOT/LineSearches/BisectionLineSearch.hpp>
 #include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
+#include <LNOT/LineSearches/NoLineSearch.hpp>
 
 #include <span>
 
@@ -15,12 +16,15 @@ namespace LNOT
 
 extern template class LBFGS< BisectionLineSearch<float> >;
 extern template class LBFGS< BacktrackingLineSearch<float> >;
+extern template class LBFGS< NoLineSearch<float> >;
 
 extern template class LBFGS< BisectionLineSearch<double> >;
 extern template class LBFGS< BacktrackingLineSearch<double> >;
+extern template class LBFGS< NoLineSearch<double> >;
 
 extern template class LBFGS< BisectionLineSearch<long double> >;
 extern template class LBFGS< BacktrackingLineSearch<long double> >;
+extern template class LBFGS< NoLineSearch<long double> >;
 
 //// method implementations ////
 

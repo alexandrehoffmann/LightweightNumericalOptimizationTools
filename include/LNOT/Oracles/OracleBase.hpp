@@ -135,7 +135,7 @@ public:
 };
 
 #define LNOT_DEFINE_ORACLE \
-	using Base   = OracleBase<Self>; \
+	using Base   = LNOT::OracleBase<Self>; \
 	using Size   = typename Base::Size; \
 	using Scalar = typename Base::Scalar; \
 	\
