@@ -2,13 +2,13 @@
 
 #include <math.h>
 
-inline float       lnot_abs_f (const float       v) { return fabsf(v); } 
-inline double      lnot_abs_d (const double      v) { return fabs (v); } 
-inline long double lnot_abs_ld(const long double v) { return fabsl(v); }
+float       lnot_abs_f (const float       v) { return fabsf(v); } 
+double      lnot_abs_d (const double      v) { return fabs (v); } 
+long double lnot_abs_ld(const long double v) { return fabsl(v); }
 
-inline float       lnot_max_f (const float       a, const float       b) { return fmaxf(a, b); } 
-inline double      lnot_max_d (const double      a, const double      b) { return fmax (a, b); } 
-inline long double lnot_max_ld(const long double a, const long double b) { return fmaxl(a, b); } 
+float       lnot_max_f (const float       a, const float       b) { return fmaxf(a, b); } 
+double      lnot_max_d (const double      a, const double      b) { return fmax (a, b); } 
+long double lnot_max_ld(const long double a, const long double b) { return fmaxl(a, b); } 
 
 #define LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(Scalar, Suffix)\
 	void lnot_symMatrixVectorProd_##Suffix(\
