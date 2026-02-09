@@ -20,13 +20,13 @@ typedef enum { LNOT_MAT_LOWER,     LNOT_MAT_UPPER }     lnot_mat_UpLo;         /
 
 typedef unsigned int lnot_Size;
 
-inline float       lnot_abs_f (const float       v) { return fabsf(v); } 
-inline double      lnot_abs_d (const double      v) { return fabs (v); } 
-inline long double lnot_abs_ld(const long double v) { return fabsl(v); }
+inline float       lnot_abs_f (const float       v); 
+inline double      lnot_abs_d (const double      v); 
+inline long double lnot_abs_ld(const long double v);
 
-inline float       lnot_max_f (const float       a, const float       b) { return fmaxf(a, b); } 
-inline double      lnot_max_d (const double      a, const double      b) { return fmax (a, b); } 
-inline long double lnot_max_ld(const long double a, const long double b) { return fmaxl(a, b); } 
+inline float       lnot_max_f (const float       a, const float       b); 
+inline double      lnot_max_d (const double      a, const double      b); 
+inline long double lnot_max_ld(const long double a, const long double b); 
 
 #define LNOT_DEFINE_SYM_MATRIX_VECTOR_PROD(Scalar, Suffix)\
 	void lnot_symMatrixVectorProd_##Suffix(\
