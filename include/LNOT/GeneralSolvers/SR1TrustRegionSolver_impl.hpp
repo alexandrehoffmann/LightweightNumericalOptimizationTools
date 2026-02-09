@@ -116,11 +116,6 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 		const bool isStepAccepted       = TRMBase::isStepAccepted(ared, pred, cmp) and isStepFeasible;
 		const bool normS_eq_delta       = cmpTr.isApproxEq(normS, delta);
 		
-		fmt::print("isStepFeasible       = {}\n", isStepFeasible);
-		fmt::print("isStepSuccessful     = {}\n", isStepSuccessful);
-		fmt::print("isStepVerySuccessful = {}\n", isStepVerySuccessful);
-		fmt::print("isStepAccepted       = {}\n", isStepAccepted);
-		
 		if      (not (isStepSuccessful and isStepFeasible)) { delta *= m_gammaDecrease; }
 		else if (isStepVerySuccessful and normS_eq_delta)   { delta *= m_gammaIncrease; }
 		
