@@ -46,7 +46,7 @@ public:
 	template<typename ABool> struct IsBool : BIC::Fixed<bool, std::is_same<bool, BIC::Mutable<ABool> >::value > {};            ///<  @brief Trait to check if a type is either a `bool` or a `BIC::Fixed<bool, VALUE>`	
 	template<typename ASize> struct IsSize : BIC::Fixed<bool, std::is_same<Size,  BIC::Mutable<ASize> >::value > {};           ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
 	
-	static const Scalar defaultEps = std::numeric_limits<Scalar>::epsilon(); ///<  @brief Default value for relative and absolute tolerance of the solver.  
+	static inline const Scalar defaultEps = std::numeric_limits<Scalar>::epsilon(); ///<  @brief Default value for relative and absolute tolerance of the solver.  
 	
 	// ========================================================================
 	// SOLVER INTERFACES
