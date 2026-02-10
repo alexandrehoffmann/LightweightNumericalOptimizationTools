@@ -12,7 +12,7 @@ template<class Scalar>
 class FPComparator
 {
 public:
-	static constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon();
+	static inline const Scalar defaultEps = std::numeric_limits<Scalar>::epsilon();
 
 	FPComparator(const Scalar& relativeEpsilon = defaultEps, const Scalar& absoluteEpsilon = defaultEps) : m_relativeEpsilon(relativeEpsilon), m_absoluteEpsilon(absoluteEpsilon) {}
 	
