@@ -37,9 +37,14 @@ void SR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 template<typename TRSSolver> template<CFirstOrderOracle Oracle, typename ABool> 
 void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
+	using std::sqrt;
+	using std::floor;
+	using std::log10;
+	using std::abs;
+	
 	using Oracle_Size = typename Oracle::Size;
 	
-	const Scalar sr1DropTol = std::sqrt( std::numeric_limits<Scalar>::epsilon() );
+	const Scalar sr1DropTol = sqrt( std::numeric_limits<Scalar>::epsilon() );
 		
 	const Oracle_Size size = oracle.getNDims();
 	
@@ -69,7 +74,7 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 	m_fx = oracle.getValue();
 	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
 	
-	Scalar delta = std::pow(10.0, std::floor(std::log10(std::sqrt(Scalar(size)))));
+	Scalar delta = pow(10.0, floor(log10(sqrt(Scalar(size)))));
 	
 	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
 	const Scalar absTol2 = m_absTol*m_absTol;
@@ -100,7 +105,7 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 		
 		const Scalar invRho = BasicLinalg::inner(m_sk, m_uk, size);
 		
-		if (std::abs(invRho) > sr1DropTol*BasicLinalg::squaredNorm(m_sk, size)*BasicLinalg::squaredNorm(m_uk, size))
+		if (abs(invRho) > sr1DropTol*BasicLinalg::squaredNorm(m_sk, size)*BasicLinalg::squaredNorm(m_uk, size))
 		{
 			BasicLinalg::symRk1Update(BkOp.getStorageOrder(), BkOp.getUplo(), 1. / invRho, m_uk, size, m_Bk);
 		}

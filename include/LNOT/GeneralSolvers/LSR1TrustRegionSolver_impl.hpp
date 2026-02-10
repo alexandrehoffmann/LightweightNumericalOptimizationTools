@@ -37,10 +37,16 @@ void LSR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 template<typename TRSSolver> template<CFirstOrderOracle Oracle, typename ABool> 
 void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
+	using std::sqrt;
+	using std::floor;
+	using std::log10;
+	using std::abs;
+	using std::isfinite;
+	
 	using Oracle_Size         = typename Oracle::Size;
 	using CircularBuffer_Size = typename CircularBuffer<Scalar>::size_type;
 	
-	const Scalar sr1DropTol = std::sqrt( std::numeric_limits<Scalar>::epsilon() );
+	const Scalar sr1DropTol = sqrt( std::numeric_limits<Scalar>::epsilon() );
 	const Oracle_Size size = oracle.getNDims();
 	
 	if (m_workCapacity < size)
@@ -69,7 +75,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 		//~ const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::inner(ykm1, skm1, size) / BasicLinalg::squaredNorm(skm1, size);
 		//~ const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::norm(ykm1, size) / BasicLinalg::norm(skm1, size);
 		const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::squaredNorm(ykm1, size) / BasicLinalg::inner(ykm1, skm1, size);
-		const Scalar gamma0 = std::isfinite(protoGamma0) ? protoGamma0 : 1;
+		const Scalar gamma0 = isfinite(protoGamma0) ? protoGamma0 : 1;
 		
 		#pragma omp simd
 		for (Size k=0; k!=size; ++k) { Bd[k] = gamma0*d[k]; }
@@ -89,7 +95,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	m_fx = oracle.getValue();
 	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
 	
-	Scalar delta = std::pow(10.0, std::floor(std::log10(std::sqrt(Scalar(size)))));
+	Scalar delta = pow(10.0, floor(log10(sqrt(Scalar(size)))));
 	
 	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
 	const Scalar absTol2 = m_absTol*m_absTol;
@@ -116,7 +122,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 			for (Size k=0; k!=size; ++k) { pi[k] = yi[k] - pi[k]; }
 			
 			invRho_i = BasicLinalg::inner(pi, si, size);
-			isVectorKept[i] = std::abs(invRho_i) > sr1DropTol*BasicLinalg::norm(pi, size)*BasicLinalg::norm(si, size);
+			isVectorKept[i] = abs(invRho_i) > sr1DropTol*BasicLinalg::norm(pi, size)*BasicLinalg::norm(si, size);
 		});
 		// now resume as usual TR method
 		m_trsSolver.solve(BkOp, m_gk, size, delta, m_S + curr_idx*size); 
