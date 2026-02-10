@@ -41,6 +41,7 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 	using std::floor;
 	using std::log10;
 	using std::abs;
+	using std::pow;
 	
 	using Oracle_Size = typename Oracle::Size;
 	
@@ -74,7 +75,7 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 	m_fx = oracle.getValue();
 	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
 	
-	Scalar delta = pow(10.0, floor(log10(sqrt(Scalar(size)))));
+	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
 	
 	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
 	const Scalar absTol2 = m_absTol*m_absTol;

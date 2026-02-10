@@ -40,6 +40,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	using std::sqrt;
 	using std::floor;
 	using std::log10;
+	using std::pow;
 	using std::abs;
 	using std::isfinite;
 	
@@ -95,7 +96,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	m_fx = oracle.getValue();
 	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
 	
-	Scalar delta = pow(10.0, floor(log10(sqrt(Scalar(size)))));
+	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
 	
 	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
 	const Scalar absTol2 = m_absTol*m_absTol;
