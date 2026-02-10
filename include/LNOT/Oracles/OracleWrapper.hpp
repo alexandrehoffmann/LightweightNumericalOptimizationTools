@@ -6,6 +6,7 @@
 #include <cmath>       // for std::isfinite
 
 #include <LNOT/Oracles/OracleBase.hpp>
+#include <LNOT/Oracles/concepts.hpp>
 
 namespace LNOT
 {
@@ -23,10 +24,10 @@ struct OracleTraits< OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondO
 	using Size   = S; 
 	using Scalar = T; 
 
-	static_assert(not IsVoidFunctor<Function>::value  and std::is_invocable<Function,  const Scalar*>::value and std::is_same<std::invoke_result_t<Function, Scalar*>, Scalar>::value);
-	static_assert(    IsVoidFunctor<Gradient>::value   or std::is_invocable<Gradient,  const Scalar*, Scalar*>::value);
-	static_assert(    IsVoidFunctor<HessianOp>::value  or std::is_invocable<HessianOp, const Scalar*, const Scalar*, Scalar*>::value);
-	static_assert(    IsVoidFunctor<PrecondOp>::value  or std::is_invocable<PrecondOp, const Scalar*, const Scalar*, Scalar*>::value);
+	static_assert(not IsVoidFunctor<Function>::value  and CFunction<Function, Scalar>);
+	static_assert(    IsVoidFunctor<Gradient>::value   or CGradient<Gradient, Scalar>);
+	static_assert(    IsVoidFunctor<HessianOp>::value  or CHessianOp<HessianOp, Scalar>);
+	static_assert(    IsVoidFunctor<PrecondOp>::value  or CHessianOp<PrecondOp, Scalar>);
 
 	static constexpr bool hasGradient     = (not IsVoidFunctor<Gradient>::value);
 	static constexpr bool hasHessianProd  = (not IsVoidFunctor<HessianOp>::value);
@@ -49,10 +50,24 @@ public:
 	static constexpr bool hasApplyPrecond = not IsVoidFunctor<PrecondOp>::value;
 
 	OracleWrapper() = delete;
-	OracleWrapper(const Size nDims, Function func)                                                    requires (not hasGradient and not hasHessianProd and not hasApplyPrecond) : m_nDims(nDims), m_function(func) {}
-	OracleWrapper(const Size nDims, Function func, Gradient grad)                                     requires (    hasGradient and not hasHessianProd and not hasApplyPrecond) : m_nDims(nDims), m_function(func), m_gradient(grad) {}
-	OracleWrapper(const Size nDims, Function func, Gradient grad, HessianOp hessOp)                   requires (    hasGradient and     hasHessianProd and not hasApplyPrecond) : m_nDims(nDims), m_function(func), m_gradient(grad), m_hessianOp(hessOp) {}
-	OracleWrapper(const Size nDims, Function func, Gradient grad, HessianOp hessOp, PrecondOp precOp) requires (    hasGradient and     hasHessianProd and     hasApplyPrecond) : m_nDims(nDims), m_function(func), m_gradient(grad), m_hessianOp(hessOp), m_precondOp(precOp) {}
+	OracleWrapper(const Size nDims, const Function& func) requires (not hasGradient and not hasHessianProd and not hasApplyPrecond) 
+		: m_nDims(nDims)
+		, m_function(func) {}
+	OracleWrapper(const Size nDims, const Function& func, const Gradient& grad) requires (hasGradient and not hasHessianProd and not hasApplyPrecond) 
+		: m_nDims(nDims)
+		, m_function(func)
+		, m_gradient(grad) {}
+	OracleWrapper(const Size nDims, const Function& func, const Gradient& grad, const HessianOp& hessOp) requires (hasGradient and hasHessianProd and not hasApplyPrecond) 
+		: m_nDims(nDims)
+		, m_function(func)
+		, m_gradient(grad)
+		, m_hessianOp(hessOp) {}
+	OracleWrapper(const Size nDims, const Function& func, const Gradient& grad, const HessianOp& hessOp, const PrecondOp& precOp) requires (hasGradient and hasHessianProd and hasApplyPrecond) 
+		: m_nDims(nDims)
+		, m_function(func)
+		, m_gradient(grad)
+		, m_hessianOp(hessOp)
+		, m_precondOp(precOp) {}
 	
 	Size getNDimsImpl() const { return m_nDims; }
 

@@ -2,6 +2,7 @@
 #define LNOT_SECOND_ORDER_SOLVER_BASE_HPP
 
 #include <LNOT/Oracles/OracleWrapper.hpp>
+#include <LNOT/Oracles/concepts.hpp>
 #include <BIC/Core.hpp>
 
 #include <cstdio>
@@ -41,13 +42,8 @@ public:
 		BREAKDOWN ///<  Numerical breakdown (e.g., division by zero)
 	};
 	
-	template<typename ABool>     struct IsBool      : BIC::Fixed<bool, std::is_same<bool, BIC::Mutable<ABool> >::value > {};                            ///<  @brief Trait to check if a type is either a `bool` or a `BIC::Fixed<bool, VALUE>`	
-	template<typename ASize>     struct IsSize      : BIC::Fixed<bool, std::is_same<Size, BIC::Mutable<ASize>>::value > {};                             ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
-	template<typename Function>  struct IsFunction  : BIC::Fixed<bool, std::is_invocable<Function, const Scalar*>::value > {};                          ///<  @brief Trait to check if Function is a valid callable with signature Scalar(const Scalar*)
-	template<typename Gradient>  struct IsGradient  : BIC::Fixed<bool, std::is_invocable<Gradient, const Scalar*, Scalar*>::value > {};                 ///<  @brief Trait to check if Gradient is a valid callable with signature void(const Scalar*, Scalar*)
-	template<typename HessianOp> struct IsHessianOp : BIC::Fixed<bool, std::is_invocable<HessianOp, const Scalar*, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if Hessian operator is a valid callable with signature void(const Scalar*, Scalar*)
-	/// @brief Trait to check if Function + Gradient + HessianOp triplet is valid
-	template<typename Function, typename Gradient, typename HessianOp> struct IsProgram : BIC::Fixed<bool, IsFunction<Function>::value and IsGradient<Gradient>::value and IsHessianOp<HessianOp>::value > {};
+	template<typename ABool> struct IsBool : BIC::Fixed<bool, std::is_same<bool, BIC::Mutable<ABool> >::value > {}; ///<  @brief Trait to check if a type is either a `bool` or a `BIC::Fixed<bool, VALUE>`	
+	template<typename ASize> struct IsSize : BIC::Fixed<bool, std::is_same<Size, BIC::Mutable<ASize>>::value > {};  ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
 	
 	static constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon(); ///<  @brief Default value for relative and absolute tolerance of the solver.  
 	
@@ -91,8 +87,8 @@ public:
 	 * @param size Problem dimension.
 	 * @param x Output solution vector.
 	 */
-	template<typename Function, typename Gradient, typename HessianOp, typename ASize>
-	void solve(Function f, Gradient g, HessianOp H, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient,HessianOp>::value and IsSize<ASize>::value) { solve(f, g, H, size, BIC::fixed<bool,false>, x); }
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize>
+	void solve(Function f, Gradient g, HessianOp H, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { solve(f, g, H, size, BIC::fixed<bool,false>, x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function, gradient and Hessian product functors.
@@ -103,8 +99,8 @@ public:
 	 * @param size Problem dimension.
 	 * @param x Output solution vector.
 	 */
-	template<typename Function, typename Gradient, typename HessianOp, typename ASize>
-	void solveWithGuess(Function f, Gradient g, HessianOp H, const Scalar* x0, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient,HessianOp>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); CRTP::derived().solveImpl(f, g, H, size, BIC::fixed<bool,true>, x);  }
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize>
+	void solveWithGuess(Function f, Gradient g, HessianOp H, const Scalar* x0, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { std::copy(x0, x0 + size, x); CRTP::derived().solveImpl(f, g, H, size, BIC::fixed<bool,true>, x);  }
 	
 	/**
 	 * @brief Solve using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -115,8 +111,8 @@ public:
 	 * @param size Problem dimension.
 	 * @param x Output solution vector.
 	 */
-	template<typename Function, typename Gradient, typename HessianOp, typename PrecondOp, typename ASize>
-	void solve(Function f, Gradient g, HessianOp H, PrecondOp invB, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient,HessianOp>::value and IsSize<ASize>::value) { solve(f, g, H, invB, size, BIC::fixed<bool,false>, x); }
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize>
+	void solve(Function f, Gradient g, HessianOp H, PrecondOp invB, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { solve(f, g, H, invB, size, BIC::fixed<bool,false>, x); }
 	
 	/**
 	 * @brief Solve with an initial guess using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -128,8 +124,8 @@ public:
 	 * @param size Problem dimension.
 	 * @param x Output solution vector.
 	 */
-	template<typename Function, typename Gradient, typename HessianOp, typename PrecondOp, typename ASize>
-	void solveWithGuess(Function f, Gradient g, HessianOp H, PrecondOp invB, const Scalar* x0, const ASize size, Scalar* x) requires (IsProgram<Function,Gradient,HessianOp>::value and IsHessianOp<PrecondOp>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); solve(f, g, H, invB, size, BIC::fixed<bool,true>, x);  }
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize>
+	void solveWithGuess(Function f, Gradient g, HessianOp H, PrecondOp invB, const Scalar* x0, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { std::copy(x0, x0 + size, x); solve(f, g, H, invB, size, BIC::fixed<bool,true>, x);  }
 	
 	/**
 	 * @brief Internal function to create an OracleWrapper from functors and solve with or without an initial guess.
@@ -142,8 +138,8 @@ public:
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
-	template<typename Function, typename Gradient, typename HessianOp, typename ASize, typename ABool> 
-	void solve(Function f, Gradient g, HessianOp H, const ASize size, const ABool solveInPlace, Scalar* x) requires (IsProgram<Function,Gradient,HessianOp>::value and IsSize<ASize>::value and IsBool<ABool>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp> oracle(size, f, g, H); CRTP::derived().solveImpl(oracle, solveInPlace, x); }
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize, typename ABool> 
+	void solve(Function f, Gradient g, HessianOp H, const ASize size, const ABool solveInPlace, Scalar* x) requires (IsSize<ASize>::value and IsBool<ABool>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp> oracle(size, f, g, H); CRTP::derived().solveImpl(oracle, solveInPlace, x); }
 	
 	/**
 	 * @brief Internal function to create an OracleWrapper from functors and solve with or without an initial guess.
@@ -157,8 +153,8 @@ public:
 	 * 
 	 * @tparam solveInPlace specifying if x should be used as an initial guess.
 	 */
-	template<typename Function, typename Gradient, typename HessianOp, typename PrecondOp, typename ASize, typename ABool> 
-	void solve(Function f, Gradient g, HessianOp H, PrecondOp invB, const ASize size, const ABool solveInPlace, Scalar* x) requires (IsProgram<Function,Gradient,HessianOp>::value and IsHessianOp<PrecondOp>::value and IsSize<ASize>::value and IsBool<ABool>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp,PrecondOp> oracle(size, f, g, H, invB); CRTP::derived().solveImpl(oracle, solveInPlace, x); }
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize, typename ABool> 
+	void solve(Function f, Gradient g, HessianOp H, PrecondOp invB, const ASize size, const ABool solveInPlace, Scalar* x) requires (IsSize<ASize>::value and IsBool<ABool>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp,PrecondOp> oracle(size, f, g, H, invB); CRTP::derived().solveImpl(oracle, solveInPlace, x); }
 	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle with or without an initial guess.
@@ -224,8 +220,6 @@ protected:
 	\
 	template<typename ABool> using IsBool = typename Base::template IsBool<ABool>; \
 	template<typename ASize> using IsSize = typename Base::template IsSize<ASize>; \
-	\
-	template<typename Function, typename Gradient, typename HessianOp> using IsProgram = typename Base::template IsProgram<Function, Gradient, HessianOp>; \
 
 #define LNOT_SECOND_ORDER_SOLVER_ATTRIBUTE \
 	using Base::m_maxIt; \
