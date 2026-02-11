@@ -108,7 +108,7 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 		
 		if (abs(invRho) > sr1DropTol*BasicLinalg::squaredNorm(m_sk, size)*BasicLinalg::squaredNorm(m_uk, size))
 		{
-			BasicLinalg::symRk1Update(BkOp.getStorageOrder(), BkOp.getUplo(), 1. / invRho, m_uk, size, m_Bk);
+			BasicLinalg::symRk1Update(BkOp.getStorageOrder(), BkOp.getUplo(), Scalar(1) / invRho, m_uk, size, m_Bk);
 		}
 		
 		const Scalar fxTrial   = oracle.getValue();
