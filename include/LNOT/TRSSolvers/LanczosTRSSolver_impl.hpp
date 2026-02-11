@@ -85,6 +85,8 @@ void LanczosTRSSolver<T>::resizeWorkSpace(const Size newSize)
 template<typename T> template<typename HesOp, typename PrecOp, typename ASize> 
 void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value)
 {	
+	using std::abs;
+	
 	resizeWorkSpace(size);
 	
 	m_alpha.clear();
@@ -185,11 +187,11 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 			
 			eta         *= -l;
 			l_old        = l;
-			m_precNormR  = std::abs(eta); 
+			m_precNormR  = abs(eta); 
 		}
 		else
 		{
-			m_precNormR = std::abs(m_beta.back()*m_h.back());
+			m_precNormR = abs(m_beta.back()*m_h.back());
 		}
 	}
 	// The solution is located on the boundary of the trust region
@@ -216,7 +218,7 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Bv[i] = invBeta*m_w[i]; }
 		
-		m_precNormR = std::abs(m_beta.back()*m_h.back());
+		m_precNormR = abs(m_beta.back()*m_h.back());
 	}
 	// re-run Lanczos iteration to compute x = Vh;
 	using Iterator = typename std::vector<Scalar>::const_iterator;
@@ -261,6 +263,9 @@ void LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 template<typename T>
 bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta)
 {	
+	using std::abs;
+	using std::sqrt;
+	
 	namespace TridiagLDLt = BasicLinalg::Tridiag::LDLt;
 	
 	const Size   size      = Size(m_alpha.size());
@@ -280,8 +285,8 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta
 	// estimate lambdaMin and lambdaMax such that
 	// lambda in [lambdaMin, lambdaMax]
 	// then put our initial guess m_lambda, in [lambdaMin, lambdaMax].
-	Scalar lambdaMin = std::max(Scalar(0), std::abs(gamma) / delta - norm1_T);
-	Scalar lambdaMax = std::abs(gamma) / delta + norm1_T;
+	Scalar lambdaMin = std::max(Scalar(0), abs(gamma) / delta - norm1_T);
+	Scalar lambdaMax = abs(gamma) / delta + norm1_T;
 	m_lambda = std::clamp(m_lambda, lambdaMin, lambdaMax);
 		
 	for (size_t it=0;it!=m_maxItTr;++it)
@@ -294,7 +299,7 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta
 		{
 			TridiagLDLt::solveUnit(m_invD.data(), m_l.data(), size, -gamma, m_h.data());
 			const Scalar sqNormH = BasicLinalg::squaredNorm(m_h.data(), size);
-			const Scalar   normH = std::sqrt(sqNormH);
+			const Scalar   normH = sqrt(sqNormH);
 			
 			if (cmp.isApproxEq(normH, delta))         { return true;  }
 			if (cmp.isApproxEq(lambdaMax, lambdaMin)) { return false; } // empty interval

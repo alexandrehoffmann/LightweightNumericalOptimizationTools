@@ -43,7 +43,7 @@ auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, cons
 		m_newX = new Scalar[m_workCapacity];
 	}
 	
-	Scalar alpha = 1;
+	Scalar alpha(1);
 	
 	m_info = Info::FAILURE;
 	if (m_out != nullptr) { fmt::print(m_out, "#Backtracking LineSearch : \n#Iteration alpha f(x+alpha s) f(x) tol\n"); }

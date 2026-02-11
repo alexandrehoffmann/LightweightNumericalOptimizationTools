@@ -55,9 +55,9 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 		m_newGrad = new Scalar[m_workCapacity];
 	}
 	
-	Scalar alpha = 1;
-	Scalar alpha_min = 0;
-	Scalar alpha_max = inf;
+	Scalar alpha    (1);
+	Scalar alpha_min(0);
+	Scalar alpha_max(inf);
 	
 	m_info = Info::FAILURE;
 	if (m_out != nullptr) { fmt::print(m_out, "#Bisection LineSearch : \n#Iteration alpha\n"); }
@@ -80,17 +80,17 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 		if (not oracle.isFeasible())
 		{
 			alpha_max = alpha;
-			alpha = 0.5*(alpha_max + alpha_min);
+			alpha = Scalar(0.5)*(alpha_max + alpha_min);
 		}
 		else if (isStepTooLong)
 		{
 			alpha_max = alpha;
-			alpha = 0.5*(alpha_max + alpha_min);
+			alpha = Scalar(0.5)*(alpha_max + alpha_min);
 		}
 		else if (isStepTooShort)
 		{
 			alpha_min = alpha;
-			alpha = (alpha_max == inf) ? 2*alpha : 0.5*(alpha_max + alpha_min);
+			alpha = (alpha_max == inf) ? Scalar(2)*alpha : Scalar(0.5)*(alpha_max + alpha_min);
 		}
 		else
 		{

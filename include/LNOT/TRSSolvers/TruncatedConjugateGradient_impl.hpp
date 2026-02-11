@@ -141,10 +141,12 @@ void TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 template<typename T>
 auto TruncatedConjugateGradient<T>::getPolyMaxRoot(const Scalar a, const Scalar b, const Scalar c) -> Scalar
 { // solve for x > 0 a*x*x + b*x + c
+	using std::sqrt;
+	
 	const Scalar delta = b*b - 4*a*c;
 	if (delta < std::numeric_limits<Scalar>::epsilon()) { return -b / (2*a); }
-	const Scalar x1 = (-b + std::sqrt(delta)) / (2*a);
-	const Scalar x2 = (-b - std::sqrt(delta)) / (2*a);
+	const Scalar x1 = (-b + sqrt(delta)) / (2*a);
+	const Scalar x2 = (-b - sqrt(delta)) / (2*a);
 	return std::max(x1, x2);
 }
 	
