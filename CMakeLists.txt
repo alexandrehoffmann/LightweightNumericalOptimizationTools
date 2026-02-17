@@ -28,7 +28,7 @@ set(LNOT_GENERAL_COMPILE_COMPILE_OPTIONS
     -Wno-error=array-bounds
     -Wno-c99-extensions
     -Wdouble-promotion
-    -Wswitch-enum 
+    -Wswitch-enum
 )
 
 set(LNOT_COMPILE_C_COMPILE_OPTIONS
@@ -46,6 +46,7 @@ set(LNOT_COMPILE_CXX_COMPILE_OPTIONS
 	-Wnon-virtual-dtor
 	-Wold-style-cast
 	-Woverloaded-virtual
+	-Wvexing-parse
 )
 
 # Set default build type if not specified
