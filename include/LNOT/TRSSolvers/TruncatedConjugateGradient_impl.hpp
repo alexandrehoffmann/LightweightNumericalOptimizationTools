@@ -116,6 +116,9 @@ auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 			
 			for (Size i=0;i !=size; ++i) { m_modelReduction += tau*(x[i]*m_Hp[i] + Scalar(0.5)*tau*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
 			BasicLinalg::axpy(tau, m_p, size, x);
+			
+			sqNormX = delta;
+			
 			break;
 		}
 		
