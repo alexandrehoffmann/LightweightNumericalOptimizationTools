@@ -94,7 +94,7 @@ auto LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 	m_beta.clear();
 	
 	std::fill(x, x + size, 0);
-	Scalar precSqNormX = 0;
+	Scalar precSqNormX{};
 	
 	m_lambda = 0;
 	m_modelReduction = 0;
@@ -110,7 +110,7 @@ auto LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 	
 	m_beta.push_back(0);
 	
-	Scalar l_old = 0;
+	Scalar l_old{};
 	Scalar eta   = -precNormR0;
 	
 	BasicLinalg::scal(Scalar(1) / eta, size, m_Bv);

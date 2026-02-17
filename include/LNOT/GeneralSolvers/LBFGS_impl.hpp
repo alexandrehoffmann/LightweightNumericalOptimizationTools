@@ -79,7 +79,7 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scal
 	
 	if (m_out != nullptr) { fmt::print(m_out, "#L-BFGS method\n#Iteration f(x) residual relative_tol absolute_tol\n"); }
 	
-	Size curr_i = 0;
+	Size curr_i{};
 	m_info = Info::FAILURE;
 	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{

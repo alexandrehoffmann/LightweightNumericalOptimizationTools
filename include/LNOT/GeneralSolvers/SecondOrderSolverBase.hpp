@@ -205,7 +205,7 @@ protected:
 	Scalar m_squaredNormGrad; ///<  @brief Squared norm of the gradient
 	Scalar m_fx;              ///<  @brief Function value at last iteration
 	
-	Size m_workCapacity = 0; ///<  @brief Maximum size of the arrays allocated by the solver
+	Size m_workCapacity = Size{}; ///<  @brief Maximum size of the arrays allocated by the solver
 	
 	std::vector< Size > m_innerIts; ///<  @brief Inner iterations tracking
 	

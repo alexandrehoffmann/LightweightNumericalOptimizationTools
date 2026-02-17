@@ -80,9 +80,9 @@ protected:
 	Size   m_nIt;
 	Info   m_info;
 	
-	Scalar m_modelReduction = 0;
+	Scalar m_modelReduction = Scalar{};
 	
-	Size m_workCapacity = 0;
+	Size m_workCapacity = Size{};
 	
 	std::FILE* m_out = nullptr;
 };

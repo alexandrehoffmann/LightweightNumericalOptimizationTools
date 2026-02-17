@@ -56,7 +56,7 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 	}
 	
 	Scalar alpha    (1);
-	Scalar alpha_min(0);
+	Scalar alpha_min{};
 	Scalar alpha_max(inf);
 	
 	m_info = Info::FAILURE;

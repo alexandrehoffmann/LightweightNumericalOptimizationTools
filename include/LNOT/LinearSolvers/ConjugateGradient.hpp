@@ -31,7 +31,7 @@ public:
 protected:
 	LNOT_LINEAR_SOLVER_ATTRIBUTE
 private:
-	Scalar m_precSqNormR = 0;
+	Scalar m_precSqNormR = Scalar{};
 
 	Scalar* m_z  = nullptr;
 	Scalar* m_r  = nullptr;

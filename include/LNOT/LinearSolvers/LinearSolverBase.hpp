@@ -137,7 +137,7 @@ protected:
 	Size   m_nIt;     ///<  @brief Number of iterations actually performed
 	Info   m_info;    ///<  @brief Status of the solver after termination
 	
-	Size m_workCapacity = 0; ///<  @brief Maximum size of the arrays allocated by the solver
+	Size m_workCapacity = Size{}; ///<  @brief Maximum size of the arrays allocated by the solver
 	
 	std::FILE* m_out = nullptr; ///<  @brief Optional output stream
 };

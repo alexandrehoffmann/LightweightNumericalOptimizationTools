@@ -133,8 +133,8 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 	
 	const FPComparator<Scalar> cmp;
 	
-	Scalar beta_old = 0;
-	Scalar l_old = 0;
+	Scalar beta_old{};
+	Scalar l_old{};
 	Scalar eta = -precNormR0;
 	
 	BasicLinalg::scal(Scalar(1) / eta, size, m_Bv);

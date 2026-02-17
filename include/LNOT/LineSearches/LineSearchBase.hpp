@@ -42,7 +42,7 @@ protected:
 	Size m_nIt;
 	Info m_info;
 	
-	Size m_workCapacity = 0;
+	Size m_workCapacity = Size{};
 	
 	std::FILE* m_out = nullptr;
 };

@@ -29,7 +29,7 @@ public:
 protected:
 	LNOT_LINEAR_SOLVER_ATTRIBUTE
 private:
-	Scalar m_precNormR = 0;
+	Scalar m_precNormR = Scalar{};
 
 	Scalar* m_Bv_old = nullptr;
 	Scalar* m_Bv     = nullptr;

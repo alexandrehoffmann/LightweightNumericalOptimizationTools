@@ -75,7 +75,7 @@ auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 	
 	std::fill(x, x+size, 0);
 	m_modelReduction = 0;
-	Scalar sqNormX = 0;
+	Scalar sqNormX{};
 	
 	#pragma omp simd
 	for (Size i=0; i!=size; ++i) { m_r[i] = -g[i]; } 
@@ -86,7 +86,7 @@ auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 	m_precSqNormR = BasicLinalg::inner(m_r, m_z, size);
 	
 	Scalar precSqNormP = m_precSqNormR;
-	Scalar precInnerXP = 0; // x = 0, thus (x, p)_B = 0
+	Scalar precInnerXP{}; // x = 0, thus (x, p)_B = 0
 	
 	const Scalar relTol2 = m_relTol*m_relTol*m_precSqNormR;
 	const Scalar absTol2 = m_absTol*m_absTol;

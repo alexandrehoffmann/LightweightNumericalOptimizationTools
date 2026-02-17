@@ -66,7 +66,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	CircularBuffer<Scalar> invRho(m_memory);
 	std::vector<bool>      isVectorKept(m_memory);
 	
-	Size curr_idx = 0;
+	Size curr_idx{};
 	auto BkOp = [this, &curr_idx, &invRho, &isVectorKept, size](const Scalar* d, Scalar* Bd) -> void
 	{
 		// from https://home.cs.colorado.edu/~richard/lu_dissertation.pdf

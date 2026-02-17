@@ -31,7 +31,7 @@ protected:
 private:
 	static Scalar getPolyMaxRoot(const Scalar a, const Scalar b, const Scalar c);
 
-	Scalar m_precSqNormR = 0;
+	Scalar m_precSqNormR = Scalar{};
 
 	Scalar* m_z  = nullptr;
 	Scalar* m_r  = nullptr;
