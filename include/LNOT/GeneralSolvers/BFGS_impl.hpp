@@ -86,7 +86,7 @@ void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scala
 		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); }
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		
-		BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(-1), m_invBk, m_gk, size, std::false_type{}, m_sk);
+		BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(-1), m_invBk, m_gk, size, BIC::fixed<bool,false>, m_sk);
 		m_innerIts.push_back(1);
 		
 		////
@@ -110,7 +110,7 @@ void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scala
 		
 		if (sk_dot_yk > 0)
 		{			
-			BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(1), m_invBk, m_yk, size, std::false_type{}, m_uk);
+			BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(1), m_invBk, m_yk, size, BIC::fixed<bool,false>, m_uk);
 			
 			const Scalar yk_dot_uk = BasicLinalg::inner(m_yk, m_uk, size);
 			

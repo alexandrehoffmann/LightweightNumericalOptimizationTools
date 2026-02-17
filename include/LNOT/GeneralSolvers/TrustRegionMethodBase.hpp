@@ -32,7 +32,7 @@ public:
 protected:
 	Scalar m_etaVerySuccessful = Scalar(0.75);
 	Scalar m_etaSuccessful     = Scalar(0.25);
-	Scalar m_etaAccept         = Scalar(0.0);
+	Scalar m_etaAccept         = Scalar{};
 	
 	Scalar m_gammaIncrease = Scalar(2.00);
 	Scalar m_gammaDecrease = Scalar(0.25);

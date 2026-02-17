@@ -285,7 +285,7 @@ bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta
 	// estimate lambdaMin and lambdaMax such that
 	// lambda in [lambdaMin, lambdaMax]
 	// then put our initial guess m_lambda, in [lambdaMin, lambdaMax].
-	Scalar lambdaMin = std::max(Scalar(), abs(gamma) / delta - norm1_T);
+	Scalar lambdaMin = std::max(Scalar{}, abs(gamma) / delta - norm1_T);
 	Scalar lambdaMax = abs(gamma) / delta + norm1_T;
 	m_lambda = std::clamp(m_lambda, lambdaMin, lambdaMax);
 		
