@@ -112,12 +112,12 @@ auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 			// we need to find tau > 0 such that |x + tau*p|^2 = delta^2
 			const Scalar tau = getPolyMaxRoot(precSqNormP, 2*precInnerXP, sqNormX - delta*delta);
 			
+			sqNormX = delta;
+			
 			if (cmp.isDefNegative(tau)) { m_info = Info::BREAKDOWN; break; } 
 			
 			for (Size i=0;i !=size; ++i) { m_modelReduction += tau*(x[i]*m_Hp[i] + Scalar(0.5)*tau*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
 			BasicLinalg::axpy(tau, m_p, size, x);
-			
-			sqNormX = delta;
 			
 			break;
 		}
