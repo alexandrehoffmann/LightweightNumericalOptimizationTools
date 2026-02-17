@@ -91,7 +91,7 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_fx, delta, m_squaredNormGrad, relTol2, absTol2); }
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		
-		m_trsSolver.solve(BkOp, m_gk, size, delta, m_sk); 
+		const Scalar normS = m_trsSolver.solve(BkOp, m_gk, size, delta, m_sk); 
 		
 		m_innerIts.push_back(m_trsSolver.getIterations());
 		
@@ -111,10 +111,9 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 			BasicLinalg::symRk1Update(BkOp.getStorageOrder(), BkOp.getUplo(), Scalar(1) / invRho, m_uk, size, m_Bk);
 		}
 		
-		const Scalar fxTrial   = oracle.getValue();
-		const Scalar pred      = -m_trsSolver.getModelReduction();
-		const Scalar ared      = m_fx - fxTrial;
-		const Scalar normS     = BasicLinalg::norm(m_sk, size);
+		const Scalar fxTrial = oracle.getValue();
+		const Scalar pred    = -m_trsSolver.getModelReduction();
+		const Scalar ared    = m_fx - fxTrial;
 		
 		const bool isStepFeasible       = oracle.isFeasible();
 		const bool isStepSuccessful     = TRMBase::isStepSuccessful(ared, pred, cmp);

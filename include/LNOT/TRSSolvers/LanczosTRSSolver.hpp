@@ -25,7 +25,7 @@ public:
 	void resizeWorkSpace(const Size newSize);
 	
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value);
+	Scalar solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value);
 	
 	Scalar getErrorImpl        () const { return m_precNormR;             }
 	Scalar getSquaredErrorImpl () const { return m_precNormR*m_precNormR; }

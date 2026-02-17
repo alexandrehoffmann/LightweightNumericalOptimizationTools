@@ -126,7 +126,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 			isVectorKept[i] = abs(invRho_i) > sr1DropTol*BasicLinalg::norm(pi, size)*BasicLinalg::norm(si, size);
 		});
 		// now resume as usual TR method
-		m_trsSolver.solve(BkOp, m_gk, size, delta, m_S + curr_idx*size); 
+		const Scalar normS = m_trsSolver.solve(BkOp, m_gk, size, delta, m_S + curr_idx*size); 
 		
 		m_innerIts.push_back(m_trsSolver.getIterations());
 		
@@ -139,7 +139,6 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 		const Scalar fxTrial   = oracle.getValue();
 		const Scalar pred      = -m_trsSolver.getModelReduction();
 		const Scalar ared      = m_fx - fxTrial;
-		const Scalar normS     = BasicLinalg::norm(m_S + curr_idx*size, size);
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Y[i + curr_idx*size] = m_gkp1[i] - m_gk[i]; } // u_k = y_k - Bks_k

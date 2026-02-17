@@ -43,10 +43,10 @@ public:
 	void clearWorkSpace() { CRTP::derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
 	
 	template<typename Op, typename ASize> 
-	void solve(const Op& H, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); CRTP::derived().solveImpl(H, I, g, size, delta, x); }
+	Scalar solve(const Op& H, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); return CRTP::derived().solveImpl(H, I, g, size, delta, x); }
 	
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp, PrecOp>::value and IsSize<ASize>::value) { CRTP::derived().solveImpl(H, invB, g, size, delta, x); }
+	Scalar solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp, PrecOp>::value and IsSize<ASize>::value) { return CRTP::derived().solveImpl(H, invB, g, size, delta, x); }
 
 	Scalar getError        () const { return CRTP::derived().getErrorImpl();        }
 	Scalar getSquaredError () const { return CRTP::derived().getSquaredErrorImpl(); }
