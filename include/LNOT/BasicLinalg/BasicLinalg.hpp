@@ -58,6 +58,11 @@ void axpbypz(const Scalar alpha, const Scalar* x, const Scalar beta, const Scala
 template<typename Scalar, typename Size> 
 void scal(const Scalar alpha, const Size N, Scalar* x); ///<  @brief Performs \f$ x = \alpha x \f$
 
+// let m : x \mapsto \frac{1}{2}(x, Hx) + (x, g)
+// computes m(x + \alpha y) given m(x), \alpha, y and Hy
+template<typename Scalar, typename Size>
+Scalar updateModelReduction(const Scalar mx, const Scalar* x, const Scalar* g, const Scalar alpha, const Scalar* y, const Scalar* Hy, const Size size);
+
 /**
  * @brief Computes the product between a symmetric matrix and a vector \f$y = Ax\f$ or \f$y = y + Ax\f$
  * @tparam incrY specifies weither we compute \f$y = Ax\f$ or \f$y = y + Ax\f$

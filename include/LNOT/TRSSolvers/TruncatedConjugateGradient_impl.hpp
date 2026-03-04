@@ -116,13 +116,13 @@ auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 			
 			if (cmp.isDefNegative(tau)) { m_info = Info::BREAKDOWN; break; } 
 			
-			for (Size i=0;i !=size; ++i) { m_modelReduction += tau*(x[i]*m_Hp[i] + Scalar(0.5)*tau*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
+			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, tau, m_p, m_Hp, size);
 			BasicLinalg::axpy(tau, m_p, size, x);
 			
 			break;
 		}
 		
- 		for (Size i=0;i !=size; ++i) { m_modelReduction += alpha*(x[i]*m_Hp[i] + Scalar(0.5)*alpha*m_p[i]*m_Hp[i] + g[i]*m_p[i]); }
+ 		m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, alpha, m_p, m_Hp, size);
 		
 		BasicLinalg::axpy( alpha, m_p,  size, x);
 		BasicLinalg::axpy(-alpha, m_Hp, size, m_r);

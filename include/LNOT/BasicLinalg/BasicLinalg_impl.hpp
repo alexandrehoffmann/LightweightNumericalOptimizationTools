@@ -146,6 +146,20 @@ void scal(const Scalar alpha, const Size N, Scalar* x)
 #endif // LNOT_WITH_BLAS
 }
 
+template<typename Scalar, typename Size>
+Scalar updateModelReduction(const Scalar mx, const Scalar* x, const Scalar* g, const Scalar alpha, const Scalar* y, const Scalar* Hy, const Size size)
+{
+	const Scalar xHy = inner(x, Hy, size);
+	const Scalar yHy = inner(y, Hy, size);
+	const Scalar yg  = inner(y, g, size);
+	
+	// m(x + \alpha y) := m(x) + \alpha(\alpha m(y) + (x, Hy) )
+	
+	const Scalar bracket = AdlMath::fma(Scalar(0.5)*alpha, yHy, yg + xHy);
+	
+	return AdlMath::fma(alpha, bracket, mx);
+}
+
 template<typename Scalar, typename Size, typename Bool> 
 void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, const Bool incrY, Scalar* y)
 {
