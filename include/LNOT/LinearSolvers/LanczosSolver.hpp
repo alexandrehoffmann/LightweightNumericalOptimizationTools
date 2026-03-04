@@ -8,7 +8,7 @@ namespace LNOT
 
 template<typename T> class LanczosSolver;
 
-template<typename T> struct LinearSolverTraits< LanczosSolver<T> > { using Scalar = T;  using Size = unsigned int; };
+template<std::floating_point T> struct LinearSolverTraits< LanczosSolver<T> > { using Scalar = T;  using Size = unsigned int; };
 
 template<typename T> 
 class LanczosSolver : public LinearSolverBase< LanczosSolver<T> >
@@ -21,11 +21,12 @@ public:
 	
 	void resizeWorkSpace(const Size newSize);  ///<  @brief reallocate internal memory if `newSize` > `Base::m_workCapacity`.
 	
-	template<typename HesOp, typename PrecOp, typename ASize, typename Bool> requires(BIC::IsFixed<Bool>::value)
-	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Bool solveInPlace, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value);
+	template<typename HesOp, typename PrecOp, typename ASize, typename Bool>
+	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Bool solveInPlace, Scalar* x) requires(isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>);
 
-	Scalar getErrorImpl        () const { return m_precNormR;             }
-	Scalar getSquaredErrorImpl () const { return m_precNormR*m_precNormR; }
+	Scalar getErrorImpl() const { return m_precNormR;             }
+	
+	Scalar getSquaredErrorImpl() const { return m_precNormR*m_precNormR; }
 protected:
 	LNOT_LINEAR_SOLVER_ATTRIBUTE
 private:

@@ -6,9 +6,7 @@
 
 #include <numeric>
 
-namespace LNOT
-{
-namespace BasicLinalg
+namespace LNOT::BasicLinalg
 {
 
 template<typename Scalar, typename Size> 
@@ -56,7 +54,7 @@ Scalar norm(const Scalar* x, const Size N)
 	else
 	{
 #endif // LNOT_WITH_BLAS
-		return std::sqrt(squaredNorm(x, N));
+		return sqrt(squaredNorm(x, N));
 #ifdef LNOT_WITH_BLAS
 	}
 #endif // LNOT_WITH_BLAS
@@ -322,8 +320,7 @@ void solveUnit(const Scalar* invD, const Scalar* l, const Size size, const Scala
 
 } // namespace Tridiag
 
-}	// namespace BasicLinalg
-}
+}	// namespace LNOT::BasicLinalg
 
 
 #endif // LNOT_BASIC_LINALG_IMPL_HPP

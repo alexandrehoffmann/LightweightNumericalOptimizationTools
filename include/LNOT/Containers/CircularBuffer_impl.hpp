@@ -55,7 +55,7 @@ auto CircularBuffer<T, Allocator>::push(Args&&...args) -> size_type
 }
 
 template<typename T, typename Allocator> template<typename Function> 
-Function CircularBuffer<T, Allocator>::foreach(Function f) requires (IsTraverserFunction<Function>::value)
+Function CircularBuffer<T, Allocator>::foreach(Function f) requires (isTraverserFunction<Function>)
 {
 	if (m_allFilled and m_range_end != m_data_end)
 	{
@@ -78,7 +78,7 @@ Function CircularBuffer<T, Allocator>::foreach(Function f) requires (IsTraverser
 }
 
 template<typename T, typename Allocator> template<typename Function> 
-Function CircularBuffer<T, Allocator>::foreach(Function f) const requires (IsConstTraverserFunction<Function>::value)
+Function CircularBuffer<T, Allocator>::foreach(Function f) const requires (isConstTraverserFunction<Function>)
 {
 	if (m_allFilled and m_range_end != m_data_end)
 	{
@@ -101,7 +101,7 @@ Function CircularBuffer<T, Allocator>::foreach(Function f) const requires (IsCon
 }
 
 template<typename T, typename Allocator> template<typename Function> 
-Function CircularBuffer<T, Allocator>::reverseForeach(Function f) requires (IsTraverserFunction<Function>::value)
+Function CircularBuffer<T, Allocator>::reverseForeach(Function f) requires (isTraverserFunction<Function>)
 {  
     const pointer data_rbegin = std::prev(m_data_end);
     const pointer data_rend = std::prev(m_data_begin);
@@ -126,7 +126,7 @@ Function CircularBuffer<T, Allocator>::reverseForeach(Function f) requires (IsTr
 }
 
 template<typename T, typename Allocator> template<typename Function> 
-Function CircularBuffer<T, Allocator>::reverseForeach(Function f) const requires (IsConstTraverserFunction<Function>::value)
+Function CircularBuffer<T, Allocator>::reverseForeach(Function f) const requires (isConstTraverserFunction<Function>)
 {  
     const const_pointer data_rbegin = std::prev(m_data_end);
     const const_pointer data_rend = std::prev(m_data_begin);

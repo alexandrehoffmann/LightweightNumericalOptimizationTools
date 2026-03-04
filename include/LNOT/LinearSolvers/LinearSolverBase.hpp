@@ -49,9 +49,9 @@ public:
 	
 	using IdOp = IdentityPreconditionerOp<Scalar>;
 	
-	template<typename HesOp>                  struct IsHessianOp   : BIC::Fixed<bool, std::is_invocable<HesOp, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if a type is a valid Hessian operator.
-	template<typename HesOp, typename PrecOp> struct AreHessianOps : BIC::Fixed<bool, IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
-	template<typename ASize>                  struct IsSize        : BIC::Fixed<bool, std::is_same<Size, BIC::Mutable<ASize>>::value > {};          ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`
+	template<typename HesOp> static constexpr bool isHessianOp = std::invocable<HesOp, const Scalar*, Scalar*> and std::same_as<std::invoke_result_t<HesOp, const Scalar*, Scalar*>, void>;
+	template<typename ASize> static constexpr bool isSize      = std::same_as<Size, BIC::Mutable<ASize>>;
+	template<typename ABool> static constexpr bool isBool      = std::same_as<bool, BIC::Mutable<ABool>>;
 	
 	static constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon(); ///<  @brief Default value for relative and absolute tolerance of the solver. 
 	
@@ -62,6 +62,7 @@ public:
 	 * @param absTol Convergence absolute tolerance (default: machine epsilon).
 	 */
 	LinearSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar absTol = defaultEps) : m_maxIt(maxIt), m_relTol(relTol), m_absTol(absTol) {}
+	
 	~LinearSolverBase() { clearWorkSpace(); }
 	
 	void clearWorkSpace() { CRTP::derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
@@ -74,7 +75,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename Op, typename ASize> 
-	void solve(const Op& H, const Scalar* g, const ASize size, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); solve(H, I, g, size, x); }
+	void solve(const Op& H, const Scalar* g, const ASize size, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { IdOp I(size); solve(H, I, g, size, x); }
 	
 	/**
 	 * @brief Solve the preconditioned linear system Hx = -g using the provided Hessian operator.
@@ -85,7 +86,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value) { CRTP::derived().solveImpl(H, invB, g, size, BIC::fixed<bool, false>, x); }
+	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { CRTP::derived().solveImpl(H, invB, g, size, BIC::fixed<bool, false>, x); }
 	
 	/**
 	 * @brief Solve the system with an initial guess.
@@ -96,7 +97,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename Op, typename ASize> 
-	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); solveWithGuess(H, I, g, x0, size, x);  }
+	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { IdOp I(size); solveWithGuess(H, I, g, x0, size, x);  }
 	
 	/**
 	 * @brief Solve the preconditioned system with an initial guess.
@@ -108,20 +109,27 @@ public:
 	 * @param x Solution vector (output).
 	 */	
 	template<typename HesOp, typename PrecOp, typename ASize>  
-	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value) { std::copy(x0, x0 + size, x); CRTP::derived().solveImpl(H, invB, g, size, BIC::fixed<bool, true>, x);  }
+	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { std::copy(x0, x0 + size, x); CRTP::derived().solveImpl(H, invB, g, size, BIC::fixed<bool, true>, x);  }
 	
-	Scalar getError        () const { return CRTP::derived().getErrorImpl();        } ///<  @brief Get the final error after solving. Delegates to `Derived::getError()`.
-	Scalar getSquaredError () const { return CRTP::derived().getSquaredErrorImpl(); } ///<  @brief Get the final squared error after solving. Delegates to `Derived::getSquaredError()`.
+	Scalar getError() const { return CRTP::derived().getErrorImpl(); } ///<  @brief Get the final error after solving. Delegates to `Derived::getError()`.
 	
-	Size   getMaxIt      () const { return m_maxIt;  } ///<  @brief Get the maximum number of iterations allowed
-	Scalar getRelTol     () const { return m_relTol; } ///<  @brief Get the convergence relative tolerance.
-	Scalar getAbsTol     () const { return m_absTol; } ///<  @brief Get the convergence absolute tolerance.
-	Size   getIterations () const { return m_nIt;    } ///<  @brief Get the actual number of iterations performed.
-	Info   getInfo       () const { return m_info;   } ///<  @brief Get the solver exit status.
+	Scalar getSquaredError() const { return CRTP::derived().getSquaredErrorImpl(); } ///<  @brief Get the final squared error after solving. Delegates to `Derived::getSquaredError()`.
 	
-	void setMaxIt  (const Size    maxIt) { m_maxIt  = maxIt; } ///<  @brief Set the maximum number of iterations.
-	void setRelTol (const Scalar& tol)   { m_relTol = tol;   } ///<  @brief Set the convergence relative tolerance.
-	void setAbsTol (const Scalar& tol)   { m_absTol = tol;   } ///<  @brief Set the convergence absolute tolerance.
+	Size getMaxIt() const { return m_maxIt; } ///<  @brief Get the maximum number of iterations allowed.
+	
+	Scalar getRelTol() const { return m_relTol; } ///<  @brief Get the convergence relative tolerance.
+	
+	Scalar getAbsTol() const { return m_absTol; } ///<  @brief Get the convergence absolute tolerance.
+	
+	Size getIterations() const { return m_nIt; } ///<  @brief Get the actual number of iterations performed.
+	
+	Info getInfo() const { return m_info; } ///<  @brief Get the solver exit status.
+	
+	void setMaxIt(const Size maxIt) { m_maxIt = maxIt; } ///<  @brief Set the maximum number of iterations.
+	
+	void setRelTol(const Scalar& tol) { m_relTol = tol; } ///<  @brief Set the convergence relative tolerance.
+	
+	void setAbsTol(const Scalar& tol) { m_absTol = tol; } ///<  @brief Set the convergence absolute tolerance.
 	
 	void setTol(const Scalar& tol) { setRelTol(tol); setAbsTol(tol); } ///<  @brief Set both relative and absolute tolerance.
 	
@@ -148,8 +156,9 @@ protected:
 	using Scalar = typename Base::Scalar; \
 	using Info   = typename Base::Info; \
 	\
-	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>; \
-	template<typename ASize>                  using IsSize        = typename Base::template IsSize<ASize>; \
+	template<typename HesOp> static constexpr bool isHessianOp = Base::template isHessianOp<HesOp>; \
+	template<typename ASize> static constexpr bool isSize      = Base::template isSize<ASize>; \
+	template<typename ABool> static constexpr bool isBool      = Base::template isBool<ABool>; \
 	
 #define LNOT_LINEAR_SOLVER_ATTRIBUTE \
 	using Base::m_maxIt; \

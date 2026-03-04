@@ -174,7 +174,7 @@ public:
 	// ===================================================================
 	
 	Scalar getValue        () const { return m_fx; }                         ///<  @brief Get last computed function value
-	Scalar getError        () const { return std::sqrt(m_squaredNormGrad); } ///<  @brief Get L2 norm of the last computed gradient
+	Scalar getError        () const { return sqrt(m_squaredNormGrad); } ///<  @brief Get L2 norm of the last computed gradient
 	Scalar getSquaredError () const { return m_squaredNormGrad; }            ///<  @brief Get squared L2 norm of the last computed gradient
 	
 	Size   getMaxIt      () const { return m_maxIt;  } ///<  @brief Get the maximum number of iterations allowed.

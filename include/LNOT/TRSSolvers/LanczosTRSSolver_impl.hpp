@@ -85,8 +85,8 @@ void LanczosTRSSolver<T>::resizeWorkSpace(const Size newSize)
 template<typename T> template<typename HesOp, typename PrecOp, typename ASize> 
 auto LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) -> Scalar requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value)
 {	
-	using std::abs;
-	using std::sqrt;
+	using AdlMath::abs;
+	using AdlMath::sqrt;
 	
 	resizeWorkSpace(size);
 	
@@ -266,8 +266,8 @@ auto LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 template<typename T>
 bool LanczosTRSSolver<T>::solveBoundary(const Scalar& gamma, const Scalar& delta)
 {	
-	using std::abs;
-	using std::sqrt;
+	using AdlMath::abs;
+	using AdlMath::sqrt;
 	
 	namespace TridiagLDLt = BasicLinalg::Tridiag::LDLt;
 	

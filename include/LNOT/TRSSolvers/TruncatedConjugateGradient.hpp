@@ -2,6 +2,7 @@
 #define LNOT_TRUNCATED_CONJUGATE_GRADIENT_HPP
 
 #include <LNOT/TRSSolvers/TRSSolverBase.hpp>
+#include <LNOT/misc/AdlMath.hpp>
 
 namespace LNOT
 {
@@ -24,8 +25,9 @@ public:
 	template<typename HesOp, typename PrecOp, typename ASize> 
 	Scalar solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value);
 	
-	Scalar getErrorImpl        () const { return std::sqrt(m_precSqNormR); }
-	Scalar getSquaredErrorImpl () const { return m_precSqNormR;            }
+	Scalar getErrorImpl() const { return AdlMath::sqrt(m_precSqNormR); }
+	
+	Scalar getSquaredErrorImpl () const { return m_precSqNormR; }
 protected:
 	LNOT_TRS_SOLVER_ATTRIBUTE
 private:

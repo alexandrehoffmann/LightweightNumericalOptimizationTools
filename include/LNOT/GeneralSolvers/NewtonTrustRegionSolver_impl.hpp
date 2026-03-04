@@ -34,10 +34,11 @@ void NewtonTrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 template<typename TRSSolver> template<CSecondOrderOracle Oracle, typename ABool> 
 void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
-	using std::pow;
-	using std::sqrt;
-	using std::floor;
-	using std::log10;
+	using AdlMath::sqrt;
+	using AdlMath::floor;
+	using AdlMath::log10;
+	using AdlMath::abs;
+	using AdlMath::pow;
 	
 	using Oracle_Size = typename Oracle::Size;
 	

@@ -69,7 +69,7 @@ void TruncatedConjugateGradient<T>::resizeWorkSpace(const Size newSize)
 template<typename T> template<typename HesOp, typename PrecOp, typename ASize> 
 auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) -> Scalar requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value)
 {	
-	using std::sqrt;
+	using AdlMath::sqrt;
 	
 	resizeWorkSpace(size);
 	
@@ -148,7 +148,7 @@ auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 template<typename T>
 auto TruncatedConjugateGradient<T>::getPolyMaxRoot(const Scalar a, const Scalar b, const Scalar c) -> Scalar
 { // solve for x > 0 a*x*x + b*x + c
-	using std::sqrt;
+	using AdlMath::sqrt;
 	
 	const Scalar delta = b*b - 4*a*c;
 	if (delta < std::numeric_limits<Scalar>::epsilon()) { return -b / (2*a); }

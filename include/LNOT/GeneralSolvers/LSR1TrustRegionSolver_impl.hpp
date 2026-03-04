@@ -37,12 +37,12 @@ void LSR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
 template<typename TRSSolver> template<CFirstOrderOracle Oracle, typename ABool> 
 void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
-	using std::sqrt;
-	using std::floor;
-	using std::log10;
-	using std::pow;
-	using std::abs;
-	using std::isfinite;
+	using AdlMath::sqrt;
+	using AdlMath::floor;
+	using AdlMath::log10;
+	using AdlMath::pow;
+	using AdlMath::abs;
+	using AdlMath::isfinite;
 	
 	using Oracle_Size         = typename Oracle::Size;
 	using CircularBuffer_Size = typename CircularBuffer<Scalar>::size_type;
@@ -112,7 +112,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		// building the Bk matrix from the last saved vectors
 		// c.f. https://optimization-online.org/wp-content/uploads/2015/10/5167.pdf
-		std::fill(isVectorKept.begin(), isVectorKept.end(), false);
+		std::fill(std::ranges::begin(isVectorKept), std::ranges::end(isVectorKept), false);
 		invRho.foreach([this, &BkOp, &isVectorKept, &sr1DropTol, size](CircularBuffer_Size i, Scalar& invRho_i)
 		{
 			const Scalar* si = m_S + i*size;

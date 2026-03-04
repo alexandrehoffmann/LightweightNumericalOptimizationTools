@@ -18,7 +18,7 @@ class LanczosTRSSolver : public TRSSolverBase< LanczosTRSSolver<T> >
 public:
 	LNOT_DEFINE_TRS_SOLVER
 	
-	LanczosTRSSolver(const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon(), const Size maxItTr = 200000, const Scalar tolTr = std::sqrt(std::numeric_limits<Scalar>::epsilon()));
+	LanczosTRSSolver(const Size maxIt = 200000, const Scalar tol = std::numeric_limits<Scalar>::epsilon(), const Size maxItTr = 200000, const Scalar tolTr = sqrt(std::numeric_limits<Scalar>::epsilon()));
 	
 	void clearWorkSpace();
 	

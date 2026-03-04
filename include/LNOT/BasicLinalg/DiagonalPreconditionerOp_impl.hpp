@@ -14,7 +14,7 @@ extern template class DiagonalPreconditionerOp<long double>;
 
 //// method implementations ////
 
-template<typename Scalar>
+template<std::floating_point Scalar>
 DiagonalPreconditionerOp<Scalar>::DiagonalPreconditionerOp(const Scalar* A, const Size size) 
 	: m_invD(new Scalar[size])
 	, m_size(size) 
@@ -23,7 +23,7 @@ DiagonalPreconditionerOp<Scalar>::DiagonalPreconditionerOp(const Scalar* A, cons
 	for (Size i=0; i!=size; ++i) { m_invD[i] = Scalar(1) / A[i*(size + 1)]; } 
 }
 
-template<typename Scalar>
+template<std::floating_point Scalar>
 void DiagonalPreconditionerOp<Scalar>::operator() (const Scalar* x, Scalar* invDx) const
 {
 	#pragma omp simd

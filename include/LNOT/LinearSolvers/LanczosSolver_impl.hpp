@@ -110,8 +110,8 @@ void LanczosSolver<T>::resizeWorkSpace(const Size newSize)
 	}
 }
 
-template<typename T> template<typename HesOp, typename PrecOp, typename ASize, typename Bool> requires(BIC::IsFixed<Bool>::value)
-void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Bool solveInPlace, Scalar* x) requires (AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value)
+template<typename T> template<typename HesOp, typename PrecOp, typename ASize, typename Bool>
+void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Bool solveInPlace, Scalar* x) requires(isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>)
 {
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
@@ -129,7 +129,7 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 	std::fill(m_Bv_old, m_Bv_old + size, 0);
 	invB(m_Bv, m_v);
 	
-	const Scalar precNormR0 = std::sqrt(BasicLinalg::inner(m_Bv, m_v, size));
+	const Scalar precNormR0 = sqrt(BasicLinalg::inner(m_Bv, m_v, size));
 	
 	const FPComparator<Scalar> cmp;
 	
@@ -168,7 +168,7 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 		for (Size i=0; i!=size; ++i) { m_w[i] += -alpha*m_Bv[i] - beta_old*m_Bv_old[i]; } 
 		// m_w = \beta_{k}Bv_{k+1}
 		invB(m_w, m_v);
-		const Scalar beta    = std::sqrt(BasicLinalg::inner(m_w, m_v, size));
+		const Scalar beta    = sqrt(BasicLinalg::inner(m_w, m_v, size));
 		const Scalar invBeta = Scalar(1) / beta;
 		BasicLinalg::scal(invBeta, size, m_v);
 		std::copy(m_Bv, m_Bv + size, m_Bv_old);

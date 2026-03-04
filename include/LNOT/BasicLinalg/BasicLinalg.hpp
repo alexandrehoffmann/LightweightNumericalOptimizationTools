@@ -35,7 +35,7 @@ template<typename Scalar, typename Size> Scalar norm(const Scalar* x, const Size
 ///  @brief Computes \f$\sum_{i=1}^N w_i x_i^2\f$
 template<typename Scalar, typename Size> Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N); 
 ///  @brief Computes \f$\sqrt{\sum_{i=1}^N w_i x_i^2}\f$
-template<typename Scalar, typename Size> Scalar weightedNorm(const Scalar* x, const Scalar* w, const Size N) { return std::sqrt(weightedSquaredNorm(x, w, N)); } 
+template<typename Scalar, typename Size> Scalar weightedNorm(const Scalar* x, const Scalar* w, const Size N) { return sqrt(weightedSquaredNorm(x, w, N)); } 
 ///  @brief Computes \f$\sqrt{\sum_{i=1}^N x_i y_i}\f$
 template<typename Scalar, typename Size> Scalar inner(const Scalar* x, const Scalar* y, const Size N);
 ///  @brief Computes \f$\sqrt{\sum_{i=1}^N x_i w_i y_i}\f$

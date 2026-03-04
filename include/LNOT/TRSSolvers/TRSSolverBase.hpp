@@ -10,6 +10,7 @@
 
 #include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
 #include <LNOT/CRTPBase.hpp>
+#include <LNOT/misc/AdlMath.hpp>
 
 #include <BIC/Core.hpp>
 
@@ -37,7 +38,8 @@ public:
 	
 	static constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon(); ///<  @brief Default value for relative and absolute tolerance of the solver.  
 	
-	TRSSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar relTolTr = std::sqrt(defaultEps), const Scalar absTol = defaultEps, const Scalar absTolTr = std::sqrt(defaultEps)) : m_maxIt(maxIt), m_relTol(relTol), m_relTolTr(relTolTr), m_absTol(absTol), m_absTolTr(absTolTr) {}
+	
+	TRSSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar relTolTr = AdlMath::sqrt(defaultEps), const Scalar absTol = defaultEps, const Scalar absTolTr = AdlMath::sqrt(defaultEps)) : m_maxIt(maxIt), m_relTol(relTol), m_relTolTr(relTolTr), m_absTol(absTol), m_absTolTr(absTolTr) {}
 	~TRSSolverBase() { clearWorkSpace(); }
 	      
 	void clearWorkSpace() { CRTP::derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.

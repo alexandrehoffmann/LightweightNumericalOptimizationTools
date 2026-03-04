@@ -1,10 +1,12 @@
 #ifndef LNOT_IDENTITY_PRECONDITIONER_OP_HPP
 #define LNOT_IDENTITY_PRECONDITIONER_OP_HPP
 
+#include <concepts>
+
 namespace LNOT
 {
 
-template<typename Scalar>
+template<std::floating_point Scalar>
 class IdentityPreconditionerOp
 {
 public:

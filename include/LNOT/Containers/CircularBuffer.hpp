@@ -35,8 +35,8 @@ public:
 	
 	static_assert (std::is_same<T, value_type>::value);
 private:
-	template<typename Function> struct IsConstTraverserFunction : std::bool_constant<std::is_invocable<Function, size_type, const_reference>::value> {}; ///<  @brief Checks whether a function is a valid traverser for const references.
-	template<typename Function> struct IsTraverserFunction      : std::bool_constant<std::is_invocable<Function, size_type,       reference>::value> {}; ///<  @brief Checks whether a function is a valid traverser for mutable references.
+	template<typename Function> static constexpr bool isConstTraverserFunction = std::invocable<Function, size_type, const_reference>; 
+	template<typename Function> static constexpr bool isTraverserFunction      = std::invocable<Function, size_type,       reference>;
 public:
 	CircularBuffer() = default;
 	
@@ -87,7 +87,7 @@ public:
 	 * @param f The function to apply to each element.
 	 * @return The same function object (may be used for stateful operations).
 	 */
-	template<typename Function> Function foreach(Function f) requires (IsTraverserFunction<Function>::value);
+	template<typename Function> Function foreach(Function f) requires (isTraverserFunction<Function>);
 	
 	/**
 	 * @brief Traverse all elements in reverse order and apply a user function.
@@ -98,7 +98,7 @@ public:
 	 * @param f The function to apply to each element in reverse.
 	 * @return The same function object.
 	 */
-	template<typename Function> Function reverseForeach(Function f) requires (IsTraverserFunction<Function>::value);
+	template<typename Function> Function reverseForeach(Function f) requires (isTraverserFunction<Function>);
 	
 	/**
 	 * @brief Traverse all elements (const version) and apply a user function.
@@ -109,7 +109,7 @@ public:
 	 * @param f The function to apply to each element.
 	 * @return The same function object.
 	 */
-	template<typename Function> Function foreach(Function f) const requires (IsConstTraverserFunction<Function>::value);
+	template<typename Function> Function foreach(Function f) const requires (isConstTraverserFunction<Function>);
 	
 	/**
 	 * @brief Traverse all elements in reverse (const version) and apply a user function.
@@ -120,7 +120,7 @@ public:
 	 * @param f The function to apply in reverse order.
 	 * @return The same function object.
 	 */
-	template<typename Function> Function reverseForeach(Function f) const requires (IsConstTraverserFunction<Function>::value);
+	template<typename Function> Function reverseForeach(Function f) const requires (isConstTraverserFunction<Function>);
 	
 	/// @brief Clears the buffer contents (logically, does not deallocate).
 	void clear() { m_range_end = m_data_begin; m_allFilled = false; }

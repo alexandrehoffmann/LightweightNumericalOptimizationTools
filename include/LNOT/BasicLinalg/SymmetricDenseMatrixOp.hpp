@@ -2,11 +2,15 @@
 #define LNOT_SYMMETRIC_DENSE_MATRIX_OP_HPP
 
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
+#include <BIC/Core.hpp>
+
+#include <concepts>
 
 namespace LNOT
 {
 
-template<typename Scalar, StorageOrder storageOrder = StorageOrder::ROW_MAJOR, UpLo uplo = UpLo::LOWER>
+//TODO: add size as a template parameter so it can be a BIC::Fixed
+template<std::floating_point Scalar, StorageOrder storageOrder = StorageOrder::ROW_MAJOR, UpLo uplo = UpLo::LOWER>
 class SymmetricDenseMatrixOp
 {
 public:

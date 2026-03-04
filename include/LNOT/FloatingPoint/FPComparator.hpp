@@ -8,11 +8,12 @@
 namespace LNOT
 {
 
-template<class Scalar>
+template<std::floating_point Scalar>
 class FPComparator
 {
 public:
-	static inline const Scalar defaultEps = std::numeric_limits<Scalar>::epsilon();
+
+	static inline constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon();
 
 	FPComparator(const Scalar& relativeEpsilon = defaultEps, const Scalar& absoluteEpsilon = defaultEps) : m_relativeEpsilon(relativeEpsilon), m_absoluteEpsilon(absoluteEpsilon) {}
 	
