@@ -58,8 +58,44 @@ void axpbypz(const Scalar alpha, const Scalar* x, const Scalar beta, const Scala
 template<typename Scalar, typename Size> 
 void scal(const Scalar alpha, const Size N, Scalar* x); ///<  @brief Performs \f$ x = \alpha x \f$
 
-// let m : x \mapsto \frac{1}{2}(x, Hx) + (x, g)
-// computes m(x + \alpha y) given m(x), \alpha, y and Hy
+/**
+ * @brief Compute the quadratic model value after a step along a direction.
+ *
+ * This function evaluates the quadratic model
+ * \f[
+ *   m(x) = \frac{1}{2} (x, Hx) + (x, g)
+ * \f]
+ * at the updated point \f$ x + \alpha y \f$, given:
+ * - the current model value \f$ m(x) \f$,
+ * - the step length \f$ \alpha \f$,
+ * - the direction \f$ y \f$,
+ * - and the precomputed product \f$ Hy \f$.
+ *
+ * The computation avoids recomputing \f$ Hx \f$ and instead uses the
+ * quadratic expansion
+ * \f[
+ *   m(x + \alpha y)
+ *   = m(x)
+ *   + \alpha (y, Hx + g)
+ *   + \frac{1}{2} \alpha^2 (y, Hy).
+ * \f]
+ *
+ * This is typically used in quadratic models arising in Newton,
+ * trust-region, or conjugate gradient methods.
+ *
+ * @tparam Scalar Floating-point type used for computations.
+ * @tparam Size   Integer type used for vector dimensions.
+ *
+ * @param mx     Current model value \f$ m(x) \f$.
+ * @param x      Pointer to the current vector \f$ x \f$
+ * @param g      Pointer to the gradient vector \f$ g \f$
+ * @param alpha  Step length \f$ \alpha \f$.
+ * @param y      Pointer to the step direction \f$ y \f$
+ * @param Hy     Pointer to the precomputed product \f$ Hy \f$
+ * @param size   Dimension of the vectors.
+ *
+ * @return The model value \f$ m(x + \alpha y) \f$.
+ */
 template<typename Scalar, typename Size>
 Scalar updateModelReduction(const Scalar mx, const Scalar* x, const Scalar* g, const Scalar alpha, const Scalar* y, const Scalar* Hy, const Size size);
 
