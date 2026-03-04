@@ -234,10 +234,13 @@ Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 	else if constexpr (std::is_same<Scalar, long double>::value) { return lnot_tridiag_norm1_ld(alpha, beta, lnot_Size(N)); }
 	else
 	{
+		#pragma omp declare reduction(mymax : double : omp_out = std::max(omp_out, omp_in)) \
+			initializer(omp_priv = std::numeric_limits<double>::lowest())
+		
 		if (N == 1) { return AdlMath::abs(alpha[0]); }
 
 		Scalar res = AdlMath::abs(alpha[0]) + AdlMath::abs(beta[0]);
-		#pragma omp simd reduction(max:res)
+		#pragma omp simd reduction(mymax:res)
 		for (BIC::Mutable<Size> i=1; i!=BIC::Mutable<Size>(N-1); ++i)
 		{
 			res = std::max(res, AdlMath::abs(alpha[i]) + AdlMath::abs(beta[i]) + AdlMath::abs(beta[i-1]));
