@@ -164,8 +164,7 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 		for (Size i=0; i!=size; ++i) { m_p[i] = invD*(m_v[i] - beta_old*m_p[i]); } 
 		BasicLinalg::axpy(eta, m_p, size, x);
 		// resume Lanczos iteration
-		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_w[i] += -alpha*m_Bv[i] - beta_old*m_Bv_old[i]; } 
+		BasicLinalg::axpbypz(-alpha, m_Bv, -beta_old, m_Bv_old, size, m_w);
 		// m_w = \beta_{k}Bv_{k+1}
 		invB(m_w, m_v);
 		const Scalar beta    = sqrt(BasicLinalg::inner(m_w, m_v, size));

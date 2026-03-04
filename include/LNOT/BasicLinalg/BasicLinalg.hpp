@@ -26,24 +26,38 @@ enum class UpLo         { LOWER = LNOT_MAT_LOWER, UPPER = LNOT_MAT_UPPER };     
 
 namespace BasicLinalg
 {
-///  @brief Computes \f$y[i*yStride] <- x[i*xStride] i = 0,\dots, N-1\f$
-template<typename Scalar, typename Size> void stridedCopy(const Scalar* x, const Size xStride, const Size N, Scalar* y, const Size yStride);
-///  @brief Computes \f$\sum_{i=1}^N x_i^2\f$
-template<typename Scalar, typename Size> Scalar squaredNorm(const Scalar* x, const Size N);
-///  @brief Computes \f$\|x\|_{\ell^2}\f$
-template<typename Scalar, typename Size> Scalar norm(const Scalar* x, const Size N);
-///  @brief Computes \f$\sum_{i=1}^N w_i x_i^2\f$
-template<typename Scalar, typename Size> Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N); 
+
+template<typename Scalar, typename Size> 
+void stridedCopy(const Scalar* x, const Size xStride, const Size N, Scalar* y, const Size yStride); ///<  @brief Computes \f$y[i*yStride] <- x[i*xStride] i = 0,\dots, N-1\f$
+
+template<typename Scalar, typename Size> 
+Scalar squaredNorm(const Scalar* x, const Size N); ///<  @brief Computes \f$\sum_{i=1}^N x_i^2\f$
+
+template<typename Scalar, typename Size> 
+Scalar norm(const Scalar* x, const Size N); ///<  @brief Computes \f$\|x\|_{\ell^2}\f$
+
+template<typename Scalar, typename Size> 
+Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N); ///<  @brief Computes \f$\sum_{i=1}^N w_i x_i^2\f$
+
 ///  @brief Computes \f$\sqrt{\sum_{i=1}^N w_i x_i^2}\f$
-template<typename Scalar, typename Size> Scalar weightedNorm(const Scalar* x, const Scalar* w, const Size N) { return sqrt(weightedSquaredNorm(x, w, N)); } 
-///  @brief Computes \f$\sqrt{\sum_{i=1}^N x_i y_i}\f$
-template<typename Scalar, typename Size> Scalar inner(const Scalar* x, const Scalar* y, const Size N);
-///  @brief Computes \f$\sqrt{\sum_{i=1}^N x_i w_i y_i}\f$
-template<typename Scalar, typename Size> Scalar weightedInner(const Scalar* x, const Scalar* y, const Scalar* w, const Size N);
-///  @brief Performs \f$ y = y + \alpha x \f$
-template<typename Scalar, typename Size> void axpy(const Scalar alpha, const Scalar* x, const Size N, Scalar* y);
-///  @brief Performs \f$ x = \alpha x \f$
-template<typename Scalar, typename Size> void scal(const Scalar alpha, const Size N, Scalar* x);
+template<typename Scalar, typename Size> 
+Scalar weightedNorm(const Scalar* x, const Scalar* w, const Size N) { return sqrt(weightedSquaredNorm(x, w, N)); } 
+
+template<typename Scalar, typename Size> 
+Scalar inner(const Scalar* x, const Scalar* y, const Size N); ///<  @brief Computes \f$\sqrt{\sum_{i=1}^N x_i y_i}\f$
+
+template<typename Scalar, typename Size> 
+Scalar weightedInner(const Scalar* x, const Scalar* y, const Scalar* w, const Size N); ///<  @brief Computes \f$\sqrt{\sum_{i=1}^N x_i w_i y_i}\f$
+
+template<typename Scalar, typename Size> 
+void axpy(const Scalar alpha, const Scalar* x, const Size N, Scalar* y); ///<  @brief Performs \f$ y = y + \alpha x \f$
+
+template<typename Scalar, typename Size> 
+void axpbypz(const Scalar alpha, const Scalar* x, const Scalar beta, const Scalar* y, const Size N, Scalar* z); ///<  @brief Performs \f$ z = z + \alpha x + \beta y \f$
+
+template<typename Scalar, typename Size> 
+void scal(const Scalar alpha, const Size N, Scalar* x); ///<  @brief Performs \f$ x = \alpha x \f$
+
 /**
  * @brief Computes the product between a symmetric matrix and a vector \f$y = Ax\f$ or \f$y = y + Ax\f$
  * @tparam incrY specifies weither we compute \f$y = Ax\f$ or \f$y = y + Ax\f$
@@ -57,6 +71,7 @@ template<typename Scalar, typename Size> void scal(const Scalar alpha, const Siz
  */
 template<typename Scalar, typename Size, typename Bool> 
 void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, const Bool incrY, Scalar* y);
+
 /**
  * @brief Performs a Symmetric Rank 1 update of \f$A = A + \alpha xx^T\f$
  * @param layout Specifies whether two-dimensional array storage is row-major or column-major
@@ -67,6 +82,7 @@ void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scala
  * @param A An array of size `N*N` that stores either the lower or upper triangular part of the matrix symmetric \f$A\f$.
  */
 template<typename Scalar, typename Size> void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* x, const Size N, Scalar* A);
+
 /**
  * @brief Performs a Symmetric Rank 2 update of \f$A = A + \alpha xy^T + \alpha yx^T\f$
  * @param layout Specifies whether two-dimensional array storage is row-major or column-major
@@ -102,6 +118,7 @@ namespace LDLt
  * @return true if factorization succeeded
  */
 template<typename Scalar, typename Size> bool compute(const Scalar* alpha, const Scalar* beta, const Size size, const Scalar shift, Scalar* invDelta, Scalar* l);
+
 /**
  * @brief Solve \f$LDL^Tx = b\f$ with \f$b = (b1, 0, ..., 0)^T\f$ using precomputed inverse diagonal.
  * @param invD Input array of size N. Stores the inverse of D
@@ -111,6 +128,7 @@ template<typename Scalar, typename Size> bool compute(const Scalar* alpha, const
  * @param x Output array of size N. Stores the solution
  */
 template<typename Scalar, typename Size> void solveUnit(const Scalar* invD, const Scalar* l, const Size size, const Scalar b1, Scalar* x);
+
 /**
  * @brief Solve \f$Lx = b\f$ where \f$b = (b1, 0, ..., 0)^T\f$.
  * @param l Input array of size N. Stores lower bidiagonal elements (unit diagonal assumed)
@@ -119,6 +137,7 @@ template<typename Scalar, typename Size> void solveUnit(const Scalar* invD, cons
  * @param x Output array of size N. Stores the solution
  */
 template<typename Scalar, typename Size> void solveLowerUnit(const Scalar* l, const Size size, const Scalar b1, Scalar* x);
+
 /**
  * @brief In-place solution of \f$Lx = b\f$ for general b (overwrites x).
  * @param l Input array of size N. Stores lower bidiagonal elements (unit diagonal assumed)
@@ -126,6 +145,7 @@ template<typename Scalar, typename Size> void solveLowerUnit(const Scalar* l, co
  * @param x Array of size N. On entry, stores b. On exit stores the solution
  */
 template<typename Scalar, typename Size> void solveInplaceLower(const Scalar* l, const Size size, Scalar* x);
+
 /**
  * @brief In-place solution of \f$L^Tx = b\f$ for general b (overwrites x).
  * @param l Input array of size N. Stores lower bidiagonal elements (unit diagonal assumed)

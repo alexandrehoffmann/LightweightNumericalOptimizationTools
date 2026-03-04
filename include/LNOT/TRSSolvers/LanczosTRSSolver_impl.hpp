@@ -170,8 +170,7 @@ auto LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 			}
 		}
 		// resume Lanczos iteration
-		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_w[i] += -m_alpha.back()*m_Bv[i] - m_beta.back()*m_Bv_old[i]; }
+		BasicLinalg::axpbypz(-m_alpha.back(), m_Bv, -m_beta.back(), m_Bv_old, size, m_w);
 		// m_w = \beta_{k}Bv_{k+1}
 		invB(m_w, m_v);
 		m_beta.push_back( sqrt(BasicLinalg::inner(m_w, m_v, size)) );
@@ -207,8 +206,7 @@ auto LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 		
 		if (not solveBoundary(precNormR0, delta)) { m_info = Info::BREAKDOWN; return delta; }
 		
-		#pragma omp simd
-		for (Size i=0; i!=size; ++i) { m_w[i] += -m_alpha.back()*m_Bv[i] - m_beta.back()*m_Bv_old[i]; }
+		BasicLinalg::axpbypz(-m_alpha.back(), m_Bv, -m_beta.back(), m_Bv_old, size, m_w);
 		// m_w = \beta_{k}Bv_{k+1}
 		invB(m_w, m_v);
 		m_beta.push_back( sqrt(BasicLinalg::inner(m_w, m_v, size)) );
@@ -245,7 +243,8 @@ auto LanczosTRSSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Sc
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i)
 		{
-			const Scalar new_Bv_i = invNextBeta*(m_w[i] - (*it_alpha)*m_Bv[i] - (*it_beta)*m_Bv_old[i]);
+			//~ const Scalar new_Bv_i = invNextBeta*(m_w[i] - (*it_alpha)*m_Bv[i] - (*it_beta)*m_Bv_old[i]);
+			const Scalar new_Bv_i = invNextBeta*(AdlMath::fma(-(*it_beta), m_Bv_old[i], AdlMath::fma(-(*it_alpha), m_Bv[i], m_w[i])));
 			m_Bv_old[i] = m_Bv[i];
 			m_Bv[i] = new_Bv_i;
 		}

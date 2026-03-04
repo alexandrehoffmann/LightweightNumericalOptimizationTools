@@ -40,7 +40,7 @@ Scalar squaredNorm(const Scalar* x, const Size N)
 	{
 #endif // LNOT_WITH_BLAS
 		Scalar res(0); 
-		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res += x[i]*x[i]; } 
+		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res = AdlMath::fma(x[i], x[i], res); } 
 		return res; 
 #ifdef LNOT_WITH_BLAS
 	}
@@ -67,7 +67,7 @@ Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N)
 {
 	Scalar res(0);
 	
-	for (BIC::Mutable<Size> i=0; i!=N; ++i) {  res += x[i]*x[i]*w[i]; }
+	for (BIC::Mutable<Size> i=0; i!=N; ++i) {  res = AdlMath::fma(x[i]*x[i], w[i], res); }
 	
 	return res;
 }
@@ -82,7 +82,7 @@ Scalar inner(const Scalar* x, const Scalar* y, const Size N)
 	{
 #endif // LNOT_WITH_BLAS
 		Scalar res(0); 
-		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res += x[i]*y[i]; } 
+		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res = AdlMath::fma(x[i], y[i], res); } 
 		return res; 
 #ifdef LNOT_WITH_BLAS
 	}
@@ -93,7 +93,7 @@ template<typename Scalar, typename Size>
 Scalar weightedInner(const Scalar* x, const Scalar* y, const Scalar* w, const Size N)
 { 
 	Scalar res(0); 
-	for (BIC::Mutable<Size> i=0; i!=N; ++i) { res += x[i]*y[i]*w[i]; } 
+	for (BIC::Mutable<Size> i=0; i!=N; ++i) { res = AdlMath::fma(x[i]*y[i], w[i], res); } 
 	return res; 
 }
 
@@ -110,11 +110,21 @@ void axpy(const Scalar alpha, const Scalar* x, const Size N, Scalar* y)
 		#pragma omp simd 
 		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
-			y[i] += alpha*x[i];
+			y[i] = AdlMath::fma(alpha, x[i], y[i]);
 		}
 #ifdef LNOT_WITH_BLAS
 	}
 #endif // LNOT_WITH_BLAS
+}
+
+template<typename Scalar, typename Size> 
+void axpbypz(const Scalar alpha, const Scalar* x, const Scalar beta, const Scalar* y,  const Size N, Scalar* z)
+{
+	#pragma omp simd 
+	for (BIC::Mutable<Size> i=0; i!=N; ++i)
+	{
+		z[i] = std::fma(beta, y[i], std::fma(alpha, x[i], z[i]));
+	}
 }
 
 template<typename Scalar, typename Size>
@@ -159,11 +169,11 @@ void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scala
 			{
 				for (BIC::Mutable<Size> j=0; j!=(i+1); ++j)
 				{
-					y[i] += alpha*A[i*iStride + j*jStride]*x[j];
+					y[i] = AdlMath::fma(alpha*A[i*iStride + j*jStride], x[j], y[i]);
 				}
 				for (BIC::Mutable<Size> j=i+1; j!=N; ++j)
 				{
-					y[i] += alpha*A[j*iStride + i*jStride]*x[j];
+					y[i] = AdlMath::fma(alpha*A[j*iStride + i*jStride], x[j], y[i]);
 				}
 			}
 		}
@@ -190,9 +200,10 @@ void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha
 	
 		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
+			const Scalar alpha_xi = alpha*x[i];
 			for (BIC::Mutable<Size> j=0; j!=(i+1); ++j)
 			{
-				A[i*iStride + j*jStride] += alpha*x[i]*x[j];
+				A[i*iStride + j*jStride] = AdlMath::fma(alpha_xi, x[j], A[i*iStride + j*jStride]);
 			}
 		}
 	}
@@ -216,9 +227,12 @@ void symRk2Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scal
 	
 		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
+			const Scalar alpha_yi = alpha*y[i];
+			const Scalar alpha_xi = alpha*x[i];
+			
 			for (BIC::Mutable<Size> j=0; j!=(i+1); ++j)
 			{
-				A[i*iStride + j*jStride] += alpha*x[i]*y[j] + alpha*y[i]*x[j];
+				A[i*iStride + j*jStride] = AdlMath::fma(alpha_yi, x[j], AdlMath::fma(alpha_xi, y[j], A[i*iStride + j*jStride]));
 			}
 		}
 	}
@@ -271,14 +285,14 @@ bool compute(const Scalar* alpha, const Scalar* beta, const Size size, const Sca
 		
 		for (BIC::Mutable<Size> i=1; i!=BIC::Mutable<Size>(size-1);++i)
 		{
-			const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
+			const Scalar delta_i = alpha[i] + AdlMath::fma(-beta[i-1], l[i-1], shift);
 			if (delta_i < epsilon) { return false; }
 			invDelta[i] = Scalar(1) / delta_i;
 			l[i] = beta[i]*invDelta[i];
 		}
 		{ 
 			const Size i = Size(size-1);
-			const Scalar delta_i = alpha[i] + shift - beta[i-1]*l[i-1];
+			const Scalar delta_i = alpha[i] + AdlMath::fma(-beta[i-1], l[i-1], shift);
 			if (delta_i < epsilon) { return false; }
 			invDelta[i] = Scalar(1) / delta_i;
 		}

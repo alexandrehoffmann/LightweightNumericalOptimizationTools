@@ -20,6 +20,12 @@ template<typename T> inline constexpr std::remove_reference_t<T> log10(T&& x) { 
 template<typename T> inline constexpr bool isfinite(T&& x) { using std::isfinite; return isfinite(std::forward<T>(x)); }
 
 template<typename T> inline constexpr std::remove_reference_t<T> pow(T&& x, T&& y) { using std::pow; return pow(std::forward<T>(x), std::forward<T>(y)); }
+
+template<typename T> inline constexpr std::remove_reference_t<T> fma(T&& x, T&& y, T&& z) { using std::fma; return fma(std::forward<T>(x), std::forward<T>(y), std::forward<T>(z)); }
+
+//
+
+template<typename T> inline constexpr T fma(const T& x, const T& y, const T& z) { using std::fma; return fma(x, y, z); }
 	
 } // namespace LNOT::AdlMath
 
