@@ -2,6 +2,7 @@
 #define LNOT_BASIC_LINALG_IMPL_HPP
 
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
+#include <LNOT/misc/AdlMath.hpp>
 #include <BIC/Core.hpp>
 
 #include <numeric>
@@ -233,15 +234,15 @@ Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 	else if constexpr (std::is_same<Scalar, long double>::value) { return lnot_tridiag_norm1_ld(alpha, beta, lnot_Size(N)); }
 	else
 	{
-		if (N == 1) { return std::abs(alpha[0]); }
+		if (N == 1) { return AdlMath::abs(alpha[0]); }
 
-		Scalar res = std::abs(alpha[0]) + std::abs(beta[0]);
+		Scalar res = AdlMath::abs(alpha[0]) + AdlMath::abs(beta[0]);
 		#pragma omp simd reduction(max:res)
 		for (BIC::Mutable<Size> i=1; i!=BIC::Mutable<Size>(N-1); ++i)
 		{
-			res = std::max(res, std::abs(alpha[i]) + std::abs(beta[i]) + std::abs(beta[i-1]));
+			res = std::max(res, AdlMath::abs(alpha[i]) + AdlMath::abs(beta[i]) + AdlMath::abs(beta[i-1]));
 		}
-		return std::max(res, std::abs(alpha[N-1]) + std::abs(beta[N-2]));
+		return std::max(res, AdlMath::abs(alpha[N-1]) + AdlMath::abs(beta[N-2]));
 	}
 }
 
