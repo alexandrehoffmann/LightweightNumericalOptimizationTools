@@ -123,7 +123,7 @@ void axpbypz(const Scalar alpha, const Scalar* x, const Scalar beta, const Scala
 	#pragma omp simd 
 	for (BIC::Mutable<Size> i=0; i!=N; ++i)
 	{
-		z[i] = std::fma(beta, y[i], std::fma(alpha, x[i], z[i]));
+		z[i] = AdlMath::fma(beta, y[i], AdlMath::fma(alpha, x[i], z[i]));
 	}
 }
 
