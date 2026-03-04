@@ -18,6 +18,8 @@ template<typename T> inline constexpr std::remove_reference_t<T> floor(T&& x) { 
 template<typename T> inline constexpr std::remove_reference_t<T> log10(T&& x) { using std::log10; return log10(std::forward<T>(x)); }
 
 template<typename T> inline constexpr bool isfinite(T&& x) { using std::isfinite; return isfinite(std::forward<T>(x)); }
+
+template<typename T> inline constexpr std::remove_reference_t<T> pow(T&& x, T&& y) { using std::pow; return pow(std::forward<T>(x), std::forward<T>(x)); }
 	
 }
 
