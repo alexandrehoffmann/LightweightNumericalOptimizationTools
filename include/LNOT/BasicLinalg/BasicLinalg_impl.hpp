@@ -235,7 +235,7 @@ Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 	else if constexpr (std::is_same<Scalar, long double>::value) { return lnot_tridiag_norm1_ld(alpha, beta, lnot_Size(N)); }
 	else
 	{
-		#pragma omp declare reduction(mymax : double : omp_out = std::max(omp_out, omp_in)) \
+		#pragma omp declare reduction(mymax : Scalar : omp_out = std::max(omp_out, omp_in)) \
 			initializer(omp_priv = NumTraits<Scalar>::lowest)
 		
 		if (N == 1) { return AdlMath::abs(alpha[0]); }
