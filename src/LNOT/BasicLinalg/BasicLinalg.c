@@ -10,6 +10,24 @@ float       lnot_max_f (const float       a, const float       b) { return fmaxf
 double      lnot_max_d (const double      a, const double      b) { return fmax (a, b); } 
 long double lnot_max_ld(const long double a, const long double b) { return fmaxl(a, b); } 
 
+#define LNOT_IMPLEMENT_STRIDED_COPY(Scalar, Suffix)\
+	void lnot_stridedCopy_##Suffix(\
+		const Scalar* LNOT_RESTRICT x, \
+		const lnot_Size xStride, \
+		const lnot_Size N, \
+		Scalar* LNOT_RESTRICT y, \
+		const lnot_Size yStride) \
+	{ \
+		for (lnot_Size i=0; i!=N; ++i) \
+		{ \
+			y[i*yStride] = x[i*xStride]; \
+		} \
+	} \
+
+LNOT_IMPLEMENT_STRIDED_COPY(float, f)
+LNOT_IMPLEMENT_STRIDED_COPY(double, d)
+LNOT_IMPLEMENT_STRIDED_COPY(long double, ld)
+
 #define LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(Scalar, Suffix)\
 	void lnot_symMatrixVectorProd_##Suffix(\
 		const lnot_mat_StorageOrder layout, \
@@ -35,7 +53,6 @@ long double lnot_max_ld(const long double a, const long double b) { return fmaxl
 			}\
 		}\
 	}\
-	\
 
 LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(float, f)
 LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(double, d)
@@ -63,7 +80,6 @@ LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(long double, ld)
 			}\
 		}\
 	}\
-	\
 
 LNOT_IMPLEMENT_SYM_RK1_UPDATE(float, f)
 LNOT_IMPLEMENT_SYM_RK1_UPDATE(double, d)
@@ -93,7 +109,6 @@ LNOT_IMPLEMENT_SYM_RK1_UPDATE(long double, ld)
 			}\
 		}\
 	}\
-	\
 
 LNOT_IMPLEMENT_SYM_RK2_UPDATE(float, f)
 LNOT_IMPLEMENT_SYM_RK2_UPDATE(double, d)
@@ -115,7 +130,6 @@ LNOT_IMPLEMENT_SYM_RK2_UPDATE(long double, ld)
 		}\
 		return lnot_max_##Suffix(res, lnot_abs_##Suffix(alpha[N-1]) + lnot_abs_##Suffix(beta[N-2]));\
 	}\
-	\
 
 LNOT_IMPLEMENT_TRIDIAG_NORM1(float, f)
 LNOT_IMPLEMENT_TRIDIAG_NORM1(double, d)
@@ -153,7 +167,6 @@ LNOT_IMPLEMENT_TRIDIAG_NORM1(long double, ld)
 	\
 		return true;\
 	}\
-	\
 
 LNOT_IMPLEMENT_TRIDIAG_LDLT_COMPUTE(float, f)
 LNOT_IMPLEMENT_TRIDIAG_LDLT_COMPUTE(double, d)
@@ -169,7 +182,6 @@ LNOT_IMPLEMENT_TRIDIAG_LDLT_COMPUTE(long double, ld)
 		x[0] = b1;\
 		for (lnot_Size i=1; i!=size; ++i) { x[i] = -l[i-1]*x[i-1]; }\
 	}\
-	\
 
 LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_LOWER_UNIT(float, f)
 LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_LOWER_UNIT(double, d)
@@ -183,7 +195,6 @@ LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_LOWER_UNIT(long double, ld)
 	{\
 		for (lnot_Size i=(lnot_Size)(size-2); i!=(lnot_Size)(-1); --i) { x[i] -= l[i]*x[i+1]; }\
 	}\
-	\
 
 LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_INPLACE_UPPER(float, f)
 LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_INPLACE_UPPER(double, d)
@@ -201,7 +212,6 @@ LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_INPLACE_UPPER(long double, ld)
 		for (lnot_Size i=0; i!=size; ++i) { x[i] *= invD[i]; }\
 		lnot_tridiag_ldlt_solveInplaceUpper_##Suffix(l, size, x);\
 	}\
-	\
 	
 LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_UNIT(float, f)
 LNOT_IMPLEMENT_TRIDIAG_LDLT_SOLVE_UNIT(double, d)

@@ -28,6 +28,19 @@ float       lnot_max_f (const float       a, const float       b);
 double      lnot_max_d (const double      a, const double      b); 
 long double lnot_max_ld(const long double a, const long double b); 
 
+#define LNOT_DEFINE_STRIDED_COPY(Scalar, Suffix)\
+	void lnot_stridedCopy_##Suffix(\
+		const Scalar* LNOT_RESTRICT x, \
+		const lnot_Size xStride, \
+		const lnot_Size N, \
+		Scalar* LNOT_RESTRICT y, \
+		const lnot_Size yStride); \
+		\
+
+LNOT_DEFINE_STRIDED_COPY(float, f)
+LNOT_DEFINE_STRIDED_COPY(double, d)
+LNOT_DEFINE_STRIDED_COPY(long double, ld)
+
 #define LNOT_DEFINE_SYM_MATRIX_VECTOR_PROD(Scalar, Suffix)\
 	void lnot_symMatrixVectorProd_##Suffix(\
 		const lnot_mat_StorageOrder layout, \

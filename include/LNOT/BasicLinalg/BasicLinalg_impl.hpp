@@ -15,15 +15,21 @@ template<typename Scalar, typename Size>
 void stridedCopy(const Scalar* x, const Size xStride, const Size N, Scalar* y, const Size yStride)
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_scopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
-	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_dcopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
+	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_scopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
+	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dcopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
-		#pragma omp simd 
-		for (BIC::Mutable<Size> i=0; i!=N; ++i) 
-		{ 
-			y[i*yStride] = x[i*xStride]; 
+		if constexpr      (std::is_same<Scalar, float>::value)       { lnot_stridedCopy_f (x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
+		else if constexpr (std::is_same<Scalar, double>::value)      { lnot_stridedCopy_d (x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
+		else if constexpr (std::is_same<Scalar, long double>::value) { lnot_stridedCopy_ld(x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
+		else
+		{
+			#pragma omp simd 
+			for (BIC::Mutable<Size> i=0; i!=N; ++i) 
+			{ 
+				y[i*yStride] = x[i*xStride]; 
+			}
 		} 
 #ifdef LNOT_WITH_BLAS
 	}
