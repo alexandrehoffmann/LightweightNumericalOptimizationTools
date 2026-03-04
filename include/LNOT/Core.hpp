@@ -1,3 +1,5 @@
+#include <LNOT/FloatingPoint/NumTraits.hpp>
+
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
 #include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
