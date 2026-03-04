@@ -151,7 +151,7 @@ auto TruncatedConjugateGradient<T>::getPolyMaxRoot(const Scalar a, const Scalar 
 	using AdlMath::sqrt;
 	
 	const Scalar delta = b*b - 4*a*c;
-	if (delta < std::numeric_limits<Scalar>::epsilon()) { return -b / (2*a); }
+	if (delta < NumTraits<Scalar>::epsilon) { return -b / (2*a); }
 	const Scalar x1 = (-b + sqrt(delta)) / (2*a);
 	const Scalar x2 = (-b - sqrt(delta)) / (2*a);
 	return std::max(x1, x2);

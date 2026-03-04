@@ -3,6 +3,7 @@
 
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
 #include <LNOT/misc/AdlMath.hpp>
+#include <LNOT/FloatingPoint/NumTraits.hpp>
 #include <BIC/Core.hpp>
 
 #include <numeric>
@@ -235,7 +236,7 @@ Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 	else
 	{
 		#pragma omp declare reduction(mymax : double : omp_out = std::max(omp_out, omp_in)) \
-			initializer(omp_priv = std::numeric_limits<double>::lowest())
+			initializer(omp_priv = NumTraits<Scalar>::lowest)
 		
 		if (N == 1) { return AdlMath::abs(alpha[0]); }
 
@@ -255,7 +256,7 @@ namespace LDLt
 template<typename Scalar, typename Size>
 bool compute(const Scalar* alpha, const Scalar* beta, const Size size, const Scalar shift, Scalar* invDelta, Scalar* l)
 {
-	constexpr Scalar epsilon = std::numeric_limits<Scalar>::epsilon();
+	constexpr Scalar epsilon = NumTraits<Scalar>::epsilon;
 	
 	if constexpr (std::is_same<Scalar, float>::value)       { return lnot_tridiag_ldlt_compute_f (alpha, beta, size, shift, epsilon, invDelta, l); }
 	if constexpr (std::is_same<Scalar, double>::value)      { return lnot_tridiag_ldlt_compute_d (alpha, beta, size, shift, epsilon, invDelta, l); }

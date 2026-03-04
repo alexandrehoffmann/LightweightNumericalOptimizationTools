@@ -47,7 +47,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	using Oracle_Size         = typename Oracle::Size;
 	using CircularBuffer_Size = typename CircularBuffer<Scalar>::size_type;
 	
-	const Scalar sr1DropTol = sqrt( std::numeric_limits<Scalar>::epsilon() );
+	const Scalar sr1DropTol = sqrt( NumTraits<Scalar>::epsilon );
 	const Oracle_Size size = oracle.getNDims();
 	
 	if (m_workCapacity < size)

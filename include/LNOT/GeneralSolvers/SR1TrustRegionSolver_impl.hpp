@@ -45,7 +45,7 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 	
 	using Oracle_Size = typename Oracle::Size;
 	
-	const Scalar sr1DropTol = sqrt( std::numeric_limits<Scalar>::epsilon() );
+	const Scalar sr1DropTol = sqrt( NumTraits<Scalar>::epsilon );
 		
 	const Oracle_Size size = oracle.getNDims();
 	

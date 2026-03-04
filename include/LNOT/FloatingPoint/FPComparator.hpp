@@ -1,10 +1,10 @@
 #ifndef LNOT_FP_COMPARATOR_HPP
 #define LNOT_FP_COMPARATOR_HPP
 
+#include <LNOT/FloatingPoint/NumTraits.hpp>
 #include <LNOT/misc/AdlMath.hpp>
 
 #include <cmath>
-#include <limits>
 #include <algorithm>
 
 namespace LNOT
@@ -14,7 +14,7 @@ template<std::floating_point Scalar>
 class FPComparator
 {
 public:
-	static inline constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon();
+	static inline constexpr Scalar defaultEps = NumTraits<Scalar>::epsilon;
 
 	FPComparator(const Scalar& relativeEpsilon = defaultEps, const Scalar& absoluteEpsilon = defaultEps) : m_relativeEpsilon(relativeEpsilon), m_absoluteEpsilon(absoluteEpsilon) {}
 	

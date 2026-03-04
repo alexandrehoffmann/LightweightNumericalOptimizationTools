@@ -5,10 +5,10 @@
 #include <cmath>
 
 #include <type_traits>
-#include <limits>
 #include <algorithm>
 
 #include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
+#include <LNOT/FloatingPoint/NumTraits.hpp>
 #include <LNOT/CRTPBase.hpp>
 #include <LNOT/misc/AdlMath.hpp>
 
@@ -36,7 +36,7 @@ public:
 	template<typename HesOp, typename PrecOp> struct AreHessianOps : BIC::Fixed<bool, IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
 	template<typename ASize>                  struct IsSize        : BIC::Fixed<bool, std::is_same<Size, BIC::Mutable<ASize>>::value > {};          ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`.
 	
-	static constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon(); ///<  @brief Default value for relative and absolute tolerance of the solver.  
+	static constexpr Scalar defaultEps = NumTraits<Scalar>::epsilon; ///<  @brief Default value for relative and absolute tolerance of the solver.  
 	
 	
 	TRSSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar relTolTr = AdlMath::sqrt(defaultEps), const Scalar absTol = defaultEps, const Scalar absTolTr = AdlMath::sqrt(defaultEps)) : m_maxIt(maxIt), m_relTol(relTol), m_relTolTr(relTolTr), m_absTol(absTol), m_absTolTr(absTolTr) {}

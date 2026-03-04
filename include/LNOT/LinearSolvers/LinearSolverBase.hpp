@@ -4,10 +4,10 @@
 #include <cstdio>
 
 #include <type_traits>
-#include <limits>
 #include <algorithm>
 
 #include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
+#include <LNOT/FloatingPoint/NumTraits.hpp>
 #include <LNOT/CRTPBase.hpp>
 
 #include <BIC/Core.hpp>
@@ -53,7 +53,7 @@ public:
 	template<typename ASize> static constexpr bool isSize      = std::same_as<Size, BIC::Mutable<ASize>>;
 	template<typename ABool> static constexpr bool isBool      = std::same_as<bool, BIC::Mutable<ABool>>;
 	
-	static constexpr Scalar defaultEps = std::numeric_limits<Scalar>::epsilon(); ///<  @brief Default value for relative and absolute tolerance of the solver. 
+	static constexpr Scalar defaultEps = NumTraits<Scalar>::epsilon; ///<  @brief Default value for relative and absolute tolerance of the solver. 
 	
 	/**
 	 * @brief Construct the solver with optional maximum iterations and tolerance.

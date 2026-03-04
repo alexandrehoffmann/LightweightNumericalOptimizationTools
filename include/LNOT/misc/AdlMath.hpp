@@ -21,6 +21,6 @@ template<typename T> inline constexpr bool isfinite(T&& x) { using std::isfinite
 
 template<typename T> inline constexpr std::remove_reference_t<T> pow(T&& x, T&& y) { using std::pow; return pow(std::forward<T>(x), std::forward<T>(y)); }
 	
-}
+} // namespace LNOT::AdlMath
 
 #endif // LNOT_ADL_MATH_HPP

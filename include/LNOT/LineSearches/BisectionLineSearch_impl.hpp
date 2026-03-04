@@ -40,7 +40,7 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 {
 	using Oracle_Size = typename Oracle::Size;
 	
-	const Scalar inf = std::numeric_limits<Scalar>::infinity();
+	const Scalar inf = NumTraits<Scalar>::infinity;
 	
 	const Oracle_Size size     = oracle.getNDims();
 	const Scalar      sDotGrad = BasicLinalg::inner(s, gx, size);
