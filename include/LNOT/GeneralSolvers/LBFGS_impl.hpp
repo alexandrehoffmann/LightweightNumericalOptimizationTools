@@ -77,13 +77,13 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scal
 	
 	const FPComparator<Scalar> cmp;
 	
-	if (m_out != nullptr) { fmt::print(m_out, "#L-BFGS method\n#Iteration f(x) residual relative_tol absolute_tol\n"); }
+	if (m_out != nullptr) { fmt::println(m_out, "#L-BFGS method\n#Iteration f(x) residual relative_tol absolute_tol"); }
 	
 	Size curr_i{};
 	m_info = Info::FAILURE;
 	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		
 		//// two loop recursion

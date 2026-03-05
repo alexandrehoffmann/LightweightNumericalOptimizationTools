@@ -147,10 +147,10 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 	const Scalar relTol = m_relTol*m_precNormR;
 	
 	m_info = Info::FAILURE;
-	if (m_out) { fmt::print(m_out, "#Preconditioned Lanczos solver : \n#Iteration residual relative_tol absolute_tol\n"); }
+	if (m_out) { fmt::println(m_out, "#Preconditioned Lanczos solver : \n#Iteration residual relative_tol absolute_tol"); }
 	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_precNormR, relTol, m_absTol); }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_precNormR, relTol, m_absTol); std::fflush(m_out); }
 		if (m_precNormR < relTol or m_precNormR < m_absTol) { m_info = Info::SUCCESS; break; }
 		
 		H(m_v, m_w); 

@@ -46,7 +46,7 @@ auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, cons
 	Scalar alpha(1);
 	
 	m_info = Info::FAILURE;
-	if (m_out != nullptr) { fmt::print(m_out, "#Backtracking LineSearch : \n#Iteration alpha f(x+alpha s) f(x) tol\n"); }
+	if (m_out != nullptr) { fmt::println(m_out, "#Backtracking LineSearch : \n#Iteration alpha f(x+alpha s) f(x) tol"); }
 	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{
 		if (not cmp.isDefPositive(alpha)) { break; }
@@ -56,7 +56,7 @@ auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, cons
 		oracle.setCurrentPoint(m_newX);
 		const Scalar fx_new = oracle.getValue();
 		
-		if (m_out != nullptr) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, alpha, fx_new, fx, m_armijoConditionConst*alpha*sDotGrad); }
+		if (m_out != nullptr) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, alpha, fx_new, fx, m_armijoConditionConst*alpha*sDotGrad); std::fflush(m_out); }
 		
 		if (not oracle.isFeasible())
 		{

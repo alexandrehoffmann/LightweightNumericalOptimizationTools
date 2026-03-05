@@ -135,10 +135,10 @@ void ConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB, const S
 	const FPComparator<Scalar> cmp;
 	
 	m_info = Info::FAILURE;
-	if (m_out) { fmt::print(m_out, "#Preconditioned CG solver : \n#Iteration residual relative_tol absolute_tol\n"); }
+	if (m_out) { fmt::println(m_out, "#Preconditioned CG solver : \n#Iteration residual relative_tol absolute_tol"); }
 	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, sqrt(m_precSqNormR), sqrt(relTol2), sqrt(absTol2)); }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e}", m_nIt, sqrt(m_precSqNormR), sqrt(relTol2), sqrt(absTol2)); std::fflush(m_out); }
 		if (m_precSqNormR < relTol2 or m_precSqNormR < absTol2) { m_info = Info::SUCCESS; break; }
 		H(m_p, m_Hp);
 		const Scalar alpha = m_precSqNormR / BasicLinalg::inner(m_p, m_Hp, size);

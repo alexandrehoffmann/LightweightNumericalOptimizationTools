@@ -96,10 +96,10 @@ auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 	const FPComparator<Scalar> cmpTr(m_relTolTr, m_absTolTr);
 	
 	m_info = Info::FAILURE;
-	if (m_out) { fmt::print(m_out, "#Truncated Preconditioned CG solver : \n#Iteration residual relative_tol absolute_tol\n"); }
+	if (m_out) { fmt::println(m_out, "#Truncated Preconditioned CG solver : \n#Iteration residual relative_tol absolute_tol"); }
 	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, sqrt(m_precSqNormR), sqrt(relTol2), sqrt(m_absTol)); }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e}", m_nIt, sqrt(m_precSqNormR), sqrt(relTol2), sqrt(m_absTol)); std::fflush(m_out); }
  		if (m_precSqNormR < relTol2 or m_precSqNormR < absTol2) { m_info = Info::SUCCESS; break; }
  		
  		H(m_p, m_Hp);

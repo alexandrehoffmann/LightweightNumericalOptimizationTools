@@ -104,11 +104,11 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	const FPComparator<Scalar> cmp;
 	const FPComparator<Scalar> cmpTr(m_trsSolver.getRelTolTR(), m_trsSolver.getAbsTolTR());
 	
-	if (m_out != nullptr) { fmt::print(m_out, "#L-SR1 Trust region method\n#Iteration f(x) delta usedVectors residual relative_tol absolute_tol\n"); }
+	if (m_out != nullptr) { fmt::println(m_out, "#L-SR1 Trust region method\n#Iteration f(x) delta usedVectors residual relative_tol absolute_tol"); }
 	m_info = Info::FAILURE;
 	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{				
-		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_fx, delta, std::ranges::count(isVectorKept, true), m_squaredNormGrad, relTol2, absTol2); }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, delta, std::ranges::count(isVectorKept, true), m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		// building the Bk matrix from the last saved vectors
 		// c.f. https://optimization-online.org/wp-content/uploads/2015/10/5167.pdf
