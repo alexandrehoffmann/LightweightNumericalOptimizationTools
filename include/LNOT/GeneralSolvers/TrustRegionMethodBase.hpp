@@ -36,6 +36,8 @@ protected:
 	
 	Scalar m_gammaIncrease = Scalar(2.00);
 	Scalar m_gammaDecrease = Scalar(0.25);
+	
+	Scalar m_deltaMax = Scalar(100.);
 };
 	
 } // namespace LNOT
@@ -49,6 +51,7 @@ protected:
 	using TRMBase::m_etaAccept; \
 	using TRMBase::m_gammaIncrease; \
 	using TRMBase::m_gammaDecrease; \
+	using TRMBase::m_deltaMax; \
 
 
 #endif // LNOT_TRUST_REGION_METHOD_BASE_HPP

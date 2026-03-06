@@ -103,6 +103,8 @@ void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool s
 		if      (not (isStepSuccessful and isStepFeasible)) { delta *= m_gammaDecrease; }
 		else if (isStepVerySuccessful and normS_eq_delta)   { delta *= m_gammaIncrease; }
 		
+		delta = std::min(delta, m_deltaMax);
+		
 		if (isStepAccepted) 
 		{ 
 			std::copy(m_xTrial, m_xTrial + size, x); 
