@@ -249,7 +249,7 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 		}
 	}
 	
-	m_nIt += m_h.size();
+	m_nIt += Size(m_h.size());
 	
 	return delta;
 }
