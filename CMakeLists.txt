@@ -127,6 +127,7 @@ set(LNOT_SRC
 	#
 	src/LNOT/TRSSolvers/TruncatedConjugateGradient.cpp
 	src/LNOT/TRSSolvers/LanczosTRSSolver.cpp
+	src/LNOT/TRSSolvers/LanczosFullOrthTRSSolver.cpp
 	#
 	src/LNOT/LineSearches/BacktrackingLineSearch.cpp
 	src/LNOT/LineSearches/BisectionLineSearch.cpp

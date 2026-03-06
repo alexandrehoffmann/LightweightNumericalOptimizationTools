@@ -45,6 +45,7 @@ int main()
 	lanczosTrs.setOutput(stdout);
 	lanczosTrs.solve(Aop, b, BIC::fixed<unsigned int, N>, delta, x);
 	
+	fmt::print("\n");
 	fmt::print("Lanczos Trust Region found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), lanczosTrs.getIterations(), lanczosTrs.getError());
 	
 	double r[N];
@@ -62,10 +63,30 @@ int main()
 	fmt::print("Predicted model reduction : {}\n", lanczosTrs.getModelReduction());
 	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));
 	
+	LNOT::LanczosFullOrthTRSSolver<double> lanczosFullOrthTrs;
+	lanczosFullOrthTrs.setOutput(stdout);
+	lanczosFullOrthTrs.solve(Aop, b, BIC::fixed<unsigned int, N>, delta, x);
+	
+	fmt::print("\n");
+	fmt::print("Lanczos Trust Region with full orthonormalization found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), lanczosFullOrthTrs.getIterations(), lanczosFullOrthTrs.getError());
+	
+	Aop(x, r);
+	for (unsigned int i=0; i!=N; ++i) { r[i] += lanczosFullOrthTrs.getLambda()*x[i] + b[i];  }
+	
+	fmt::print("KKT : \n");
+	fmt::print("  * (A + lambda I)x + b = {:10.2e}\n", fmt::join(r_view, " "));
+	fmt::print("  * |x| <= Delta ? {}\n", LNOT::BasicLinalg::norm(x, N) <= delta + lanczosFullOrthTrs.getRelTolTR());
+	fmt::print("  * lambda >= 0 ? {}\n", lanczosFullOrthTrs.getLambda() >= 0);
+	fmt::print("  * lambda*(|x| - Delta) = {:10.2e}\n", lanczosFullOrthTrs.getLambda()*(LNOT::BasicLinalg::norm(x, N) - delta));
+	Aop(x, r); 
+	fmt::print("Predicted model reduction : {}\n", lanczosFullOrthTrs.getModelReduction());
+	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));
+	
 	LNOT::TruncatedConjugateGradient<double> tcg;
 	tcg.setOutput(stdout);
 	tcg.solve(Aop, b, BIC::fixed<unsigned int, N>, delta, x);
 	
+	fmt::print("\n");
 	fmt::print("Truncated CG found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), tcg.getIterations(), tcg.getError());
 	fmt::print("|x| <= Delta ? {}\n", LNOT::BasicLinalg::norm(x, N) <= delta + tcg.getRelTolTR());
 	Aop(x, r); 

@@ -1,64 +1,55 @@
 #ifndef LNOT_LANCZOS_TRS_SOLVER_HPP
 #define LNOT_LANCZOS_TRS_SOLVER_HPP
 
-#include <LNOT/TRSSolvers/TRSSolverBase.hpp>
-#include <vector>
+#include <LNOT/TRSSolvers/LanczosTRSSolverBase.hpp>
 
 namespace LNOT
 {
 
 template<typename T> class LanczosTRSSolver;
 
-template<typename T> struct TRSSolverTraits< LanczosTRSSolver<T> > { using Scalar = T; using Size = unsigned int; };
+template<typename T> 
+struct TRSSolverTraits< LanczosTRSSolver<T> > 
+{ 
+	using Scalar = T; 
+	using Size = unsigned int;
+	
+	static constexpr bool storeLanczosVectors = false;
+};
 
-template<typename T>
-class LanczosTRSSolver : public TRSSolverBase< LanczosTRSSolver<T> >
+template<typename T> 
+class LanczosTRSSolver : public LanczosTRSSolverBase< LanczosTRSSolver<T> >
 {
 	using Self = LanczosTRSSolver<T>;
+	
+	friend class LanczosTRSSolverBase<Self>;
 public:
 	LNOT_DEFINE_TRS_SOLVER
-	
-	LanczosTRSSolver(const Size maxIt = 200000, const Scalar tol = NumTraits<Scalar>::epsilon, const Size maxItTr = 200000, const Scalar tolTr = AdlMath::sqrt(NumTraits<Scalar>::epsilon));
 	
 	void clearWorkSpace();
 	
 	void resizeWorkSpace(const Size newSize);
-	
-	template<typename HesOp, typename PrecOp, typename ASize> 
-	Scalar solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value);
-	
-	Scalar getErrorImpl        () const { return m_precNormR;             }
-	Scalar getSquaredErrorImpl () const { return m_precNormR*m_precNormR; }
-	
-	Size getMaxItTr() const { return m_maxItTr; }
-	
-	void setMaxItTr(const Size maxItTr) { m_maxItTr = maxItTr; }
-	
-	Scalar getLambda() const { return m_lambda; } 
 protected:
-	LNOT_TRS_SOLVER_ATTRIBUTE
+	LNOT_TRS_SOLVER_ATTRIBUTE	
 private:
-	bool solveBoundary(const Scalar& gamma, const Scalar& delta);
-
-	Size m_maxItTr;
-
-	Scalar m_precNormR = Scalar{};
-	Scalar m_lambda    = Scalar{};
-
-	Scalar* m_Bv_old = nullptr;
-	Scalar* m_Bv     = nullptr;
-	Scalar* m_v      = nullptr;
-	Scalar* m_p      = nullptr;
-	Scalar* m_Bp     = nullptr;
-	Scalar* m_Hp     = nullptr;
-	Scalar* m_w      = nullptr;
+	inline void resetBvImpl() {}
 	
-	std::vector<Scalar> m_alpha;
-	std::vector<Scalar> m_beta;
+	inline Scalar* getBvCurrImpl() { return m_Bv_curr; }
 	
-	std::vector<Scalar> m_invD;
-	std::vector<Scalar> m_l;
-	std::vector<Scalar> m_h;
+	inline Scalar* getBvPrevImpl() { return m_Bv_prev; }
+	
+	inline const Scalar* getBvCurrImpl() const { return m_Bv_curr; }
+	
+	inline const Scalar* getBvPrevImpl() const { return m_Bv_prev; }
+	
+	template<typename ASize>
+	void addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(IsSize<ASize>::value);
+	
+	template<typename ASize>
+	inline void reOrthonormalizeImpl(const ASize /* size */, Scalar* /* unscaledBvNext */ ) requires(IsSize<ASize>::value) {}
+
+	Scalar* m_Bv_curr = nullptr;
+	Scalar* m_Bv_prev = nullptr;
 };
 
 } // namespace LNOT

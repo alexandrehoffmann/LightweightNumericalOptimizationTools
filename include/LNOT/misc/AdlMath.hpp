@@ -1,5 +1,5 @@
-#ifndef LNOT_ADL_MATH_HPP
-#define LNOT_ADL_MATH_HPP
+#ifndef LNOT_MISC_ADL_MATH_HPP
+#define LNOT_MISC_ADL_MATH_HPP
 
 #include <cmath>
 #include <utility>
@@ -29,4 +29,4 @@ template<typename T> inline constexpr T fma(const T& x, const T& y, const T& z) 
 	
 } // namespace LNOT::AdlMath
 
-#endif // LNOT_ADL_MATH_HPP
+#endif // LNOT_MISC_ADL_MATH_HPP

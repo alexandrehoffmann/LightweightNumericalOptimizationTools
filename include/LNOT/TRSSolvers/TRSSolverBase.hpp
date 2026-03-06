@@ -23,8 +23,8 @@ template<class Derived>
 class TRSSolverBase : public CRTPBase<Derived>
 {
 	using DerivedTraits = TRSSolverTraits<Derived>;
-	using CRTP          = CRTPBase<Derived>;
 public:
+	using CRTP   = CRTPBase<Derived>;
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
 	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
 	

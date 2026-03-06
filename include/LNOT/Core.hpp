@@ -8,6 +8,7 @@
 #include <LNOT/LinearSolvers/LanczosSolver.hpp>
 
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
+#include <LNOT/TRSSolvers/LanczosFullOrthTRSSolver.hpp>
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
 
 #include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
