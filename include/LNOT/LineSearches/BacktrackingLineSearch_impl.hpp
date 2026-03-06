@@ -43,13 +43,15 @@ auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, cons
 		m_newX = new Scalar[m_workCapacity];
 	}
 	
+	const Scalar normS = BasicLinalg::norm(s, size);
+	
 	Scalar alpha(1);
 	
 	m_info = Info::FAILURE;
 	if (m_out != nullptr) { fmt::println(m_out, "#Backtracking LineSearch : \n#Iteration alpha f(x+alpha s) f(x) tol"); }
 	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (not cmp.isDefPositive(alpha)) { break; }
+		if (not cmp.isDefPositive(alpha*normS)) { break; }
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_newX[i] = x[i] + alpha*s[i]; }
 		

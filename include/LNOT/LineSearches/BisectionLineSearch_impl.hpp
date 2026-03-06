@@ -55,6 +55,8 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 		m_newGrad = new Scalar[m_workCapacity];
 	}
 	
+	const Scalar normS = BasicLinalg::norm(s, size);
+	
 	Scalar alpha    (1);
 	Scalar alpha_min{};
 	Scalar alpha_max(inf);
@@ -64,7 +66,7 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{		
 		if (m_out != nullptr) { fmt::println(m_out, "{} {:10.2e}", m_nIt, alpha); std::fflush(m_out); }
-		if (cmp.isApproxEq(alpha_max, alpha_min)) { break; } // (alpha_min, alpha_max) is empty
+		if (cmp.isApproxEq(alpha_max*normS, alpha_min*normS)) { break; } // (alpha_min, alpha_max) is empty
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_newX[i] = x[i] + alpha*s[i]; }
 		
