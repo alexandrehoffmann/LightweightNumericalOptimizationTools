@@ -13,11 +13,13 @@ class DiagonalPreconditionerOp
 public:	
 	using Size = unsigned int;
 	
-	DiagonalPreconditionerOp(const Scalar* A, const Size size);
+	DiagonalPreconditionerOp(const Scalar* A, const Size size) : m_invD(new Scalar[size]), m_size(size) { recompute(A); }
 	
 	~DiagonalPreconditionerOp() { delete[] m_invD; }
 	
 	void operator() (const Scalar* x, Scalar* invDx) const;
+	
+	void recompute(const Scalar* A);
 private:
 	Scalar* m_invD;
 	

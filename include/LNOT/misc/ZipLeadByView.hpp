@@ -74,9 +74,9 @@ public:
 					std::conditional_t<isForward,
 						std::forward_iterator_tag,
 						std::input_iterator_tag>
-				    >
+					>
 				>
-		    >;
+		>;
 		    
 		constexpr explicit Iterator(const IteratorFor<Views>... iterators) : m_iterators(iterators...) {}
 		

@@ -15,12 +15,12 @@ extern template class DiagonalPreconditionerOp<long double>;
 //// method implementations ////
 
 template<std::floating_point Scalar>
-DiagonalPreconditionerOp<Scalar>::DiagonalPreconditionerOp(const Scalar* A, const Size size) 
+void DiagonalPreconditionerOp<Scalar>::recompute(const Scalar* A) 
 	: m_invD(new Scalar[size])
 	, m_size(size) 
 { 
 	#pragma omp simd
-	for (Size i=0; i!=size; ++i) { m_invD[i] = Scalar(1) / A[i*(size + 1)]; } 
+	for (Size i=0; i!=m_size; ++i) { m_invD[i] = Scalar(1) / A[i*(size + 1)]; } 
 }
 
 template<std::floating_point Scalar>
