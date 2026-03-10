@@ -66,7 +66,6 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 	for (Size i=0; i!=size; ++i) { m_Bk[i + i*size] = 1; }
 	
 	SymmetricDenseMatrixOp<Scalar> BkOp(m_Bk, size);
-	DiagonalPreconditionerOp<Scalar> invDiagBk(m_Bk, size);
 	
 	m_innerIts.clear();
 	
@@ -110,7 +109,6 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 		if (abs(invRho) > sr1DropTol*BasicLinalg::squaredNorm(m_sk, size)*BasicLinalg::squaredNorm(m_uk, size))
 		{
 			BasicLinalg::symRk1Update(BkOp.getStorageOrder(), BkOp.getUplo(), Scalar(1) / invRho, m_uk, size, m_Bk);
-			invDiagBk.recompute(m_Bk);
 		}
 		
 		const Scalar fxTrial = oracle.getValue();
