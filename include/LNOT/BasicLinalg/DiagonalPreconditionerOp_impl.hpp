@@ -16,11 +16,9 @@ extern template class DiagonalPreconditionerOp<long double>;
 
 template<std::floating_point Scalar>
 void DiagonalPreconditionerOp<Scalar>::recompute(const Scalar* A) 
-	: m_invD(new Scalar[size])
-	, m_size(size) 
 { 
 	#pragma omp simd
-	for (Size i=0; i!=m_size; ++i) { m_invD[i] = Scalar(1) / A[i*(size + 1)]; } 
+	for (Size i=0; i!=m_size; ++i) { m_invD[i] = Scalar(1) / A[i*(m_size + 1)]; } 
 }
 
 template<std::floating_point Scalar>
