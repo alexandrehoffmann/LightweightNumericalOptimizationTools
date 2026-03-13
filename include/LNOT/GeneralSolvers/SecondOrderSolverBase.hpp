@@ -69,7 +69,7 @@ public:
 	 * @param x Output vector for the solution.
 	 */
 	template<CSecondOrderOracle Oracle>
-	void solve(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,false>, x); }
+	void solve(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,true>, x); }
 	
 	/**
 	 * @brief Solve using a valid SecondOrderOracle with an initial guess.
@@ -78,7 +78,7 @@ public:
 	 * @param x Output vector for the solution.
 	 */
 	template<CSecondOrderOracle Oracle>
-	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); CRTP::derived().solveImpl(oracle, BIC::fixed<bool,true>, x); }
+	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); CRTP::derived().solveImpl(oracle, BIC::fixed<bool,false>, x); }
 	
 	/**
 	 * @brief Solve using raw function, gradient and Hessian product functors.
