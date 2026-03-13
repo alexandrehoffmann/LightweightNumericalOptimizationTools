@@ -69,7 +69,7 @@ public:
 	 * @param x Output vector for the solution.
 	 */
 	template<CSecondOrderOracle Oracle>
-	void solve(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,true>, x); }
+	void solve(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,false>, x); }
 	
 	/**
 	 * @brief Solve using a valid SecondOrderOracle with an initial guess.
