@@ -2,6 +2,7 @@
 #define LNOT_DIAGONAL_PRECONDITIONER_OP_HPP
 
 #include <concepts>
+#include <algorithm>
 
 namespace LNOT
 {
