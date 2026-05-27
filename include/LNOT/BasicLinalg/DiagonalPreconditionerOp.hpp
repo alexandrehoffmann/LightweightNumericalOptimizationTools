@@ -12,7 +12,9 @@ class DiagonalPreconditionerOp
 {
 public:	
 	using Size = unsigned int;
-	
+
+	DiagonalPreconditionerOp(const Scalar value, const Size size) : m_invD(new Scalar[size]), m_size(size) { std::fill(m_invD, m_invD + m_size, value); }
+
 	DiagonalPreconditionerOp(const Scalar* A, const Size size) : m_invD(new Scalar[size]), m_size(size) { recompute(A); }
 	
 	~DiagonalPreconditionerOp() { delete[] m_invD; }
