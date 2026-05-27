@@ -36,7 +36,6 @@ set(LNOT_COMPILE_C_COMPILE_OPTIONS
     -Wmissing-prototypes
     -Wnested-externs
     -Wbad-function-cast
-    -Wmissing-parameter-type
     -Wimplicit-function-declaration
     -Wreturn-type
 )
