@@ -3,6 +3,8 @@
 
 #include <LNOT/TRSSolvers/LanczosTRSSolverBase.hpp>
 
+#include <vector>
+
 namespace LNOT
 {
 
@@ -25,8 +27,6 @@ class LanczosFullOrthTRSSolver : public LanczosTRSSolverBase< LanczosFullOrthTRS
 	friend class LanczosTRSSolverBase<Self>;
 public:
 	LNOT_DEFINE_TRS_SOLVER
-	
-	void clearWorkSpace() { this->clearLanczosWorkSpace(); }
 	
 	void resizeWorkSpace(const Size newSize);
 protected:

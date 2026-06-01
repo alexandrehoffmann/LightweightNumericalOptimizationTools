@@ -20,8 +20,6 @@ public:
 	
 	NoLineSearch(const Scalar alpha = Scalar(1)) : Base(1), m_alpha(alpha) {}
 	
-	void clearWorkSpace() {}
-	
 	template<CFirstOrderOracle Oracle>
 	Scalar solveImpl(const Scalar* /* x */, const Scalar& /* fx */, const Scalar* /* gx */, const Scalar* /* s */, Oracle& /* oracle */) { return m_alpha; }
 	

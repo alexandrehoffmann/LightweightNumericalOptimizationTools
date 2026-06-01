@@ -88,16 +88,6 @@ extern template class NonLinearConjugateGradient<NoLineSearch<long double>, NLCG
 
 //// method implementations ////
 
-template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy>
-void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::clearWorkSpaceImpl()
-{
-	if (m_dk   != nullptr) { delete[] m_dk;   m_dk   = nullptr; }
-	if (m_yk   != nullptr) { delete[] m_yk;   m_yk   = nullptr; }
-	if (m_gk   != nullptr) { delete[] m_gk;   m_gk   = nullptr; }
-	if (m_gkp1 != nullptr) { delete[] m_gkp1; m_gkp1 = nullptr; }
-	m_workCapacity = 0;	
-}
-
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy>  template<CFirstOrderOracle Oracle, typename ABool>
 void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
@@ -105,28 +95,27 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& o
 	
 	const Oracle_Size size = oracle.getNDims();
 	
-	if (m_workCapacity < size)
+	if (not m_dk or m_workCapacity < size)
 	{
-		clearWorkSpaceImpl();
 		m_workCapacity = size;
 
-		m_dk   = new Scalar[m_workCapacity];
-		m_yk   = new Scalar[m_workCapacity];
-		m_gk   = new Scalar[m_workCapacity];
-		m_gkp1 = new Scalar[m_workCapacity];
+		m_dk   = std::make_unique<Scalar[]>(m_workCapacity);
+		m_yk   = std::make_unique<Scalar[]>(m_workCapacity);
+		m_gk   = std::make_unique<Scalar[]>(m_workCapacity);
+		m_gkp1 = std::make_unique<Scalar[]>(m_workCapacity);
 	}
 	if (not solveInPlace) { std::fill(x, x + size, 0); }
 	
 	m_innerIts.clear();
 	
 	oracle.setCurrentPoint(x);
-	oracle.getGradient(m_gk);
+	oracle.getGradient(m_gk.get());
 	
 	#pragma omp simd
 	for (Size i=0; i!=size; ++i) { m_dk[i] = -m_gk[i]; }
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 	
 	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
 	const Scalar absTol2 = m_absTol*m_absTol;
@@ -141,19 +130,19 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& o
 		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		
-		const Scalar alpha = m_lineSearch.solve(x, m_fx, m_gk, m_dk, oracle);
+		const Scalar alpha = m_lineSearch.solve(x, m_fx, m_gk.get(), m_dk.get(), oracle);
 		
 		if (not cmp.isDefPositive(alpha)) { m_info = Info::BREAKDOWN; break; }
 		
 		m_innerIts.push_back(1);
 		
-		BasicLinalg::axpy(alpha, m_dk, size, x);
+		BasicLinalg::axpy(alpha, m_dk.get(), size, x);
 		
 		oracle.setCurrentPoint(x);
-		oracle.getGradient(m_gkp1);
+		oracle.getGradient(m_gkp1.get());
 		
 		m_fx = oracle.getValue();
-		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gkp1, size);
+		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gkp1.get(), size);
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_yk[i] = m_gkp1[i] - m_gk[i]; }
@@ -163,25 +152,25 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& o
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_dk[i] = -m_gkp1[i] + beta*m_dk[i]; }
 		
-		std::copy(m_gkp1, m_gkp1 + size, m_gk);
+		std::copy(m_gkp1.get(), m_gkp1.get() + size, m_gk.get());
 	}
 }
 
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy> 
 auto NonLinearConjugateGradient<LineSearch, UpdateStrategy>::getBeta(const Size size) -> Scalar
 {
-	if      constexpr (UpdateStrategy == NLCGUpdateStrategy::HESTENES_STIEFEL) { return BasicLinalg::inner(m_gkp1, m_yk, size) /  BasicLinalg::inner(m_dk, m_yk, size); }
-	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::FLETCHER_REEVES)  { return BasicLinalg::squaredNorm(m_gkp1, size) /  BasicLinalg::squaredNorm(m_gk, size); }
-	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::POLAK_RIBIERE)    { return BasicLinalg::inner(m_gkp1, m_yk, size) /  BasicLinalg::squaredNorm(m_gk, size); }
-	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::FLETCHER)         { return BasicLinalg::squaredNorm(m_gkp1, size) / -BasicLinalg::inner(m_dk, m_gk, size); }
-	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::LIU_STOREY)       { return BasicLinalg::inner(m_gkp1, m_yk, size) / -BasicLinalg::inner(m_dk, m_gk, size); }
-	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::DAI_YUAN)         { return BasicLinalg::squaredNorm(m_gkp1, size) /  BasicLinalg::inner(m_dk, m_yk, size); }
+	if      constexpr (UpdateStrategy == NLCGUpdateStrategy::HESTENES_STIEFEL) { return BasicLinalg::inner(m_gkp1.get(), m_yk.get(), size) /  BasicLinalg::inner(m_dk.get(), m_yk.get(), size); }
+	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::FLETCHER_REEVES)  { return BasicLinalg::squaredNorm(m_gkp1.get(), size)       /  BasicLinalg::squaredNorm(m_gk.get(), size); }
+	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::POLAK_RIBIERE)    { return BasicLinalg::inner(m_gkp1.get(), m_yk.get(), size) /  BasicLinalg::squaredNorm(m_gk.get(), size); }
+	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::FLETCHER)         { return BasicLinalg::squaredNorm(m_gkp1.get(), size)       / -BasicLinalg::inner(m_dk.get(), m_gk.get(), size); }
+	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::LIU_STOREY)       { return BasicLinalg::inner(m_gkp1.get(), m_yk.get(), size) / -BasicLinalg::inner(m_dk.get(), m_gk.get(), size); }
+	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::DAI_YUAN)         { return BasicLinalg::squaredNorm(m_gkp1.get(), size)       /  BasicLinalg::inner(m_dk.get(), m_yk.get(), size); }
 	else                                                                       
 	{ 
-		const Scalar sqNormY = BasicLinalg::squaredNorm(m_yk, size);
-		const Scalar yDotG   = BasicLinalg::inner(m_dk, m_gk, size);
-		const Scalar beta1   = BasicLinalg::inner(m_yk, m_gkp1, size) / yDotG;
-		const Scalar beta2   = -2*(sqNormY / (yDotG*yDotG))*BasicLinalg::inner(m_dk, m_gkp1, size);
+		const Scalar sqNormY = BasicLinalg::squaredNorm(m_yk.get(), size);
+		const Scalar yDotG   = BasicLinalg::inner(m_dk.get(), m_gk.get(), size);
+		const Scalar beta1   = BasicLinalg::inner(m_yk.get(), m_gkp1.get(), size) / yDotG;
+		const Scalar beta2   = -2*(sqNormY / (yDotG*yDotG))*BasicLinalg::inner(m_dk.get(), m_gkp1.get(), size);
 		return beta1 + beta2;
 	}
 }

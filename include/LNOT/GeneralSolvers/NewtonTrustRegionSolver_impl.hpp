@@ -22,15 +22,6 @@ extern template class NewtonTrustRegionSolver< LanczosTRSSolver<long double> >;
 
 //// method implementations ////
 
-template<typename TRSSolver>
-void NewtonTrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
-{
-	if (m_gk     != nullptr) { delete[] m_gk;     m_gk     = nullptr; }
-	if (m_sk     != nullptr) { delete[] m_sk;     m_sk     = nullptr; }
-	if (m_xTrial != nullptr) { delete[] m_xTrial; m_xTrial = nullptr; }
-	m_workCapacity = 0;
-}
-
 template<typename TRSSolver> template<CSecondOrderOracle Oracle, typename ABool> 
 void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
@@ -44,13 +35,12 @@ void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool s
 	
 	const Oracle_Size size = oracle.getNDims();
 	
-	if (m_workCapacity < size)
+	if (not m_gk or m_workCapacity < size)
 	{
-		clearWorkSpaceImpl();
 		m_workCapacity = size;
-		m_gk     = new Scalar[m_workCapacity];
-		m_sk     = new Scalar[m_workCapacity];
-		m_xTrial = new Scalar[m_workCapacity];
+		m_gk     = std::make_unique<Scalar[]>(m_workCapacity);
+		m_sk     = std::make_unique<Scalar[]>(m_workCapacity);
+		m_xTrial = std::make_unique<Scalar[]>(m_workCapacity);
 	}
 	if (not solveInPlace) { std::fill(x, x + size, 0); }
 	
@@ -60,10 +50,10 @@ void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool s
 	m_innerIts.clear();
 	
 	oracle.setCurrentPoint(x);
-	oracle.getGradient(m_gk);
+	oracle.getGradient(m_gk.get());
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 	
 	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
 	
@@ -81,14 +71,14 @@ void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool s
 		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, delta, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		
-		const Scalar normS = m_trsSolver.solve(Hk, invBk, m_gk, size, delta, m_sk); 
+		const Scalar normS = m_trsSolver.solve(Hk, invBk, m_gk.get(), size, delta, m_sk.get()); 
 		
 		m_innerIts.push_back(m_trsSolver.getIterations());
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_xTrial[i] = x[i] + m_sk[i]; }
 		
-		oracle.setCurrentPoint(m_xTrial);
+		oracle.setCurrentPoint(m_xTrial.get());
 		
 		const Scalar fxTrial = oracle.getValue();
 		const Scalar pred    = -m_trsSolver.getModelReduction();
@@ -107,10 +97,10 @@ void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool s
 		
 		if (isStepAccepted) 
 		{ 
-			std::copy(m_xTrial, m_xTrial + size, x); 
-			oracle.getGradient(m_gk);	
+			std::copy(m_xTrial.get(), m_xTrial.get() + size, x); 
+			oracle.getGradient(m_gk.get());	
 			m_fx = fxTrial; 
-			m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+			m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 		} 
 		else
 		{

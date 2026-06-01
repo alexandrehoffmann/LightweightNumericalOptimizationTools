@@ -33,7 +33,6 @@ template<class Derived>
 class LinearSolverBase : public CRTPBase<Derived>
 {
 	using DerivedTraits = LinearSolverTraits<Derived>;
-	using CRTP          = CRTPBase<Derived>;
 public:
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
 	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
@@ -63,10 +62,6 @@ public:
 	 */
 	LinearSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar absTol = defaultEps) : m_maxIt(maxIt), m_relTol(relTol), m_absTol(absTol) {}
 	
-	~LinearSolverBase() { clearWorkSpace(); }
-	
-	void clearWorkSpace() { CRTP::derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
-	
 	/**
 	 * @brief Solve the linear system Hx = -g using the provided Hessian operator.
 	 * @param H Hessian operator (must satisfy IsHessianOp).
@@ -86,7 +81,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { CRTP::derived().solveImpl(H, invB, g, size, BIC::fixed<bool, false>, x); }
+	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { this->derived().solveImpl(H, invB, g, size, BIC::fixed<bool, false>, x); }
 	
 	/**
 	 * @brief Solve the system with an initial guess.
@@ -109,11 +104,11 @@ public:
 	 * @param x Solution vector (output).
 	 */	
 	template<typename HesOp, typename PrecOp, typename ASize>  
-	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { std::copy(x0, x0 + size, x); CRTP::derived().solveImpl(H, invB, g, size, BIC::fixed<bool, true>, x);  }
+	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { std::copy(x0, x0 + size, x); this->derived().solveImpl(H, invB, g, size, BIC::fixed<bool, true>, x);  }
 	
-	Scalar getError() const { return CRTP::derived().getErrorImpl(); } ///<  @brief Get the final error after solving. Delegates to `Derived::getError()`.
+	Scalar getError() const { return this->derived().getErrorImpl(); } ///<  @brief Get the final error after solving. Delegates to `Derived::getError()`.
 	
-	Scalar getSquaredError() const { return CRTP::derived().getSquaredErrorImpl(); } ///<  @brief Get the final squared error after solving. Delegates to `Derived::getSquaredError()`.
+	Scalar getSquaredError() const { return this->derived().getSquaredErrorImpl(); } ///<  @brief Get the final squared error after solving. Delegates to `Derived::getSquaredError()`.
 	
 	Size getMaxIt() const { return m_maxIt; } ///<  @brief Get the maximum number of iterations allowed.
 	
@@ -159,7 +154,7 @@ protected:
 	template<typename HesOp> static constexpr bool isHessianOp = Base::template isHessianOp<HesOp>; \
 	template<typename ASize> static constexpr bool isSize      = Base::template isSize<ASize>; \
 	template<typename ABool> static constexpr bool isBool      = Base::template isBool<ABool>; \
-	
+
 #define LNOT_LINEAR_SOLVER_ATTRIBUTE \
 	using Base::m_maxIt; \
 	using Base::m_relTol; \
@@ -168,6 +163,7 @@ protected:
 	using Base::m_info; \
 	using Base::m_workCapacity; \
 	using Base::m_out; \
+
 
 template<class T> struct IsLinearSolver : BIC::Fixed<bool, std::is_base_of<LinearSolverBase<T>, T>::value > {};
 

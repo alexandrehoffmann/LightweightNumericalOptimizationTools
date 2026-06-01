@@ -3,6 +3,7 @@
 
 #include <concepts>
 #include <algorithm>
+#include <memory>
 
 namespace LNOT
 {
@@ -14,17 +15,15 @@ class DiagonalPreconditionerOp
 public:	
 	using Size = unsigned int;
 
-	DiagonalPreconditionerOp(const Scalar value, const Size size) : m_invD(new Scalar[size]), m_size(size) { std::fill(m_invD, m_invD + m_size, value); }
+	DiagonalPreconditionerOp(const Scalar value, const Size size) : m_invD(std::make_unique<Scalar[]>(size)), m_size(size) { std::fill(m_invD.get(), m_invD.get() + m_size, value); }
 
-	DiagonalPreconditionerOp(const Scalar* A, const Size size) : m_invD(new Scalar[size]), m_size(size) { recompute(A); }
-	
-	~DiagonalPreconditionerOp() { delete[] m_invD; }
+	DiagonalPreconditionerOp(const Scalar* A, const Size size) : m_invD(std::make_unique<Scalar[]>(size)), m_size(size) { recompute(A); }
 	
 	void operator() (const Scalar* x, Scalar* invDx) const;
 	
 	void recompute(const Scalar* A);
 private:
-	Scalar* m_invD;
+	std::unique_ptr<Scalar[]> m_invD;
 	
 	Size m_size;
 };

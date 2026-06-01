@@ -3,6 +3,8 @@
 
 #include <LNOT/LineSearches/LineSearchBase.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 
@@ -19,8 +21,6 @@ public:
 	
 	BisectionLineSearch(const Size maxIt = 200000, const Scalar firstWolfConditionConst = Scalar(1.0e-4), const Scalar secondWolfConditionConst = Scalar(0.9));
 	
-	void clearWorkSpace();
-	
 	template<CFirstOrderOracle Oracle>
 	Scalar solveImpl(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle);
 	
@@ -35,8 +35,8 @@ private:
 	Scalar m_firstWolfConditionConst;
 	Scalar m_secondWolfConditionConst;
 
-	Scalar* m_newX    = nullptr;
-	Scalar* m_newGrad = nullptr;
+	std::unique_ptr<Scalar[]> m_newX;
+	std::unique_ptr<Scalar[]> m_newGrad;
 };
 
 }

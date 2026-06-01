@@ -44,8 +44,8 @@ public:
 		BREAKDOWN ///<  Numerical breakdown (e.g., division by zero)
 	};
 	
-	template<typename ABool> struct IsBool : BIC::Fixed<bool, std::is_same<bool, BIC::Mutable<ABool> >::value > {};            ///<  @brief Trait to check if a type is either a `bool` or a `BIC::Fixed<bool, VALUE>`	
-	template<typename ASize> struct IsSize : BIC::Fixed<bool, std::is_same<Size,  BIC::Mutable<ASize> >::value > {};           ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
+	template<typename ABool> struct IsBool : BIC::Fixed<bool, std::is_same<bool, BIC::Mutable<ABool> >::value >  {}; ///<  @brief Trait to check if a type is either a `bool` or a `BIC::Fixed<bool, VALUE>`	
+	template<typename ASize> struct IsSize : BIC::Fixed<bool, std::is_same<Size,  BIC::Mutable<ASize> >::value > {}; ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
 	
 	static inline const Scalar defaultEps = NumTraits<Scalar>::epsilon; ///<  @brief Default value for relative and absolute tolerance of the solver.  
 	
@@ -59,10 +59,6 @@ public:
 	 * @param tol Convergence tolerance (default: machine epsilon).
 	 */
 	FirstOrderSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar absTol = defaultEps) : m_maxIt(maxIt), m_relTol(relTol), m_absTol(absTol) {}
-	~FirstOrderSolverBase() { clearWorkSpace(); }
-	
-	/// @brief Clear any internal memory or workspace used by the solver.
-	void clearWorkSpace() { CRTP::derived().clearWorkSpaceImpl(); }
 	
 	/**
 	 * @brief Solve using a valid FirstOrderOracle (no initial guess).

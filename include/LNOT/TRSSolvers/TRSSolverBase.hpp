@@ -24,7 +24,6 @@ class TRSSolverBase : public CRTPBase<Derived>
 {
 	using DerivedTraits = TRSSolverTraits<Derived>;
 public:
-	using CRTP   = CRTPBase<Derived>;
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
 	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
 	
@@ -38,20 +37,16 @@ public:
 	
 	static constexpr Scalar defaultEps = NumTraits<Scalar>::epsilon; ///<  @brief Default value for relative and absolute tolerance of the solver.  
 	
-	
 	TRSSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar relTolTr = AdlMath::sqrt(defaultEps), const Scalar absTol = defaultEps, const Scalar absTolTr = AdlMath::sqrt(defaultEps)) : m_maxIt(maxIt), m_relTol(relTol), m_relTolTr(relTolTr), m_absTol(absTol), m_absTolTr(absTolTr) {}
-	~TRSSolverBase() { clearWorkSpace(); }
-	      
-	void clearWorkSpace() { CRTP::derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
 	
 	template<typename Op, typename ASize> 
-	Scalar solve(const Op& H, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); return CRTP::derived().solveImpl(H, I, g, size, delta, x); }
+	Scalar solve(const Op& H, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); return this->derived().solveImpl(H, I, g, size, delta, x); }
 	
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	Scalar solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp, PrecOp>::value and IsSize<ASize>::value) { return CRTP::derived().solveImpl(H, invB, g, size, delta, x); }
+	Scalar solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp, PrecOp>::value and IsSize<ASize>::value) { return this->derived().solveImpl(H, invB, g, size, delta, x); }
 
-	Scalar getError        () const { return CRTP::derived().getErrorImpl();        }
-	Scalar getSquaredError () const { return CRTP::derived().getSquaredErrorImpl(); }
+	Scalar getError        () const { return this->derived().getErrorImpl();        }
+	Scalar getSquaredError () const { return this->derived().getSquaredErrorImpl(); }
 	
 	Size   getMaxIt      () const { return m_maxIt;    }
 	Scalar getRelTol     () const { return m_relTol;   }

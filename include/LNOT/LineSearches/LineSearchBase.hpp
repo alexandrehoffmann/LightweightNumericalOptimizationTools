@@ -14,21 +14,16 @@ template<class Derived>
 class LineSearchBase : public CRTPBase<Derived>
 {
 	using DerivedTraits = LineSearchTraits<Derived>;
-public:
-	using CRTP = CRTPBase<Derived>;
-	
+public:	
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
 	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
 	
 	enum class Info {SUCCESS, FAILURE}; ///<  @brief Enumeration indicating solver termination status.
 	
 	LineSearchBase(const Size maxIt = 200000) : m_maxIt(maxIt) {}
-	~LineSearchBase() { clearWorkSpace(); }
-	
-	void clearWorkSpace() { CRTP::derived().clearWorkSpace(); } ///<  @brief Clear any internal memory or workspace used by the solver.
 	
 	template<CFirstOrderOracle Oracle>
-	Scalar solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) { return CRTP::derived().solveImpl(x, fx, gx, s, oracle); }
+	Scalar solve(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) { return this->derived().solveImpl(x, fx, gx, s, oracle); }
 	
 	Size getMaxIt   () const { return m_maxIt; }
 	Size iterations () const { return m_nIt;   }

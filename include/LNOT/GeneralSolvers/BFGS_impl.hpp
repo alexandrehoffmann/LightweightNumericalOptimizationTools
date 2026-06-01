@@ -29,18 +29,6 @@ extern template class BFGS< NoLineSearch<long double> >;
 
 //// method implementations ////
 
-template<typename LineSearch> 
-void BFGS<LineSearch>::clearWorkSpaceImpl()
-{	
-	if (m_gk    != nullptr) { delete[] m_gk;    m_gk    = nullptr; }
-	if (m_gkp1  != nullptr) { delete[] m_gkp1;  m_gkp1  = nullptr; }
-	if (m_sk    != nullptr) { delete[] m_sk;    m_sk    = nullptr; }
-	if (m_yk    != nullptr) { delete[] m_yk;    m_yk    = nullptr; }
-	if (m_uk    != nullptr) { delete[] m_uk;    m_uk    = nullptr; }
-	if (m_invBk != nullptr) { delete[] m_invBk; m_invBk = nullptr; }
-	m_workCapacity = 0;
-}
-
 template<typename LineSearch> template<CFirstOrderOracle Oracle, typename ABool> 
 void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
@@ -48,30 +36,29 @@ void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scala
 	
 	const Oracle_Size size = oracle.getNDims();
 	
-	if (m_workCapacity < size)
+	if (not m_gk or m_workCapacity < size)
 	{
-		clearWorkSpaceImpl();
 		m_workCapacity = size;
 
-		m_gk    = new Scalar[m_workCapacity];
-		m_gkp1  = new Scalar[m_workCapacity];
-		m_sk    = new Scalar[m_workCapacity];
-		m_yk    = new Scalar[m_workCapacity];
-		m_uk    = new Scalar[m_workCapacity];
-		m_invBk = new Scalar[m_workCapacity*m_workCapacity];
+		m_gk    = std::make_unique<Scalar[]>(m_workCapacity);
+		m_gkp1  = std::make_unique<Scalar[]>(m_workCapacity);
+		m_sk    = std::make_unique<Scalar[]>(m_workCapacity);
+		m_yk    = std::make_unique<Scalar[]>(m_workCapacity);
+		m_uk    = std::make_unique<Scalar[]>(m_workCapacity);
+		m_invBk = std::make_unique<Scalar[]>(m_workCapacity*m_workCapacity);
 	}
 	if (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	std::fill(m_invBk, m_invBk + size*size, 0);
+	std::fill(m_invBk.get(), m_invBk.get() + size*size, 0);
 	for (Size i=0; i!=size; ++i) { m_invBk[i + i*size] = 1; }
 	
 	m_innerIts.clear();
 	
 	oracle.setCurrentPoint(x);
-	oracle.getGradient(m_gk);
+	oracle.getGradient(m_gk.get());
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 	
 	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
 	const Scalar absTol2 = m_absTol*m_absTol;
@@ -86,19 +73,19 @@ void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scala
 		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		
-		BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(-1), m_invBk, m_gk, size, BIC::fixed<bool,false>, m_sk);
+		BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(-1), m_invBk.get(), m_gk.get(), size, BIC::fixed<bool,false>, m_sk.get());
 		m_innerIts.push_back(1);
 		
 		////
-		const Scalar step_len = m_lineSearch.solve(x, m_fx, m_gk, m_sk, oracle);
+		const Scalar step_len = m_lineSearch.solve(x, m_fx, m_gk.get(), m_sk.get(), oracle);
 		
 		if (not cmp.isDefPositive(step_len)) { m_info = Info::BREAKDOWN; break; }
 		
-		BasicLinalg::scal(step_len, size, m_sk);
-		BasicLinalg::axpy(Scalar(1), m_sk, size, x);
+		BasicLinalg::scal(step_len, size, m_sk.get());
+		BasicLinalg::axpy(Scalar(1), m_sk.get(), size, x);
 		
 		oracle.setCurrentPoint(x);
-		oracle.getGradient(m_gkp1);
+		oracle.getGradient(m_gkp1.get());
 		
 		#pragma omp simd
 		for (Size j=0; j!=size; ++j) 
@@ -106,23 +93,23 @@ void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scala
 			m_yk[j] = m_gkp1[j] - m_gk[j];
 		}
 		
-		const Scalar sk_dot_yk = BasicLinalg::inner(m_sk, m_yk, size);
+		const Scalar sk_dot_yk = BasicLinalg::inner(m_sk.get(), m_yk.get(), size);
 		
 		if (sk_dot_yk > 0)
 		{			
-			BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(1), m_invBk, m_yk, size, BIC::fixed<bool,false>, m_uk);
+			BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(1), m_invBk.get(), m_yk.get(), size, BIC::fixed<bool,false>, m_uk.get());
 			
-			const Scalar yk_dot_uk = BasicLinalg::inner(m_yk, m_uk, size);
+			const Scalar yk_dot_uk = BasicLinalg::inner(m_yk.get(), m_uk.get(), size);
 			
-			BasicLinalg::symRk1Update(StorageOrder::ROW_MAJOR, UpLo::LOWER, (sk_dot_yk + yk_dot_uk) / (sk_dot_yk*sk_dot_yk), m_sk, size, m_invBk);
-			BasicLinalg::symRk2Update(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(-1) / sk_dot_yk, m_uk, m_sk, size, m_invBk);
+			BasicLinalg::symRk1Update(StorageOrder::ROW_MAJOR, UpLo::LOWER, (sk_dot_yk + yk_dot_uk) / (sk_dot_yk*sk_dot_yk), m_sk.get(), size, m_invBk.get());
+			BasicLinalg::symRk2Update(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(-1) / sk_dot_yk, m_uk.get(), m_sk.get(), size, m_invBk.get());
 		}
 		
 		////
 		
-		std::copy(m_gkp1, m_gkp1 + size, m_gk);
+		std::copy(m_gkp1.get(), m_gkp1.get() + size, m_gk.get());
 		m_fx = oracle.getValue();
-		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 	}
 }
 

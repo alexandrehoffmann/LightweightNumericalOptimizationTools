@@ -20,25 +20,13 @@ LanczosTRSSolverBase<Derived>::LanczosTRSSolverBase(const Size maxIt, const Scal
 }
 
 template<class Derived> 
-void LanczosTRSSolverBase<Derived>::clearLanczosWorkSpace()
-{	
-	if (m_v      != nullptr) { delete[] m_v;      m_v      = nullptr; }
-	if (m_p      != nullptr) { delete[] m_p;      m_p      = nullptr; }
-	if (m_Bp     != nullptr) { delete[] m_Bp;     m_Bp     = nullptr; }
-	if (m_Hp     != nullptr) { delete[] m_Hp;     m_Hp     = nullptr; }
-	if (m_w      != nullptr) { delete[] m_w;      m_w      = nullptr; }
-		
-	m_workCapacity = 0;
-}
-
-template<class Derived> 
 void LanczosTRSSolverBase<Derived>::allocateLanczosWorkSpace()
 {
-	m_v       = new Scalar[m_workCapacity];
-	m_p       = new Scalar[m_workCapacity];
-	m_Bp      = new Scalar[m_workCapacity];
-	m_Hp      = new Scalar[m_workCapacity];
-	m_w       = new Scalar[m_workCapacity];
+	m_v  = std::make_unique<Scalar[]>(m_workCapacity);
+	m_p  = std::make_unique<Scalar[]>(m_workCapacity);
+	m_Bp = std::make_unique<Scalar[]>(m_workCapacity);
+	m_Hp = std::make_unique<Scalar[]>(m_workCapacity);
+	m_w  = std::make_unique<Scalar[]>(m_workCapacity);
 }
 
 template<class Derived> template<typename HesOp, typename PrecOp, typename ASize> 
@@ -54,7 +42,7 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 		return -gi;
 	});
 	
-	CRTP::derived().resizeWorkSpace(size);
+	this->derived().resizeWorkSpace(size);
 	
 	m_alpha.clear();
 	m_beta.clear();
@@ -72,9 +60,9 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 	std::fill(getBvPrev(), getBvPrev() + size, Scalar{});
 	std::ranges::copy(minusG, getBvCurr());
 	
-	invB(getBvCurr(), m_v);
+	invB(getBvCurr(), m_v.get());
 	
-	const Scalar precNormR0 = sqrt(BasicLinalg::inner(getBvCurr(), m_v, size));
+	const Scalar precNormR0 = sqrt(BasicLinalg::inner(getBvCurr(), m_v.get(), size));
 	
 	m_beta.push_back(Scalar{});
 	
@@ -82,11 +70,11 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 	Scalar eta   = -precNormR0;
 	
 	BasicLinalg::scal(Scalar(1) / eta, size, getBvCurr());
-	BasicLinalg::scal(Scalar(1) / eta, size, m_v);
+	BasicLinalg::scal(Scalar(1) / eta, size, m_v.get());
 	
-	std::fill(m_p,  m_p  + size, Scalar{});
-	std::fill(m_Bp, m_Bp + size, Scalar{});
-	std::fill(m_Hp, m_Hp + size, Scalar{});
+	std::fill(m_p.get(),  m_p.get()  + size, Scalar{});
+	std::fill(m_Bp.get(), m_Bp.get() + size, Scalar{});
+	std::fill(m_Hp.get(), m_Hp.get() + size, Scalar{});
 	
 	m_precNormR = precNormR0;
 	
@@ -108,9 +96,9 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 		const Scalar* Bv      = getBvCurr();
 		const Scalar* Bv_prev = getBvPrev();
 		
-		H(m_v, m_w);
+		H(m_v.get(), m_w.get());
 		// m_w = Hv_{k}
-		m_alpha.push_back( BasicLinalg::inner(m_v, m_w, size) );
+		m_alpha.push_back( BasicLinalg::inner(m_v.get(), m_w.get(), size) );
 		// solve T_k h_k = -\|r_0\|e_1
 		const Scalar d = m_alpha.back() - m_beta.back()*l_old;
 		const Scalar invD = Scalar(1) / d;
@@ -129,10 +117,10 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 				m_Bp[i] = invD*( Bv[i] - m_beta.back()*m_Bp[i]); 
 				m_Hp[i] = invD*(m_w[i] - m_beta.back()*m_Hp[i]); 
 			} 
-			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, eta, m_p, m_Hp, size);
+			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, eta, m_p.get(), m_Hp.get(), size);
 			
-			precSqNormX += 2*eta*BasicLinalg::inner(x, m_Bp, size) + eta*eta*BasicLinalg::inner(m_p, m_Bp, size);
-			BasicLinalg::axpy(eta, m_p, size, x);
+			precSqNormX += 2*eta*BasicLinalg::inner(x, m_Bp.get(), size) + eta*eta*BasicLinalg::inner(m_p.get(), m_Bp.get(), size);
+			BasicLinalg::axpy(eta, m_p.get(), size, x);
 			
 			if (cmpTr.isDefGreaterThan(precSqNormX, delta2))
 			{
@@ -141,16 +129,16 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 			}
 		}
 		// resume Lanczos iteration
-		BasicLinalg::axpbypz(-m_alpha.back(), Bv, -m_beta.back(), Bv_prev, size, m_w);
-		reOrthonormalize(size, m_w);
+		BasicLinalg::axpbypz(-m_alpha.back(), Bv, -m_beta.back(), Bv_prev, size, m_w.get());
+		reOrthonormalize(size, m_w.get());
 		// m_w = \beta_{k}Bv_{k+1}
-		invB(m_w, m_v);
-		m_beta.push_back( sqrt(BasicLinalg::inner(m_w, m_v, size)) );
+		invB(m_w.get(), m_v.get());
+		m_beta.push_back( sqrt(BasicLinalg::inner(m_w.get(), m_v.get(), size)) );
 		
 		const Scalar invBeta = Scalar(1) / m_beta.back();
 		
-		BasicLinalg::scal(invBeta, size, m_v);
-		addBvNext(invBeta, m_w, size);
+		BasicLinalg::scal(invBeta, size, m_v.get());
+		addBvNext(invBeta, m_w.get(), size);
 		// prepare next solve
 		if (isInterior)
 		{
@@ -171,23 +159,23 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 		if (m_out) { fmt::print(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}\n", m_nIt, m_precNormR, m_lambda, relTol, m_absTol); std::fflush(m_out); }
 		if (m_precNormR < relTol or m_precNormR < m_absTol) { m_info = Info::SUCCESS; break; }
 		
-		H(m_v, m_w);
+		H(m_v.get(), m_w.get());
 		// m_w = Hv
-		m_alpha.push_back( BasicLinalg::inner(m_v, m_w, size) );
+		m_alpha.push_back( BasicLinalg::inner(m_v.get(), m_w.get(), size) );
 		
 		if (not solveBoundary(precNormR0, delta)) { m_info = Info::BREAKDOWN; return delta; }
 		
 		// resume Lanczos iteration
-		BasicLinalg::axpbypz(-m_alpha.back(), getBvCurr(), -m_beta.back(), getBvPrev(), size, m_w);
-		reOrthonormalize(size, m_w);
+		BasicLinalg::axpbypz(-m_alpha.back(), getBvCurr(), -m_beta.back(), getBvPrev(), size, m_w.get());
+		reOrthonormalize(size, m_w.get());
 		
 		// m_w = \beta_{k}Bv_{k+1}
-		invB(m_w, m_v);
-		m_beta.push_back( sqrt(BasicLinalg::inner(m_w, m_v, size)) );
+		invB(m_w.get(), m_v.get());
+		m_beta.push_back( sqrt(BasicLinalg::inner(m_w.get(), m_v.get(), size)) );
 		
 		const Scalar invBeta = Scalar(1) / m_beta.back();
-		BasicLinalg::scal(invBeta, size, m_v);
-		addBvNext(invBeta, m_w, size);
+		BasicLinalg::scal(invBeta, size, m_v.get());
+		addBvNext(invBeta, m_w.get(), size);
 		
 		m_precNormR = abs(m_beta.back()*m_h.back());
 	}
@@ -200,12 +188,12 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 	{
 		for (Size i=0; i!=Size(m_h.size()); ++i)
 		{
-			invB(getBv(i+1), m_v);
-			H(m_v, m_w);
+			invB(getBv(i+1), m_v.get());
+			H(m_v.get(), m_w.get());
 			
-			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, m_h[i], m_v, m_w, size);
+			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, m_h[i], m_v.get(), m_w.get(), size);
 			
-			BasicLinalg::axpy(m_h[i], m_v, size, x);
+			BasicLinalg::axpy(m_h[i], m_v.get(), size, x);
 		}
 	}
 	else // re-run Lanczos iteration to compute x = Vh;
@@ -220,32 +208,32 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 		std::fill(getBvPrev(), getBvPrev() + size, Scalar{});
 		std::ranges::copy(scaledG, getBvCurr());
 		
-		invB(getBvCurr(), m_v);
+		invB(getBvCurr(), m_v.get());
 		
 		const std::span<const Scalar> spanH(m_h.data(), size_t(m_h.size() - 1));
 		
 		for (const auto [h_i, alpha_i, beta_im1, beta_i] : misc::zipLeadBy<0>(spanH, m_alpha, m_beta, m_beta | std::views::drop(1)))
 		{
-			H(m_v, m_w);
-			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, h_i, m_v, m_w, size);
+			H(m_v.get(), m_w.get());
+			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, h_i, m_v.get(), m_w.get(), size);
 			
-			BasicLinalg::axpy(h_i, m_v, size, x);
+			BasicLinalg::axpy(h_i, m_v.get(), size, x);
 			
-			BasicLinalg::axpbypz(-alpha_i, getBvCurr(), -beta_im1, getBvPrev(), size, m_w);
-			reOrthonormalize(size, m_w);
+			BasicLinalg::axpbypz(-alpha_i, getBvCurr(), -beta_im1, getBvPrev(), size, m_w.get());
+			reOrthonormalize(size, m_w.get());
 			
-			invB(m_w, m_v);
+			invB(m_w.get(), m_v.get());
 			
 			const Scalar invNextBeta = Scalar(1) / beta_i;
 			
-			BasicLinalg::scal(invNextBeta, size, m_v);
-			addBvNext(invNextBeta, m_w, size);
+			BasicLinalg::scal(invNextBeta, size, m_v.get());
+			addBvNext(invNextBeta, m_w.get(), size);
 		}
 		{
-			H(m_v, m_w);
-			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, m_h.back(), m_v, m_w, size);
+			H(m_v.get(), m_w.get());
+			m_modelReduction = BasicLinalg::updateModelReduction(m_modelReduction, x, g, m_h.back(), m_v.get(), m_w.get(), size);
 		
-			BasicLinalg::axpy(m_h.back(), m_v, size, x);
+			BasicLinalg::axpy(m_h.back(), m_v.get(), size, x);
 		}
 	}
 	

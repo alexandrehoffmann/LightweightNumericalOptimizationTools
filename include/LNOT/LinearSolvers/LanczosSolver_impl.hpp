@@ -19,94 +19,19 @@ extern template class LanczosSolver<float>;
 extern template class LanczosSolver<double>;
 extern template class LanczosSolver<long double>;
 
-// explicit instanciation for float
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<float>::solveImpl(const SymmetricDenseMatrixOp<float, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<float>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-
-// explicit instanciation for double
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<double>::solveImpl(const SymmetricDenseMatrixOp<double, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-
-// explicit instanciation for double
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const IdentityPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const IdentityPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,true>, Scalar*);
-
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::ROW_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::LOWER>&, const DiagonalPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-extern template void LanczosSolver<long double>::solveImpl(const SymmetricDenseMatrixOp<long double, StorageOrder::COL_MAJOR, UpLo::UPPER>&, const DiagonalPreconditionerOp<long double>&, const Scalar*, const Size, BIC::Fixed<bool,false>, Scalar*);
-
 //// method implementations ////
-
-template<typename T> 
-void LanczosSolver<T>::clearWorkSpace()
-{
-	if (m_Bv_old != nullptr) { delete[] m_Bv_old; m_Bv_old = nullptr; }
-	if (m_Bv     != nullptr) { delete[] m_Bv;     m_Bv     = nullptr; }
-	if (m_v      != nullptr) { delete[] m_v;      m_v      = nullptr; }
-	if (m_p      != nullptr) { delete[] m_p;      m_p      = nullptr; }
-	if (m_w      != nullptr) { delete[] m_w;      m_w      = nullptr; }
-	m_workCapacity = 0;
-}
 
 template<typename T> 
 void LanczosSolver<T>::resizeWorkSpace(const Size newSize)
 {
-	if (m_workCapacity < newSize)
+	if (not m_Bv_old or m_workCapacity < newSize)
 	{
-		clearWorkSpace();
 		m_workCapacity = newSize;
-		m_Bv_old  = new Scalar[m_workCapacity];
-		m_Bv      = new Scalar[m_workCapacity];
-		m_v       = new Scalar[m_workCapacity];
-		m_p       = new Scalar[m_workCapacity];
-		m_w  = new Scalar[m_workCapacity];
+		m_Bv_old = std::make_unique<Scalar[]>(this->m_workCapacity);
+		m_Bv     = std::make_unique<Scalar[]>(this->m_workCapacity);
+		m_v      = std::make_unique<Scalar[]>(this->m_workCapacity);
+		m_p      = std::make_unique<Scalar[]>(this->m_workCapacity);
+		m_w      = std::make_unique<Scalar[]>(this->m_workCapacity);
 	}
 }
 
@@ -116,7 +41,7 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
 	{
-		H(x, m_Bv);
+		H(x, m_Bv.get());
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i] - m_Bv[i]; } // r = -b - Hx
 	}
@@ -126,10 +51,10 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i]; } 
 	}
-	std::fill(m_Bv_old, m_Bv_old + size, 0);
-	invB(m_Bv, m_v);
+	std::fill(m_Bv_old.get(), m_Bv_old.get() + size, 0);
+	invB(m_Bv.get(), m_v.get());
 	
-	const Scalar precNormR0 = sqrt(BasicLinalg::inner(m_Bv, m_v, size));
+	const Scalar precNormR0 = sqrt(BasicLinalg::inner(m_Bv.get(), m_v.get(), size));
 	
 	const FPComparator<Scalar> cmp;
 	
@@ -137,10 +62,10 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 	Scalar l_old{};
 	Scalar eta = -precNormR0;
 	
-	BasicLinalg::scal(Scalar(1) / eta, size, m_Bv);
-	BasicLinalg::scal(Scalar(1) / eta, size, m_v);
+	BasicLinalg::scal(Scalar(1) / eta, size, m_Bv.get());
+	BasicLinalg::scal(Scalar(1) / eta, size, m_v.get());
 	
-	std::fill(m_p, m_p + size, 0);
+	std::fill(m_p.get(), m_p.get() + size, 0);
 	
 	m_precNormR = precNormR0;
 	
@@ -153,24 +78,24 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_precNormR, relTol, m_absTol); std::fflush(m_out); }
 		if (m_precNormR < relTol or m_precNormR < m_absTol) { m_info = Info::SUCCESS; break; }
 		
-		H(m_v, m_w); 
+		H(m_v.get(), m_w.get()); 
 		// m_w = Hv_{k}
-		const Scalar alpha = BasicLinalg::inner(m_v, m_w, size);
+		const Scalar alpha = BasicLinalg::inner(m_v.get(), m_w.get(), size);
 		// solve T_k h_k = -\|r_0\|e_1
 		const Scalar d = alpha - beta_old*l_old;
 		if (not cmp.isDefPositive(d)) { m_info = Info::NEGATIVE_CURVATURE; break; }
 		const Scalar invD = Scalar(1) / d;
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_p[i] = invD*(m_v[i] - beta_old*m_p[i]); } 
-		BasicLinalg::axpy(eta, m_p, size, x);
+		BasicLinalg::axpy(eta, m_p.get(), size, x);
 		// resume Lanczos iteration
-		BasicLinalg::axpbypz(-alpha, m_Bv, -beta_old, m_Bv_old, size, m_w);
+		BasicLinalg::axpbypz(-alpha, m_Bv.get(), -beta_old, m_Bv_old.get(), size, m_w.get());
 		// m_w = \beta_{k}Bv_{k+1}
-		invB(m_w, m_v);
-		const Scalar beta    = sqrt(BasicLinalg::inner(m_w, m_v, size));
+		invB(m_w.get(), m_v.get());
+		const Scalar beta    = sqrt(BasicLinalg::inner(m_w.get(), m_v.get(), size));
 		const Scalar invBeta = Scalar(1) / beta;
-		BasicLinalg::scal(invBeta, size, m_v);
-		std::copy(m_Bv, m_Bv + size, m_Bv_old);
+		BasicLinalg::scal(invBeta, size, m_v.get());
+		std::copy(m_Bv.get(), m_Bv.get() + size, m_Bv_old.get());
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Bv[i] = invBeta*m_w[i]; }
 		// prepare next solve

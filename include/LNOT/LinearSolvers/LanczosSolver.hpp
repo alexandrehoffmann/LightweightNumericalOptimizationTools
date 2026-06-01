@@ -3,6 +3,8 @@
 
 #include <LNOT/LinearSolvers/LinearSolverBase.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 
@@ -32,11 +34,11 @@ protected:
 private:
 	Scalar m_precNormR = Scalar{};
 
-	Scalar* m_Bv_old = nullptr;
-	Scalar* m_Bv     = nullptr;
-	Scalar* m_v      = nullptr;
-	Scalar* m_p      = nullptr;
-	Scalar* m_w      = nullptr;
+	std::unique_ptr<Scalar[]> m_Bv_old;
+	std::unique_ptr<Scalar[]> m_Bv;
+	std::unique_ptr<Scalar[]> m_v;
+	std::unique_ptr<Scalar[]> m_p;
+	std::unique_ptr<Scalar[]> m_w;
 };
 
 } // namespace LNOT

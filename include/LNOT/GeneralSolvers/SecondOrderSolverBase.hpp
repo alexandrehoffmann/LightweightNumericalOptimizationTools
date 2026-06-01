@@ -58,10 +58,6 @@ public:
 	 * @param tol Convergence tolerance (default: machine epsilon).
 	 */
 	SecondOrderSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar absTol = defaultEps) : m_maxIt(maxIt), m_relTol(relTol), m_absTol(absTol) {}
-	~SecondOrderSolverBase() { clearWorkSpace(); }
-	
-	/// @brief Clear any internal memory or workspace used by the solver.
-	void clearWorkSpace() { CRTP::derived().clearWorkSpaceImpl(); }
 	
 	/**
 	 * @brief Solve using a valid SecondOrderOracle (no initial guess).

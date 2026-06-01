@@ -5,48 +5,85 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # List of compiler flags
-set(LNOT_GENERAL_COMPILE_COMPILE_OPTIONS
-    -fopenmp-simd
-    -Wundef
-    -Wvarargs
-    -Wall
-    -Wextra
-    -Winit-self
-    -Wpedantic
-    -Werror
-    -Wconversion
-    -Wuninitialized
-    -Wmissing-declarations
-    -Wsign-conversion
-    -Wshadow
-    -Wcast-align
-    -Wnull-dereference
-    -Wformat=2
-    -flax-vector-conversions
-    -pedantic
-    -pedantic-errors
-    -Wno-error=array-bounds
-    -Wno-c99-extensions
-    -Wdouble-promotion
-    -Wswitch-enum
-)
+set(LNOT_SAN_FLAGS -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)
 
-set(LNOT_COMPILE_C_COMPILE_OPTIONS
-    -Wstrict-prototypes
-    -Wmissing-prototypes
-    -Wnested-externs
-    -Wbad-function-cast
-    -Wimplicit-function-declaration
-    -Wreturn-type
-)
+set(LNOT_GNU_C_COMPILE_OPTIONS
+	-Wstrict-prototypes
+	-Wmissing-prototypes
+	-Wnested-externs
+	-Wbad-function-cast
+	-Wimplicit-function-declaration
+	-Wreturn-type)
 
-set(LNOT_COMPILE_CXX_COMPILE_OPTIONS
+set(LNOT_Clang_C_COMPILE_OPTIONS
+	-Wstrict-prototypes
+	-Wmissing-prototypes
+	-Wnested-externs
+	-Wbad-function-cast
+	-Wimplicit-function-declaration
+	-Wreturn-type
+	-Wno-error=pass-failed
+	)
+
+set(LNOT_GNU_CXX_COMPILE_OPTIONS
+	-fopenmp-simd
+	-Wundef
+	-Wvarargs
+	-Wall
+	-Wextra
+	-Winit-self
+	-Wpedantic
+	-Werror
+	-Wconversion
+	-Wuninitialized
+	-Wmissing-declarations
+	-Wsign-conversion
+	-Wshadow
+	-Wcast-align
+	-Wnull-dereference
+	-Wformat=2
+	-flax-vector-conversions
+	-pedantic
+	-pedantic-errors
+	-Wno-error=array-bounds
+	-Wno-c99-extensions
+	-Wdouble-promotion
+	-Wswitch-enum
 	-Wrange-loop-construct
 	-Wnon-virtual-dtor
 	-Wold-style-cast
 	-Woverloaded-virtual
-	-Wvexing-parse
-)
+	-Wvexing-parse)
+
+set(LNOT_Clang_CXX_COMPILE_OPTIONS
+	-fopenmp-simd
+	-Wundef
+	-Wvarargs
+	-Wall
+	-Wextra
+	-Winit-self
+	-Wpedantic
+	-Werror
+	-Wconversion
+	-Wuninitialized
+	-Wmissing-declarations
+	-Wsign-conversion
+	-Wshadow
+	-Wcast-align
+	-Wnull-dereference
+	-Wformat=2
+	-flax-vector-conversions
+	-pedantic
+	-pedantic-errors
+	-Wno-error=array-bounds
+	-Wno-c99-extensions
+	-Wdouble-promotion
+	-Wswitch-enum
+	-Wrange-loop-construct
+	-Wnon-virtual-dtor
+	-Wold-style-cast
+	-Woverloaded-virtual
+	-Wvexing-parse)
 
 # Set default build type if not specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -158,8 +195,10 @@ if(LNOT_WITH_BLAS)
 endif()
 
 target_compile_options(LNOT PRIVATE
-	$<$<COMPILE_LANGUAGE:C>:${LNOT_GENERAL_COMPILE_COMPILE_OPTIONS} ${LNOT_COMPILE_C_COMPILE_OPTIONS}>
-    $<$<COMPILE_LANGUAGE:CXX>:${LNOT_GENERAL_COMPILE_COMPILE_OPTIONS} ${LNOT_COMPILE_CXX_COMPILE_OPTIONS}>
+	$<$<C_COMPILER_ID:GNU>:${LNOT_GNU_C_COMPILE_OPTIONS}>
+	$<$<C_COMPILER_ID:Clang>:${LNOT_Clang_C_COMPILE_OPTIONS}>
+	$<$<CXX_COMPILER_ID:GNU>:${LNOT_GNU_CXX_COMPILE_OPTIONS}>
+	$<$<CXX_COMPILER_ID:Clang>:${LNOT_Clang_CXX_COMPILE_OPTIONS}>
 )
 
 if(LNOT_NATIVE_OPT)

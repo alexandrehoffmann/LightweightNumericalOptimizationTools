@@ -26,14 +26,6 @@ BisectionLineSearch<T>::BisectionLineSearch(const Size maxIt, const Scalar first
 	, m_secondWolfConditionConst(secondWolfConditionConst)
 {
 }
-
-template<typename T>
-void BisectionLineSearch<T>::clearWorkSpace()
-{
-	if (m_newX    != nullptr) { delete[] m_newX;    m_newX    = nullptr; } 
-	if (m_newGrad != nullptr) { delete[] m_newGrad; m_newGrad = nullptr; }
-	m_workCapacity = 0;
-}
 	
 template<typename T> template<CFirstOrderOracle Oracle>
 auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
@@ -47,12 +39,11 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 	
 	const FPComparator<Scalar> cmp;
 	
-	if (m_workCapacity < size)
+	if (not m_newX or m_workCapacity < size)
 	{
-		clearWorkSpace();
 		m_workCapacity = size;
-		m_newX    = new Scalar[m_workCapacity];
-		m_newGrad = new Scalar[m_workCapacity];
+		m_newX    = std::make_unique<Scalar[]>(m_workCapacity);
+		m_newGrad = std::make_unique<Scalar[]>(m_workCapacity);
 	}
 	
 	const Scalar normS = BasicLinalg::norm(s, size);
@@ -70,11 +61,11 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_newX[i] = x[i] + alpha*s[i]; }
 		
-		oracle.setCurrentPoint(m_newX);
-		oracle.getGradient(m_newGrad);
+		oracle.setCurrentPoint(m_newX.get());
+		oracle.getGradient(m_newGrad.get());
 		
 		const Scalar fx_new = oracle.getValue();
-		const Scalar new_sDotGrad = BasicLinalg::inner(s, m_newGrad, size);
+		const Scalar new_sDotGrad = BasicLinalg::inner(s, m_newGrad.get(), size);
 		
 		const bool isStepTooShort = cmp.isDefLessThan(new_sDotGrad, m_secondWolfConditionConst*sDotGrad);
 		const bool isStepTooLong  = cmp.isDefGreaterThan(fx_new, fx + m_firstWolfConditionConst*alpha*sDotGrad);

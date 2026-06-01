@@ -5,6 +5,8 @@
 #include <LNOT/GeneralSolvers/LimitedMemorySolverBase.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 
@@ -25,12 +27,9 @@ class LBFGS
 	, public LimitedMemorySolverBase<typename LineSearch::Size>
 {
 	using Self = LBFGS<LineSearch>;
-	using LM   = LimitedMemorySolverBase<typename LineSearch::Size>;
 public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	LNOT_DEFINE_LIMITED_MEMORY_SOLVER
-	
-	void clearWorkSpaceImpl();
 	
 	template<CFirstOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
@@ -41,11 +40,11 @@ protected:
 	LNOT_FIRST_ORDER_SOLVER_ATTRIBUTE
 	LNOT_LIMITED_MEMORY_SOLVER_ATTRIBUTE
 private:
-	Scalar* m_gk   = nullptr;
-	Scalar* m_gkp1 = nullptr;
-	Scalar* m_S    = nullptr;
-	Scalar* m_Y    = nullptr;
-	Scalar* m_dk   = nullptr;
+	std::unique_ptr<Scalar[]> m_gk;
+	std::unique_ptr<Scalar[]> m_gkp1;
+	std::unique_ptr<Scalar[]> m_S;
+	std::unique_ptr<Scalar[]> m_Y;
+	std::unique_ptr<Scalar[]> m_dk;
 	
 	LineSearch m_lineSearch;
 };

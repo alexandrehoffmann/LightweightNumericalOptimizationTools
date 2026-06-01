@@ -4,6 +4,8 @@
 #include <LNOT/TRSSolvers/TRSSolverBase.hpp>
 #include <LNOT/misc/AdlMath.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 
@@ -17,8 +19,6 @@ class TruncatedConjugateGradient : public TRSSolverBase< TruncatedConjugateGradi
 	using Self = TruncatedConjugateGradient<T>;
 public:
 	LNOT_DEFINE_TRS_SOLVER
-	
-	void clearWorkSpace();
 	
 	void resizeWorkSpace(const Size newSize);
 	
@@ -35,10 +35,10 @@ private:
 
 	Scalar m_precSqNormR = Scalar{};
 
-	Scalar* m_z  = nullptr;
-	Scalar* m_r  = nullptr;
-	Scalar* m_p  = nullptr;
-	Scalar* m_Hp = nullptr;
+	std::unique_ptr<Scalar[]> m_z;
+	std::unique_ptr<Scalar[]> m_r;
+	std::unique_ptr<Scalar[]> m_p;
+	std::unique_ptr<Scalar[]> m_Hp;
 };
 
 } // namespace LNOT

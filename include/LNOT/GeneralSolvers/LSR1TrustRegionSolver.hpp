@@ -6,6 +6,8 @@
 #include <LNOT/GeneralSolvers/LimitedMemorySolverBase.hpp>
 #include <LNOT/TRSSolvers/TRSSolverBase.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 
@@ -27,14 +29,10 @@ class LSR1TrustRegionSolver
 	, public LimitedMemorySolverBase<typename TRSSolver::Size>
 {
 	using Self = LSR1TrustRegionSolver<TRSSolver>;
-	using TRM  = TrustRegionMethodBase<typename TRSSolver::Scalar, typename TRSSolver::Size>;
-	using LM   = LimitedMemorySolverBase<typename TRSSolver::Size>;
 public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	LNOT_DEFINE_TRUST_REGION_SOLVER
 	LNOT_DEFINE_LIMITED_MEMORY_SOLVER
-	
-	void clearWorkSpaceImpl();
 	
 	template<CFirstOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
@@ -48,12 +46,12 @@ protected:
 private:
 	TRSSolver m_trsSolver;
 	
-	Scalar* m_gk     = nullptr;
-	Scalar* m_gkp1   = nullptr;
-	Scalar* m_xTrial = nullptr;
-	Scalar* m_P      = nullptr;
-	Scalar* m_Y      = nullptr;
-	Scalar* m_S      = nullptr;
+	std::unique_ptr<Scalar[]> m_gk;
+	std::unique_ptr<Scalar[]> m_gkp1;
+	std::unique_ptr<Scalar[]> m_xTrial;
+	std::unique_ptr<Scalar[]> m_P;
+	std::unique_ptr<Scalar[]> m_Y;
+	std::unique_ptr<Scalar[]> m_S;
 };
 
 } // namespace LNOT

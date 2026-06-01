@@ -5,6 +5,8 @@
 #include <LNOT/LinearSolvers/LinearSolverBase.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 
@@ -29,8 +31,6 @@ class NewtonSolver : public SecondOrderSolverBase< NewtonSolver<LinSolver, LineS
 public:
 	LNOT_DEFINE_SECOND_ORDER_SOLVER
 	
-	void clearWorkSpaceImpl();
-	
 	template<CSecondOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
@@ -42,8 +42,8 @@ public:
 protected:
 	LNOT_SECOND_ORDER_SOLVER_ATTRIBUTE
 private:
-	Scalar* m_gk = nullptr;
-	Scalar* m_sk = nullptr;
+	std::unique_ptr<Scalar[]> m_gk;
+	std::unique_ptr<Scalar[]> m_sk;
 	
 	LinSolver  m_linsSolver;
 	LineSearch m_lineSearch;

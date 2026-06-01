@@ -22,18 +22,6 @@ extern template class SR1TrustRegionSolver< LanczosTRSSolver<long double> >;
 
 //// method implementations ////
 
-template<typename TRSSolver>
-void SR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
-{
-	if (m_gk     != nullptr) { delete[] m_gk;     m_gk     = nullptr; }
-	if (m_gkp1   != nullptr) { delete[] m_gkp1;   m_gkp1   = nullptr; }
-	if (m_uk     != nullptr) { delete[] m_uk;     m_uk     = nullptr; }
-	if (m_sk     != nullptr) { delete[] m_sk;     m_sk     = nullptr; }
-	if (m_Bk     != nullptr) { delete[] m_Bk;     m_Bk     = nullptr; }
-	if (m_xTrial != nullptr) { delete[] m_xTrial; m_xTrial = nullptr; }
-	m_workCapacity = 0;
-}
-
 template<typename TRSSolver> template<CFirstOrderOracle Oracle, typename ABool> 
 void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
@@ -49,31 +37,30 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 		
 	const Oracle_Size size = oracle.getNDims();
 	
-	if (m_workCapacity < size)
+	if (not m_gk or m_workCapacity < size)
 	{
-		clearWorkSpaceImpl();
 		m_workCapacity = size;
-		m_gk     = new Scalar[m_workCapacity];
-		m_gkp1   = new Scalar[m_workCapacity];
-		m_uk     = new Scalar[m_workCapacity];
-		m_sk     = new Scalar[m_workCapacity];
-		m_Bk     = new Scalar[m_workCapacity*m_workCapacity];
-		m_xTrial = new Scalar[m_workCapacity];
+		m_gk     = std::make_unique<Scalar[]>(m_workCapacity);
+		m_gkp1   = std::make_unique<Scalar[]>(m_workCapacity);
+		m_uk     = std::make_unique<Scalar[]>(m_workCapacity);
+		m_sk     = std::make_unique<Scalar[]>(m_workCapacity);
+		m_Bk     = std::make_unique<Scalar[]>(m_workCapacity*m_workCapacity);
+		m_xTrial = std::make_unique<Scalar[]>(m_workCapacity);
 	}
 	if (not solveInPlace) { std::fill(x, x + size, 0); }	
 	
-	std::fill(m_Bk, m_Bk + size*size, 0);
+	std::fill(m_Bk.get(), m_Bk.get() + size*size, 0);
 	for (Size i=0; i!=size; ++i) { m_Bk[i + i*size] = 1; }
 	
-	SymmetricDenseMatrixOp<Scalar> BkOp(m_Bk, size);
+	SymmetricDenseMatrixOp<Scalar> BkOp(m_Bk.get(), size);
 	
 	m_innerIts.clear();
 	
 	oracle.setCurrentPoint(x);
-	oracle.getGradient(m_gk);
+	oracle.getGradient(m_gk.get());
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 	
 	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
 	
@@ -91,24 +78,24 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, delta, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
 		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
 		
-		const Scalar normS = m_trsSolver.solve(BkOp, m_gk, size, delta, m_sk); 
+		const Scalar normS = m_trsSolver.solve(BkOp, m_gk.get(), size, delta, m_sk.get()); 
 		
 		m_innerIts.push_back(m_trsSolver.getIterations());
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_xTrial[i] = x[i] + m_sk[i]; }
 		
-		oracle.setCurrentPoint(m_xTrial);
-		oracle.getGradient(m_gkp1);
-		BkOp(m_sk, m_uk);
+		oracle.setCurrentPoint(m_xTrial.get());
+		oracle.getGradient(m_gkp1.get());
+		BkOp(m_sk.get(), m_uk.get());
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_uk[i] = m_gkp1[i] - m_gk[i] - m_uk[i]; } // u_k = y_k - Bks_k
 		
-		const Scalar invRho = BasicLinalg::inner(m_sk, m_uk, size);
+		const Scalar invRho = BasicLinalg::inner(m_sk.get(), m_uk.get(), size);
 		
-		if (abs(invRho) > sr1DropTol*BasicLinalg::squaredNorm(m_sk, size)*BasicLinalg::squaredNorm(m_uk, size))
+		if (abs(invRho) > sr1DropTol*BasicLinalg::squaredNorm(m_sk.get(), size)*BasicLinalg::squaredNorm(m_uk.get(), size))
 		{
-			BasicLinalg::symRk1Update(BkOp.getStorageOrder(), BkOp.getUplo(), Scalar(1) / invRho, m_uk, size, m_Bk);
+			BasicLinalg::symRk1Update(BkOp.getStorageOrder(), BkOp.getUplo(), Scalar(1) / invRho, m_uk.get(), size, m_Bk.get());
 		}
 		
 		const Scalar fxTrial = oracle.getValue();
@@ -128,10 +115,10 @@ void SR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solv
 		
 		if (isStepAccepted) 
 		{ 
-			std::copy(m_xTrial, m_xTrial + size, x); 
-			std::copy(m_gkp1,   m_gkp1   + size, m_gk); 
+			std::copy(m_xTrial.get(), m_xTrial.get() + size, x); 
+			std::copy(m_gkp1.get(),   m_gkp1.get()   + size, m_gk.get()); 
 			m_fx = fxTrial; 
-			m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+			m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 		} 
 		else
 		{

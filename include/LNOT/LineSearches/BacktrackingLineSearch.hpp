@@ -3,6 +3,8 @@
 
 #include <LNOT/LineSearches/LineSearchBase.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 	
@@ -19,8 +21,6 @@ public:
 	
 	BacktrackingLineSearch(const Size maxIt = 200000, const Scalar tau = Scalar(0.5), const Scalar armijoConditionConst = Scalar(1.0e-4)) : Base(maxIt), m_tau(tau), m_armijoConditionConst(armijoConditionConst) {}
 
-	void clearWorkSpace();
-
 	template<CFirstOrderOracle Oracle>
 	Scalar solveImpl(const Scalar* x, const Scalar fx, const Scalar* gx, const Scalar* s, Oracle& oracle);
 	
@@ -35,7 +35,7 @@ private:
 	Scalar m_tau;
 	Scalar m_armijoConditionConst;
 	
-	Scalar* m_newX = nullptr;
+	std::unique_ptr<Scalar[]> m_newX;
 };
 	
 } // namespace LNOT

@@ -5,6 +5,8 @@
 #include <LNOT/GeneralSolvers/TrustRegionMethodBase.hpp>
 #include <LNOT/TRSSolvers/TRSSolverBase.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 	
@@ -29,8 +31,6 @@ public:
 	LNOT_DEFINE_SECOND_ORDER_SOLVER
 	LNOT_DEFINE_TRUST_REGION_SOLVER
 	
-	void clearWorkSpaceImpl();
-	
 	template<CSecondOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
@@ -42,9 +42,9 @@ protected:
 private:
 	TRSSolver m_trsSolver;
 	
-	Scalar* m_gk     = nullptr;
-	Scalar* m_sk     = nullptr;
-	Scalar* m_xTrial = nullptr;
+	std::unique_ptr<Scalar[]> m_gk;
+	std::unique_ptr<Scalar[]> m_sk;
+	std::unique_ptr<Scalar[]> m_xTrial;
 };
 
 } // namespace LNOT

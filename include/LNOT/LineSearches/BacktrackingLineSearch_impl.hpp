@@ -19,13 +19,6 @@ extern template class BacktrackingLineSearch<long double>;
 
 //// method implementations ////
 
-template<typename T>
-void BacktrackingLineSearch<T>::clearWorkSpace()
-{
-	if (m_newX != nullptr) { delete[] m_newX; m_newX = nullptr; }
-	m_workCapacity = 0;
-}
-
 template<typename T> template<CFirstOrderOracle Oracle>
 auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, const Scalar* gx, const Scalar* s, Oracle& oracle) -> Scalar
 {	
@@ -36,11 +29,10 @@ auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, cons
 	
 	const FPComparator<Scalar> cmp;
 	
-	if (m_workCapacity < size)
+	if (not m_newX or m_workCapacity < size)
 	{
-		clearWorkSpace();
 		m_workCapacity = size;
-		m_newX = new Scalar[m_workCapacity];
+		m_newX = std::make_unique<Scalar[]>(m_workCapacity);
 	}
 	
 	const Scalar normS = BasicLinalg::norm(s, size);
@@ -57,7 +49,7 @@ auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, cons
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_newX[i] = x[i] + alpha*s[i]; }
 		
-		oracle.setCurrentPoint(m_newX);
+		oracle.setCurrentPoint(m_newX.get());
 		const Scalar fx_new = oracle.getValue();
 		
 		if (not oracle.isFeasible())

@@ -5,6 +5,8 @@
 #include <LNOT/GeneralSolvers/NLCGUpdateStrategy.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
 
+#include <memory>
+
 namespace LNOT
 {
 
@@ -26,8 +28,6 @@ class NonLinearConjugateGradient : public FirstOrderSolverBase< NonLinearConjuga
 public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	
-	void clearWorkSpaceImpl();
-	
 	template<CFirstOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 	
@@ -38,10 +38,10 @@ public:
 protected:
 	LNOT_FIRST_ORDER_SOLVER_ATTRIBUTE
 private:
-	Scalar* m_dk   = nullptr;
-	Scalar* m_yk   = nullptr;
-	Scalar* m_gk   = nullptr;
-	Scalar* m_gkp1 = nullptr;
+	std::unique_ptr<Scalar[]> m_dk;
+	std::unique_ptr<Scalar[]> m_yk;
+	std::unique_ptr<Scalar[]> m_gk;
+	std::unique_ptr<Scalar[]> m_gkp1;
 	
 	LineSearch m_lineSearch;
 };

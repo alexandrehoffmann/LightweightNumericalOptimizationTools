@@ -3,6 +3,7 @@
 
 #include <LNOT/TRSSolvers/TRSSolverBase.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace LNOT
@@ -23,7 +24,6 @@ class LanczosTRSSolverBase : public TRSSolverBase<Derived>
 	using Self = Derived;
 public:
 	LNOT_DEFINE_TRS_SOLVER
-	using CRTP = typename Base::CRTP;
 	
 	static constexpr bool storeLanczosVectors = TRSSolverTraits<Derived>::storeLanczosVectors;
 	
@@ -43,42 +43,40 @@ public:
 protected:
 	LNOT_TRS_SOLVER_ATTRIBUTE
 	
-	void clearLanczosWorkSpace();
-	
 	void allocateLanczosWorkSpace();
 private:
 	bool solveBoundary(const Scalar& gamma, const Scalar& delta);
 	
-	inline void resetBv() { CRTP::derived().resetBvImpl(); }
+	inline void resetBv() { this->derived().resetBvImpl(); }
 	
-	inline Scalar* getBvCurr() { return CRTP::derived().getBvCurrImpl(); }
+	inline Scalar* getBvCurr() { return this->derived().getBvCurrImpl(); }
 	
-	inline Scalar* getBvPrev() { return CRTP::derived().getBvPrevImpl(); }
+	inline Scalar* getBvPrev() { return this->derived().getBvPrevImpl(); }
 	
-	inline Scalar* getBv(const Size i) requires(storeLanczosVectors) { return CRTP::derived().getBvImpl(i); }
+	inline Scalar* getBv(const Size i) requires(storeLanczosVectors) { return this->derived().getBvImpl(i); }
 	
-	inline const Scalar* getBvCurr() const { return CRTP::derived().getBvCurrImpl(); }
+	inline const Scalar* getBvCurr() const { return this->derived().getBvCurrImpl(); }
 	
-	inline const Scalar* getBvPrev() const { return CRTP::derived().getBvPrevImpl(); }
+	inline const Scalar* getBvPrev() const { return this->derived().getBvPrevImpl(); }
 	
-	inline Scalar* getBv(const Size i) const requires(storeLanczosVectors) { return CRTP::derived().getBvImpl(i); }
-	
-	template<typename ASize>
-	inline void addBvNext(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(IsSize<ASize>::value) { CRTP::derived().addBvNextImpl(scale, unscaledBvNext, size); } 
+	inline Scalar* getBv(const Size i) const requires(storeLanczosVectors) { return this->derived().getBvImpl(i); }
 	
 	template<typename ASize>
-	inline void reOrthonormalize(const ASize size, Scalar* unscaledBvNext) requires(IsSize<ASize>::value) { CRTP::derived().reOrthonormalizeImpl(size, unscaledBvNext); } 
+	inline void addBvNext(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(IsSize<ASize>::value) { this->derived().addBvNextImpl(scale, unscaledBvNext, size); } 
+	
+	template<typename ASize>
+	inline void reOrthonormalize(const ASize size, Scalar* unscaledBvNext) requires(IsSize<ASize>::value) { this->derived().reOrthonormalizeImpl(size, unscaledBvNext); } 
 	
 	Size m_maxItTr;
 
 	Scalar m_precNormR = Scalar{};
 	Scalar m_lambda    = Scalar{};
 
-	Scalar* m_v      = nullptr;
-	Scalar* m_p      = nullptr;
-	Scalar* m_Bp     = nullptr;
-	Scalar* m_Hp     = nullptr;
-	Scalar* m_w      = nullptr;
+	std::unique_ptr<Scalar[]> m_v;
+	std::unique_ptr<Scalar[]> m_p;
+	std::unique_ptr<Scalar[]> m_Bp;
+	std::unique_ptr<Scalar[]> m_Hp;
+	std::unique_ptr<Scalar[]> m_w;
 	
 	std::vector<Scalar> m_alpha;
 	std::vector<Scalar> m_beta;

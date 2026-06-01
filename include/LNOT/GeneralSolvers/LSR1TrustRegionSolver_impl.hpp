@@ -22,18 +22,6 @@ extern template class LSR1TrustRegionSolver< LanczosTRSSolver<long double> >;
 
 //// method implementations ////
 
-template<typename TRSSolver>
-void LSR1TrustRegionSolver<TRSSolver>::clearWorkSpaceImpl()
-{
-	if (m_gk     != nullptr) { delete[] m_gk;     m_gk     = nullptr; }
-	if (m_gkp1   != nullptr) { delete[] m_gkp1;   m_gkp1   = nullptr; }
-	if (m_xTrial != nullptr) { delete[] m_xTrial; m_xTrial = nullptr; }
-	if (m_P      != nullptr) { delete[] m_P;      m_P      = nullptr; }
-	if (m_Y      != nullptr) { delete[] m_Y;      m_Y      = nullptr; }
-	if (m_S      != nullptr) { delete[] m_S;      m_S      = nullptr; }
-	m_workCapacity = 0;
-}
-
 template<typename TRSSolver> template<CFirstOrderOracle Oracle, typename ABool> 
 void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
@@ -50,16 +38,15 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	const Scalar sr1DropTol = sqrt( NumTraits<Scalar>::epsilon );
 	const Oracle_Size size = oracle.getNDims();
 	
-	if (m_workCapacity < size)
+	if (not m_gk or m_workCapacity < size)
 	{
-		clearWorkSpaceImpl();
 		m_workCapacity = size;
-		m_gk     = new Scalar[m_workCapacity];
-		m_gkp1   = new Scalar[m_workCapacity];
-		m_xTrial = new Scalar[m_workCapacity];
-		m_P      = new Scalar[m_workCapacity*m_memory];
-		m_Y      = new Scalar[m_workCapacity*m_memory];
-		m_S      = new Scalar[m_workCapacity*m_memory];
+		m_gk     = std::make_unique<Scalar[]>(m_workCapacity);
+		m_gkp1   = std::make_unique<Scalar[]>(m_workCapacity);
+		m_xTrial = std::make_unique<Scalar[]>(m_workCapacity);
+		m_P      = std::make_unique<Scalar[]>(m_workCapacity*m_memory);
+		m_Y      = std::make_unique<Scalar[]>(m_workCapacity*m_memory);
+		m_S      = std::make_unique<Scalar[]>(m_workCapacity*m_memory);
 	}
 	if constexpr (not solveInPlace) { std::fill(x, x + size, 0); }	
 	
@@ -71,8 +58,8 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	{
 		// from https://home.cs.colorado.edu/~richard/lu_dissertation.pdf
 		const Size prev_idx = (curr_idx == 0) ? m_memory-1 : curr_idx-1;
-		const Scalar* skm1 = m_S + prev_idx*size;
-		const Scalar* ykm1 = m_Y + prev_idx*size;
+		const Scalar* skm1 = m_S.get() + prev_idx*size;
+		const Scalar* ykm1 = m_Y.get() + prev_idx*size;
 		//~ const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::inner(ykm1, skm1, size) / BasicLinalg::squaredNorm(skm1, size);
 		//~ const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::norm(ykm1, size) / BasicLinalg::norm(skm1, size);
 		const Scalar protoGamma0 = invRho.empty() ? 1 : BasicLinalg::squaredNorm(ykm1, size) / BasicLinalg::inner(ykm1, skm1, size);
@@ -82,7 +69,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 		for (Size k=0; k!=size; ++k) { Bd[k] = gamma0*d[k]; }
 		invRho.foreach([this, &isVectorKept, size, d, Bd](const CircularBuffer_Size i, const Scalar& invRho_i) { if (isVectorKept[i])
 		{
-			const Scalar* pi   = m_P + i*size;
+			const Scalar* pi   = m_P.get() + i*size;
 			const Scalar alpha = BasicLinalg::inner(pi, d, size) / invRho_i;
 			BasicLinalg::axpy(alpha, pi, size, Bd);
 		}});
@@ -91,10 +78,10 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 	m_innerIts.clear();
 	
 	oracle.setCurrentPoint(x);
-	oracle.getGradient(m_gk);
+	oracle.getGradient(m_gk.get());
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 	
 	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
 	
@@ -115,9 +102,9 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 		std::fill(std::ranges::begin(isVectorKept), std::ranges::end(isVectorKept), false);
 		invRho.foreach([this, &BkOp, &isVectorKept, &sr1DropTol, size](CircularBuffer_Size i, Scalar& invRho_i)
 		{
-			const Scalar* si = m_S + i*size;
-			const Scalar* yi = m_Y + i*size;
-			Scalar* pi = m_P + i*size;
+			const Scalar* si = m_S.get() + i*size;
+			const Scalar* yi = m_Y.get() + i*size;
+			Scalar* pi = m_P.get() + i*size;
 			BkOp(si, pi);
 			#pragma omp simd
 			for (Size k=0; k!=size; ++k) { pi[k] = yi[k] - pi[k]; }
@@ -126,15 +113,15 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 			isVectorKept[i] = abs(invRho_i) > sr1DropTol*BasicLinalg::norm(pi, size)*BasicLinalg::norm(si, size);
 		});
 		// now resume as usual TR method
-		const Scalar normS = m_trsSolver.solve(BkOp, m_gk, size, delta, m_S + curr_idx*size); 
+		const Scalar normS = m_trsSolver.solve(BkOp, m_gk.get(), size, delta, m_S.get() + curr_idx*size); 
 		
 		m_innerIts.push_back(m_trsSolver.getIterations());
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_xTrial[i] = x[i] + m_S[i + curr_idx*size]; }
 		
-		oracle.setCurrentPoint(m_xTrial);
-		oracle.getGradient(m_gkp1);
+		oracle.setCurrentPoint(m_xTrial.get());
+		oracle.getGradient(m_gkp1.get());
 		
 		const Scalar fxTrial   = oracle.getValue();
 		const Scalar pred      = -m_trsSolver.getModelReduction();
@@ -160,10 +147,10 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 		
 		if (isStepAccepted) 
 		{ 
-			std::copy(m_xTrial, m_xTrial + size, x); 
-			std::copy(m_gkp1,   m_gkp1   + size, m_gk); 
+			std::copy(m_xTrial.get(), m_xTrial.get() + size, x); 
+			std::copy(m_gkp1.get(),   m_gkp1.get()   + size, m_gk.get()); 
 			m_fx = fxTrial; 
-			m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+			m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 		} 
 		else
 		{

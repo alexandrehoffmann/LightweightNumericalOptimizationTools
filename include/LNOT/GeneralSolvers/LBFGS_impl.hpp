@@ -28,17 +28,6 @@ extern template class LBFGS< NoLineSearch<long double> >;
 
 //// method implementations ////
 
-template<typename LineSearch> 
-void LBFGS<LineSearch>::clearWorkSpaceImpl()
-{
-	if (m_gk   != nullptr) { delete[] m_gk;   m_gk   = nullptr; }
-	if (m_gkp1 != nullptr) { delete[] m_gkp1; m_gkp1 = nullptr; }
-	if (m_dk   != nullptr) { delete[] m_dk;   m_dk   = nullptr; }
-	if (m_S    != nullptr) { delete[] m_S;    m_S    = nullptr; }
-	if (m_Y    != nullptr) { delete[] m_Y;    m_Y    = nullptr; }
-	m_workCapacity = 0;
-}
-
 template<typename LineSearch> template<CFirstOrderOracle Oracle, typename ABool> 
 void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
@@ -47,16 +36,15 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scal
 	
 	const Oracle_Size size = oracle.getNDims();
 	
-	if (m_workCapacity < size)
+	if (not m_gk or m_workCapacity < size)
 	{
-		clearWorkSpaceImpl();
 		m_workCapacity = size;
 
-		m_gk   = new Scalar[m_workCapacity];
-		m_gkp1 = new Scalar[m_workCapacity];
-		m_dk   = new Scalar[m_workCapacity];
-		m_S    = new Scalar[m_memory*m_workCapacity];
-		m_Y    = new Scalar[m_memory*m_workCapacity];
+		m_gk   = std::make_unique<Scalar[]>(m_workCapacity);
+		m_gkp1 = std::make_unique<Scalar[]>(m_workCapacity);
+		m_dk   = std::make_unique<Scalar[]>(m_workCapacity);
+		m_S    = std::make_unique<Scalar[]>(m_memory*m_workCapacity);
+		m_Y    = std::make_unique<Scalar[]>(m_memory*m_workCapacity);
 	}
 	if (not solveInPlace) { std::fill(x, x + size, 0); }
 	
@@ -67,10 +55,10 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scal
 	m_innerIts.clear();
 	
 	oracle.setCurrentPoint(x);
-	oracle.getGradient(m_gk);
+	oracle.getGradient(m_gk.get());
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 	
 	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
 	const Scalar absTol2 = m_absTol*m_absTol;
@@ -91,26 +79,26 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scal
 		for (Size j=0; j!=size; ++j) { m_dk[j] = -m_gk[j]; }
 		rho.reverseForeach([&alpha, this, size](const CircularBuffer_Size i, const Scalar& rho_i)
 		{
-			alpha[i] = rho_i*BasicLinalg::inner(m_S + i*size, m_dk, size);
-			BasicLinalg::axpy(-alpha[i], m_Y + i*size, size, m_dk);
+			alpha[i] = rho_i*BasicLinalg::inner(m_S.get() + i*size, m_dk.get(), size);
+			BasicLinalg::axpy(-alpha[i], m_Y.get() + i*size, size, m_dk.get());
 		});
 		const Size offset = Size(size*rho.firstInsertedIndex());
-		const Scalar gamma = rho.empty() ? Scalar(1) : BasicLinalg::inner(m_S + offset, m_Y + offset, size) / BasicLinalg::squaredNorm(m_Y + offset, size);
-		BasicLinalg::scal(gamma, size, m_dk);
+		const Scalar gamma = rho.empty() ? Scalar(1) : BasicLinalg::inner(m_S.get() + offset, m_Y.get() + offset, size) / BasicLinalg::squaredNorm(m_Y.get() + offset, size);
+		BasicLinalg::scal(gamma, size, m_dk.get());
 		rho.foreach([this, size, &alpha](const CircularBuffer_Size i, const Scalar& rho_i)
 		{
-			const Scalar beta = rho_i*BasicLinalg::inner(m_Y + i*size, m_dk, size);
-			BasicLinalg::axpy((alpha[i] - beta), m_S + i*size, size, m_dk);
+			const Scalar beta = rho_i*BasicLinalg::inner(m_Y.get() + i*size, m_dk.get(), size);
+			BasicLinalg::axpy((alpha[i] - beta), m_S.get() + i*size, size, m_dk.get());
 		});
 		m_innerIts.push_back(1);
 		////
-		const Scalar step_len = m_lineSearch.solve(x, m_fx, m_gk, m_dk, oracle);
+		const Scalar step_len = m_lineSearch.solve(x, m_fx, m_gk.get(), m_dk.get(), oracle);
 		
 		if (not cmp.isDefPositive(step_len)) { m_info = Info::BREAKDOWN; break; }
 		
-		BasicLinalg::axpy(step_len, m_dk, size, x);
+		BasicLinalg::axpy(step_len, m_dk.get(), size, x);
 		oracle.setCurrentPoint(x);
-		oracle.getGradient(m_gkp1);
+		oracle.getGradient(m_gkp1.get());
 		
 		#pragma omp simd
 		for (Size j=0; j!=size; ++j) 
@@ -119,7 +107,7 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scal
 			m_Y[j + curr_i*size] = m_gkp1[j] - m_gk[j];
 		}
 		
-		const Scalar yk_dot_sk = BasicLinalg::inner(m_Y + curr_i*size, m_S + curr_i*size, size);
+		const Scalar yk_dot_sk = BasicLinalg::inner(m_Y.get() + curr_i*size, m_S.get() + curr_i*size, size);
 		
 		if (yk_dot_sk > 0)
 		{
@@ -129,9 +117,9 @@ void LBFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scal
 		
 		////
 		
-		std::copy(m_gkp1, m_gkp1 + size, m_gk);
+		std::copy(m_gkp1.get(), m_gkp1.get() + size, m_gk.get());
 		m_fx = oracle.getValue();
-		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk, size);
+		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
 	}
 }
 	
