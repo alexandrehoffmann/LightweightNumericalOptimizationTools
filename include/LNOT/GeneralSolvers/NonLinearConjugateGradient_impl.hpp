@@ -132,7 +132,7 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& o
 		
 		const Scalar alpha = m_lineSearch.solve(x, m_fx, m_gk.get(), m_dk.get(), oracle);
 		
-		if (not cmp.isDefPositive(alpha)) { m_info = Info::BREAKDOWN; break; }
+		if (not cmp.isDefPositive(alpha*BasicLinalg::norm(m_dk.get(), size))) { m_info = Info::BREAKDOWN; break; }
 		
 		m_innerIts.push_back(1);
 		

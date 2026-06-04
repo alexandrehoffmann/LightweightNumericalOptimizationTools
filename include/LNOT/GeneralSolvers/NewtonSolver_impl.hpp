@@ -96,7 +96,7 @@ void NewtonSolver<LinSolver,LineSearch>::solveImpl(Oracle& oracle, const ABool s
 		
 		const Scalar alpha = m_lineSearch.solve(x, m_fx, m_gk.get(), m_sk.get(), oracle);
 		
-		if (not cmp.isDefPositive(alpha)) { m_info = Info::BREAKDOWN; break; }
+		if (not cmp.isDefPositive(alpha*BasicLinalg::norm(m_sk.get(), size))) { m_info = Info::BREAKDOWN; break; }
 		
 		BasicLinalg::axpy(alpha, m_sk.get(), size, x);
 		
