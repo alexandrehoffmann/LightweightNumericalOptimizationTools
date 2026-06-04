@@ -55,6 +55,7 @@ public:
 
 	static constexpr bool hasGradient     = DerivedTraits::hasGradient;
 	static constexpr bool hasHessianProd  = DerivedTraits::hasHessianProd;
+	static constexpr bool hasApplyPrecond = DerivedTraits::hasApplyPrecond;
 	
 	/**
 	 * @brief Get the number of dimensions (variables) of the function.
@@ -126,12 +127,12 @@ public:
 	 * @param d  Input direction vector.
 	 * @param invBd Output array for the result.
 	 */
-	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) { CRTP::derived().applyPrecondImpl(d, invBd); }
+	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (hasApplyPrecond) { CRTP::derived().applyPrecondImpl(d, invBd); }
 	
 	/**
 	 * @brief dafault implementation for applyPrecondImpl. Copy d into invBd.
 	 */
-	void applyIdentityPrecond(const Scalar* d, Scalar* invBd) const requires (hasHessianProd) { std::copy(d, d + getNDims(), invBd); }
+	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (not hasApplyPrecond) { std::copy(d, d + getNDims(), invBd); }
 };
 
 #define LNOT_DEFINE_ORACLE \
@@ -141,6 +142,7 @@ public:
 	\
 	using Base::hasGradient; \
 	using Base::hasHessianProd; \
+	using Base::hasApplyPrecond; \
 
 template<class T> struct IsOracle : BIC::Fixed<bool, std::is_base_of<OracleBase<T>, T>::value > {};
 

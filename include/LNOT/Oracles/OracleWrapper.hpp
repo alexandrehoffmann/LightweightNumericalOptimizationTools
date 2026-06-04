@@ -31,6 +31,7 @@ struct OracleTraits< OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondO
 
 	static constexpr bool hasGradient     = (not IsVoidFunctor<Gradient>::value);
 	static constexpr bool hasHessianProd  = (not IsVoidFunctor<HessianOp>::value);
+	static constexpr bool hasApplyPrecond = (not IsVoidFunctor<PrecondOp>::value);
 };
 
 /**
@@ -46,8 +47,6 @@ class OracleWrapper : public OracleBase< OracleWrapper<T, S, Function, Gradient,
 	using Self = OracleWrapper<T, S, Function, Gradient, HessianOp, PrecondOp>;
 public:
 	LNOT_DEFINE_ORACLE
-	
-	static constexpr bool hasApplyPrecond = not IsVoidFunctor<PrecondOp>::value;
 
 	OracleWrapper() = delete;
 	OracleWrapper(const Size nDims, const Function& func) requires (not hasGradient and not hasHessianProd and not hasApplyPrecond) 
@@ -81,7 +80,7 @@ public:
 
 	void getHessianProdImpl(const Scalar* d, Scalar* Hd) const requires (hasHessianProd) { m_hessianOp(m_x, d, Hd); }
 	
-	void applyPrecondImpl(const Scalar* d, Scalar* invBd) const requires (hasHessianProd);
+	void applyPrecondImpl(const Scalar* d, Scalar* invBd) const requires (hasApplyPrecond) { m_precondOp(m_x, d, invBd); }
 private:
 	Size m_nDims;
 	const Scalar* m_x = nullptr;
@@ -93,7 +92,5 @@ private:
 };
 
 } // namespace LNOT
-
-#include <LNOT/Oracles/OracleWrapper_impl.hpp>
 
 #endif // LNOT_ORACLE_WRAPPER_HPP
