@@ -45,7 +45,7 @@ auto BacktrackingLineSearch<T>::solveImpl(const Scalar* x, const Scalar fx, cons
 	{
 		if (m_out != nullptr) { fmt::println(m_out, "{} {:10.2e}", m_nIt, alpha); std::fflush(m_out); }
 		
-		if (not cmp.isDefPositive(alpha*normS)) { break; }
+		if (not cmp.isDefPositive(alpha)) { break; }
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_newX[i] = x[i] + alpha*s[i]; }
 		
