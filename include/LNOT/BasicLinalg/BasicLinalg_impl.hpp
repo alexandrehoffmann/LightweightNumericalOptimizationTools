@@ -45,7 +45,7 @@ Scalar squaredNorm(const Scalar* x, const Size N)
 	else
 	{
 #endif // LNOT_WITH_BLAS
-		Scalar res(0); 
+		Scalar res{}; 
 		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res = AdlMath::fma(x[i], x[i], res); } 
 		return res; 
 #ifdef LNOT_WITH_BLAS
@@ -71,7 +71,7 @@ Scalar norm(const Scalar* x, const Size N)
 template<typename Scalar, typename Size>
 Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N)
 {
-	Scalar res(0);
+	Scalar res{};
 	
 	for (BIC::Mutable<Size> i=0; i!=N; ++i) {  res = AdlMath::fma(x[i]*x[i], w[i], res); }
 	
@@ -87,7 +87,7 @@ Scalar inner(const Scalar* x, const Scalar* y, const Size N)
 	else
 	{
 #endif // LNOT_WITH_BLAS
-		Scalar res(0); 
+		Scalar res{}; 
 		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res = AdlMath::fma(x[i], y[i], res); } 
 		return res; 
 #ifdef LNOT_WITH_BLAS

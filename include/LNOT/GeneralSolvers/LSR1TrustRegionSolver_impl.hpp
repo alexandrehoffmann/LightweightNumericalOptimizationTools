@@ -129,7 +129,7 @@ void LSR1TrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool sol
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Y[i + curr_idx*size] = m_gkp1[i] - m_gk[i]; } // u_k = y_k - Bks_k
-		invRho.push(0);
+		invRho.push(Scalar{});
 		
 		++curr_idx; 
 		if (curr_idx == m_memory) { curr_idx = 0; }
