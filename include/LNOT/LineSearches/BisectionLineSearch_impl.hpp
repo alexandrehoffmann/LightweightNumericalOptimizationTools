@@ -57,12 +57,13 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 	for (m_nIt=0; m_nIt!=m_maxIt; ++m_nIt)
 	{		
 		if (m_out != nullptr) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e}", m_nIt, alpha, alpha_min, alpha_max); std::fflush(m_out); }
-		if (oracle.isFeasible() and cmp.isApproxEq(alpha_max, alpha_min)) { break; } // (alpha_min, alpha_max) is empty
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_newX[i] = x[i] + alpha*s[i]; }
 		
 		oracle.setCurrentPoint(m_newX.get());
 		oracle.getGradient(m_newGrad.get());
+		
+		if (oracle.isFeasible() and cmp.isApproxEq(alpha_max, alpha_min)) { break; } // (alpha_min, alpha_max) is empty
 		
 		const Scalar fx_new = oracle.getValue();
 		const Scalar new_sDotGrad = BasicLinalg::inner(s, m_newGrad.get(), size);
