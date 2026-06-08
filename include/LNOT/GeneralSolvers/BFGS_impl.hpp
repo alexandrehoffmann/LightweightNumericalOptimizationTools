@@ -7,9 +7,6 @@
 #include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
 #include <LNOT/LineSearches/NoLineSearch.hpp>
 
-#include <span>
-#include <fmt/ranges.h>
-
 namespace LNOT
 {
 
