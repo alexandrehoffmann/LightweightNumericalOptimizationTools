@@ -170,15 +170,13 @@ public:
 	// MONITORING METHODS
 	// ===================================================================
 	
-	Scalar getValue        () const { return m_fx; }                         ///<  @brief Get last computed function value
-	Scalar getError        () const { return sqrt(m_squaredNormGrad); } ///<  @brief Get L2 norm of the last computed gradient
-	Scalar getSquaredError () const { return m_squaredNormGrad; }            ///<  @brief Get squared L2 norm of the last computed gradient
-	
-	Size   getMaxIt      () const { return m_maxIt;  } ///<  @brief Get the maximum number of iterations allowed.
-	Scalar getRelTol     () const { return m_relTol; } ///<  @brief Get the convergence relative tolerance.
-	Scalar getAbsTol     () const { return m_absTol; } ///<  @brief Get the convergence absolute tolerance.
-	Size   getIterations () const { return m_nIt;    } ///<  @brief Get the actual number of iterations performed.
-	Info   getInfo       () const { return m_info;   } ///<  @brief Get the solver exit status.
+	Scalar getValue      () const { return m_fx;       } ///<  @brief Get last computed function value
+	Scalar getError      () const { return m_residual; } ///<  @brief Get L2 norm of the last computed gradient
+	Size   getMaxIt      () const { return m_maxIt;    } ///<  @brief Get the maximum number of iterations allowed.
+	Scalar getRelTol     () const { return m_relTol;   } ///<  @brief Get the convergence relative tolerance.
+	Scalar getAbsTol     () const { return m_absTol;   } ///<  @brief Get the convergence absolute tolerance.
+	Size   getIterations () const { return m_nIt;      } ///<  @brief Get the actual number of iterations performed.
+	Info   getInfo       () const { return m_info;     } ///<  @brief Get the solver exit status.
 	
 	Size getInnerIterations(const Size it) const { return m_innerIts[it]; } ///<  @brief  Get number of inner iterations required to compute a step.
 	
@@ -194,13 +192,13 @@ public:
 	 */
 	void setOutput(std::FILE* out) { m_out = out; }
 protected:
-	Size   m_maxIt;           ///<  @brief Maximum number of iterations
-	Scalar m_relTol;          ///<  @brief Relative tolerance for convergence
-	Scalar m_absTol;          ///<  @brief Absolute tolerance for convergence
-	Size   m_nIt;             ///<  @brief Number of iterations actually performed
-	Info   m_info;            ///<  @brief Status of the solver after termination
-	Scalar m_squaredNormGrad; ///<  @brief Squared norm of the gradient
-	Scalar m_fx;              ///<  @brief Function value at last iteration
+	Size   m_maxIt;    ///<  @brief Maximum number of iterations
+	Scalar m_relTol;   ///<  @brief Relative tolerance for convergence
+	Scalar m_absTol;   ///<  @brief Absolute tolerance for convergence
+	Size   m_nIt;      ///<  @brief Number of iterations actually performed
+	Info   m_info;     ///<  @brief Status of the solver after termination
+	Scalar m_fx;       ///<  @brief Function value at last iteration
+	Scalar m_residual; ///<  @brief A norm of the gradient at last iteration
 	
 	Size m_workCapacity = Size{}; ///<  @brief Maximum size of the arrays allocated by the solver
 	
@@ -224,8 +222,8 @@ protected:
 	using Base::m_absTol; \
 	using Base::m_nIt; \
 	using Base::m_info; \
-	using Base::m_squaredNormGrad; \
 	using Base::m_fx; \
+	using Base::m_residual; \
 	using Base::m_workCapacity; \
 	using Base::m_innerIts; \
 	using Base::m_out; \

@@ -59,8 +59,8 @@ auto TruncatedConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB
 	const Scalar absTol2 = m_absTol*m_absTol;
 	const Scalar delta2  = delta*delta;
 	
-	const FPComparator<Scalar> cmp;
-	const FPComparator<Scalar> cmpTr(m_relTolTr, m_absTolTr);
+	constexpr FPComparator<Scalar> cmp;
+	const     FPComparator<Scalar> cmpTr(m_relTolTr, m_absTolTr);
 	
 	m_info = Info::FAILURE;
 	if (m_out) { fmt::println(m_out, "#Truncated Preconditioned CG solver : \n#Iteration residual relative_tol absolute_tol"); }

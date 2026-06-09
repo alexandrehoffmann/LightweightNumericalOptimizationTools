@@ -26,8 +26,8 @@ extern template class BFGS< NoLineSearch<long double> >;
 
 //// method implementations ////
 
-template<typename LineSearch> template<CFirstOrderOracle Oracle, typename ABool> 
-void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+template<typename LineSearch, typename ConvergenceCriterion> template<CFirstOrderOracle Oracle, typename ABool> 
+void BFGS<LineSearch, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size = typename Oracle::Size;
 	
@@ -51,24 +51,25 @@ void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scala
 	
 	m_innerIts.clear();
 	
+	constexpr ConvergenceCriterion criterion;
+	constexpr FPComparator<Scalar> cmp;
+	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
 	
-	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
+	m_fx       = oracle.getValue();
+	m_residual = criterion.getResidual(m_gk.get(), size);
 	
-	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
-	const Scalar absTol2 = m_absTol*m_absTol;
-	
-	const FPComparator<Scalar> cmp;
+	const Scalar relTol = criterion.getRelTol(m_relTol, m_residual);
+	const Scalar absTol = criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#BFGS method\n#Iteration f(x) residual relative_tol absolute_tol"); }
 	
 	m_info = Info::FAILURE;
 	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
-		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_residual, relTol, absTol); std::fflush(m_out); }
+		if (m_residual < relTol or m_residual < absTol) { m_info = Info::SUCCESS; break; }
 		
 		BasicLinalg::symMatrixVectorProd(StorageOrder::ROW_MAJOR, UpLo::LOWER, Scalar(-1), m_invBk.get(), m_gk.get(), size, BIC::fixed<bool,false>, m_sk.get());
 		m_innerIts.push_back(1);
@@ -106,7 +107,7 @@ void BFGS<LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scala
 		
 		std::copy(m_gkp1.get(), m_gkp1.get() + size, m_gk.get());
 		m_fx = oracle.getValue();
-		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
+		m_residual = criterion.getResidual(m_gk.get(), size);
 	}
 }
 

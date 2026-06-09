@@ -68,6 +68,41 @@ Scalar norm(const Scalar* x, const Size N)
 #endif // LNOT_WITH_BLAS
 } 
 
+template<typename Scalar, typename Size> 
+Scalar l1Norm(const Scalar* x, const Size N) 
+{
+#ifdef LNOT_WITH_BLAS
+	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_sasum(blasint(N), x, 1); }
+	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_dasum(blasint(N), x, 1); }
+	else
+	{
+#endif // LNOT_WITH_BLAS
+		Scalar res{};
+		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res += AdlMath::abs(x[i]); } 
+		return res;
+#ifdef LNOT_WITH_BLAS
+	}
+#endif // LNOT_WITH_BLAS
+} 
+
+
+template<typename Scalar, typename Size> 
+Scalar lInfNorm(const Scalar* x, const Size N) 
+{
+#ifdef LNOT_WITH_BLAS
+	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_isamax(blasint(N), x, 1); }
+	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_idamax(blasint(N), x, 1); }
+	else
+	{
+#endif // LNOT_WITH_BLAS
+		Scalar res{};
+		for (BIC::Mutable<Size> i=0; i!=N; ++i) { res = std::max(res, AdlMath::abs(x[i])); } 
+		return res;
+#ifdef LNOT_WITH_BLAS
+	}
+#endif // LNOT_WITH_BLAS
+} 
+
 template<typename Scalar, typename Size>
 Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N)
 {

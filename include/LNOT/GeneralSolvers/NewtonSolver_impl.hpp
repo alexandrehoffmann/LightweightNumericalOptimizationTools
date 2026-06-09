@@ -48,8 +48,8 @@ extern template class NewtonSolver<LanczosSolver<long double>,     NoLineSearch<
 
 //// method implementations ////
 
-template<typename LinSolver, typename LineSearch> template<CSecondOrderOracle Oracle, typename ABool> 
-void NewtonSolver<LinSolver,LineSearch>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+template<typename LinSolver, typename LineSearch, typename ConvergenceCriterion> template<CSecondOrderOracle Oracle, typename ABool> 
+void NewtonSolver<LinSolver,LineSearch,ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size = typename Oracle::Size;
 	
@@ -68,25 +68,28 @@ void NewtonSolver<LinSolver,LineSearch>::solveImpl(Oracle& oracle, const ABool s
 	
 	m_innerIts.clear();
 	
+	constexpr ConvergenceCriterion criterion;
+	constexpr FPComparator<Scalar> cmp;
+	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
+	m_residual = criterion.getResidual(m_gk.get(), size);
 	
-	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
-	const Scalar absTol2 = m_absTol*m_absTol;
-	
-	const FPComparator<Scalar> cmp;
+	const Scalar relTol = criterion.getRelTol(m_relTol, m_residual);
+	const Scalar absTol = criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#Newton method\n#Iteration f(x) residual relative_tol absolute_tol"); }
 	
 	m_info = Info::FAILURE;
 	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{				
-		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
-		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_residual, relTol, absTol); std::fflush(m_out); }
+		if (m_residual < relTol or m_residual < absTol) { m_info = Info::SUCCESS; break; }
+		
 		m_linsSolver.solve(Hk, invBk, m_gk.get(), size, m_sk.get()); 
+		
 		if (m_linsSolver.getInfo() == LinSolver::Info::NEGATIVE_CURVATURE) 
 		{ 
 			#pragma omp simd
@@ -104,7 +107,7 @@ void NewtonSolver<LinSolver,LineSearch>::solveImpl(Oracle& oracle, const ABool s
 		oracle.getGradient(m_gk.get());
 		
 		m_fx = oracle.getValue();
-		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
+		m_residual = criterion.getResidual(m_gk.get(), size);
 	}
 }
 

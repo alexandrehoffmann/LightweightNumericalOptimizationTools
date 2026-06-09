@@ -22,8 +22,8 @@ extern template class NewtonTrustRegionSolver< LanczosTRSSolver<long double> >;
 
 //// method implementations ////
 
-template<typename TRSSolver> template<CSecondOrderOracle Oracle, typename ABool> 
-void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+template<typename TRSSolver, typename ConvergenceCriterion> template<CSecondOrderOracle Oracle, typename ABool> 
+void NewtonTrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using AdlMath::sqrt;
 	using AdlMath::floor;
@@ -49,27 +49,28 @@ void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool s
 	
 	m_innerIts.clear();
 	
+	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
+	
+	constexpr ConvergenceCriterion criterion;
+	constexpr FPComparator<Scalar> cmp;
+	const     FPComparator<Scalar> cmpTr(m_trsSolver.getRelTolTR(), m_trsSolver.getAbsTolTR());
+	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
+	m_residual = criterion.getResidual(m_gk.get(), size);
 	
-	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
-	
-	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
-	const Scalar absTol2 = m_absTol*m_absTol;
-	
-	const FPComparator<Scalar> cmp;
-	const FPComparator<Scalar> cmpTr(m_trsSolver.getRelTolTR(), m_trsSolver.getAbsTolTR());
+	const Scalar relTol = criterion.getRelTol(m_relTol, m_residual);
+	const Scalar absTol = criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#Newton Trust region method\n#Iteration f(x) delta residual relative_tol absolute_tol"); }
 	
 	m_info = Info::FAILURE;
 	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{				
-		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, delta, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
-		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, delta, m_residual, relTol, absTol); std::fflush(m_out); }
+		if (m_residual < relTol or m_residual < absTol) { m_info = Info::SUCCESS; break; }
 		
 		const Scalar normS = m_trsSolver.solve(Hk, invBk, m_gk.get(), size, delta, m_sk.get()); 
 		
@@ -100,7 +101,7 @@ void NewtonTrustRegionSolver<TRSSolver>::solveImpl(Oracle& oracle, const ABool s
 			std::copy(m_xTrial.get(), m_xTrial.get() + size, x); 
 			oracle.getGradient(m_gk.get());	
 			m_fx = fxTrial; 
-			m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
+			m_residual = BasicLinalg::squaredNorm(m_gk.get(), size);
 		} 
 		else
 		{

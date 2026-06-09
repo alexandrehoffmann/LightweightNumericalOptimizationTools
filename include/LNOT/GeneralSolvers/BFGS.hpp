@@ -3,27 +3,31 @@
 
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
+#include <LNOT/ConvergenceCriterions/CConvergenceCriterionFor.hpp>
+#include <LNOT/ConvergenceCriterions/L2NormConvergenceCriterion.hpp>
 
 #include <memory>
 
 namespace LNOT
 {
 
-template<typename LineSearch> class BFGS;
+template<typename LineSearch, typename ConvergenceCriterion> class BFGS;
 
-template<typename LineSearch> 
-struct FirstOrderSolverTraits< BFGS<LineSearch> >
+template<typename LineSearch, typename ConvergenceCriterion> 
+struct FirstOrderSolverTraits< BFGS<LineSearch, ConvergenceCriterion> >
 {
 	static_assert(CLineSearch<LineSearch>);
 	
 	using Scalar = typename LineSearch::Scalar;
 	using Size   = typename LineSearch::Size;
+	
+	static_assert(CConvergenceCriterionFor<ConvergenceCriterion, Scalar>);
 };
 
-template<typename LineSearch>
-class BFGS : public FirstOrderSolverBase< BFGS<LineSearch> >
+template<typename LineSearch, typename ConvergenceCriterion = L2NormConvergenceCriterion> 
+class BFGS : public FirstOrderSolverBase< BFGS<LineSearch, ConvergenceCriterion> >
 {
-	using Self = BFGS<LineSearch>;
+	using Self = BFGS<LineSearch, ConvergenceCriterion>;
 public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	

@@ -81,8 +81,8 @@ auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB
 	const Scalar relTol = m_relTol*m_precNormR;
 	const Scalar delta2 = delta*delta;
 	
-	const FPComparator<Scalar> cmp;
-	const FPComparator<Scalar> cmpTr(m_relTolTr, m_absTolTr);
+	constexpr FPComparator<Scalar> cmp;
+	const     FPComparator<Scalar> cmpTr(m_relTolTr, m_absTolTr);
 	
 	m_info = Info::FAILURE;
 	if (m_out) { fmt::println(m_out, "#Preconditioned Lanczos TRS solver : \n#Iteration residual lambda relative_tol absolute_tol"); }

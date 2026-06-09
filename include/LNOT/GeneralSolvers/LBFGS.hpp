@@ -5,28 +5,33 @@
 #include <LNOT/GeneralSolvers/LimitedMemorySolverBase.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
 
+#include <LNOT/ConvergenceCriterions/CConvergenceCriterionFor.hpp>
+#include <LNOT/ConvergenceCriterions/L2NormConvergenceCriterion.hpp>
+
 #include <memory>
 
 namespace LNOT
 {
 
-template<typename LineSearch> class LBFGS;
+template<typename LineSearch, typename ConvergenceCriterion> class LBFGS;
 
-template<typename LineSearch> 
-struct FirstOrderSolverTraits< LBFGS<LineSearch> >
+template<typename LineSearch, typename ConvergenceCriterion> 
+struct FirstOrderSolverTraits< LBFGS<LineSearch, ConvergenceCriterion> >
 {
 	static_assert(CLineSearch<LineSearch>);
 	
 	using Scalar = typename LineSearch::Scalar;
 	using Size   = typename LineSearch::Size;
+	
+	static_assert(CConvergenceCriterionFor<ConvergenceCriterion, Scalar>);
 };
 
-template<typename LineSearch>
+template<typename LineSearch, typename ConvergenceCriterion = L2NormConvergenceCriterion>
 class LBFGS 
-	: public FirstOrderSolverBase< LBFGS<LineSearch> >
+	: public FirstOrderSolverBase< LBFGS<LineSearch, ConvergenceCriterion> >
 	, public LimitedMemorySolverBase<typename LineSearch::Size>
 {
-	using Self = LBFGS<LineSearch>;
+	using Self = LBFGS<LineSearch, ConvergenceCriterion>;
 public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	LNOT_DEFINE_LIMITED_MEMORY_SOLVER

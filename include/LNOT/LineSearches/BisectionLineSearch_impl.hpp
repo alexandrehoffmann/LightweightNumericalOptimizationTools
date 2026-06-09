@@ -37,7 +37,7 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 	const Oracle_Size size     = oracle.getNDims();
 	const Scalar      sDotGrad = BasicLinalg::inner(s, gx, size);
 	
-	const FPComparator<Scalar> cmp;
+	constexpr FPComparator<Scalar> cmp;
 	
 	if (not m_newX or m_workCapacity < size)
 	{

@@ -4,16 +4,18 @@
 #include <LNOT/GeneralSolvers/SecondOrderSolverBase.hpp>
 #include <LNOT/LinearSolvers/LinearSolverBase.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
+#include <LNOT/ConvergenceCriterions/CConvergenceCriterionFor.hpp>
+#include <LNOT/ConvergenceCriterions/L2NormConvergenceCriterion.hpp>
 
 #include <memory>
 
 namespace LNOT
 {
 
-template<typename LinSolver, typename LineSearch> class NewtonSolver;
+template<typename LinSolver, typename LineSearch, typename ConvergenceCriterion> class NewtonSolver;
 
-template<typename LinSolver, typename LineSearch> 
-struct SecondOrderSolverTraits< NewtonSolver<LinSolver, LineSearch> >
+template<typename LinSolver, typename LineSearch, typename ConvergenceCriterion> 
+struct SecondOrderSolverTraits< NewtonSolver<LinSolver, LineSearch, ConvergenceCriterion> >
 {
 	static_assert(CLinearSolver<LinSolver>);
 	static_assert(CLineSearch<LineSearch>);
@@ -22,12 +24,14 @@ struct SecondOrderSolverTraits< NewtonSolver<LinSolver, LineSearch> >
 	
 	using Scalar = typename LinSolver::Scalar;
 	using Size   = typename LinSolver::Size;
+	
+	static_assert(CConvergenceCriterionFor<ConvergenceCriterion, Scalar>);
 };
 
-template<typename LinSolver, typename LineSearch>
-class NewtonSolver : public SecondOrderSolverBase< NewtonSolver<LinSolver, LineSearch> >
+template<typename LinSolver, typename LineSearch, typename ConvergenceCriterion = L2NormConvergenceCriterion>
+class NewtonSolver : public SecondOrderSolverBase< NewtonSolver<LinSolver, LineSearch, ConvergenceCriterion> >
 {
-	using Self = NewtonSolver<LinSolver, LineSearch>;
+	using Self = NewtonSolver<LinSolver, LineSearch, ConvergenceCriterion>;
 public:
 	LNOT_DEFINE_SECOND_ORDER_SOLVER
 	

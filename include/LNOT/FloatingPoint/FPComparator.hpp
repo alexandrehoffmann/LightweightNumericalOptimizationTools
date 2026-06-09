@@ -16,7 +16,7 @@ class FPComparator
 public:
 	static inline constexpr Scalar defaultEps = NumTraits<Scalar>::epsilon;
 
-	FPComparator(const Scalar& relativeEpsilon = defaultEps, const Scalar& absoluteEpsilon = defaultEps) : m_relativeEpsilon(relativeEpsilon), m_absoluteEpsilon(absoluteEpsilon) {}
+	constexpr FPComparator(const Scalar& relativeEpsilon = defaultEps, const Scalar& absoluteEpsilon = defaultEps) : m_relativeEpsilon(relativeEpsilon), m_absoluteEpsilon(absoluteEpsilon) {}
 	
 	constexpr bool isApproxEq(const Scalar& a, const Scalar& b) const { return AdlMath::abs(a - b) < std::max(AdlMath::abs(a), AdlMath::abs(b))*m_relativeEpsilon or AdlMath::abs(a - b) < m_absoluteEpsilon; }
 	

@@ -37,6 +37,12 @@ template<typename Scalar, typename Size>
 Scalar norm(const Scalar* x, const Size N); ///<  @brief Computes \f$\|x\|_{\ell^2}\f$
 
 template<typename Scalar, typename Size> 
+Scalar l1Norm(const Scalar* x, const Size N); ///<  @brief Computes \f$\|x\|_{\ell^1}\f$
+
+template<typename Scalar, typename Size> 
+Scalar lInfNorm(const Scalar* x, const Size N); ///<  @brief Computes \f$\|x\|_{\ell^\infty}\f$
+
+template<typename Scalar, typename Size> 
 Scalar weightedSquaredNorm(const Scalar* x, const Scalar* w, const Size N); ///<  @brief Computes \f$\sum_{i=1}^N w_i x_i^2\f$
 
 ///  @brief Computes \f$\sqrt{\sum_{i=1}^N w_i x_i^2}\f$

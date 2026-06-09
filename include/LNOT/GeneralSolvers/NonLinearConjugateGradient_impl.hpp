@@ -88,8 +88,8 @@ extern template class NonLinearConjugateGradient<NoLineSearch<long double>, NLCG
 
 //// method implementations ////
 
-template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy>  template<CFirstOrderOracle Oracle, typename ABool>
-void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy, class ConvergenceCriterion>  template<CFirstOrderOracle Oracle, typename ABool>
+void NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
 	using Oracle_Size = typename Oracle::Size;
 	
@@ -108,6 +108,9 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& o
 	
 	m_innerIts.clear();
 	
+	constexpr FPComparator<Scalar> cmp;
+	constexpr ConvergenceCriterion criterion;
+	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
 	
@@ -115,20 +118,18 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& o
 	for (Size i=0; i!=size; ++i) { m_dk[i] = -m_gk[i]; }
 	
 	m_fx = oracle.getValue();
-	m_squaredNormGrad = BasicLinalg::squaredNorm(m_gk.get(), size);
+	m_residual = criterion.getResidual(m_gk.get(), size);
 	
-	const Scalar relTol2 = m_relTol*m_relTol*m_squaredNormGrad;
-	const Scalar absTol2 = m_absTol*m_absTol;
-	
-	const FPComparator<Scalar> cmp;
+	const Scalar relTol   = criterion.getRelTol(m_relTol, m_residual);
+	const Scalar absTol   = criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#Non Linear CG method\n#Iteration f(x) residual relative_tol absolute_tol"); }
 	
 	m_info = Info::FAILURE;
 	for (m_nIt=0;m_nIt!=m_maxIt; ++m_nIt)
 	{
-		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_squaredNormGrad, relTol2, absTol2); std::fflush(m_out); }
-		if (m_squaredNormGrad < relTol2 or m_squaredNormGrad < absTol2) { m_info = Info::SUCCESS; break; }
+		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_residual, relTol, absTol); std::fflush(m_out); }
+		if (m_residual < relTol or m_residual < absTol) { m_info = Info::SUCCESS; break; }
 		
 		const Scalar alpha = m_lineSearch.solve(x, m_fx, m_gk.get(), m_dk.get(), oracle);
 		
@@ -142,7 +143,7 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& o
 		oracle.getGradient(m_gkp1.get());
 		
 		m_fx = oracle.getValue();
-		m_squaredNormGrad = BasicLinalg::squaredNorm(m_gkp1.get(), size);
+		m_residual = criterion.getResidual(m_gk.get(), size);
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_yk[i] = m_gkp1[i] - m_gk[i]; }
@@ -156,8 +157,8 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy>::solveImpl(Oracle& o
 	}
 }
 
-template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy> 
-auto NonLinearConjugateGradient<LineSearch, UpdateStrategy>::getBeta(const Size size) -> Scalar
+template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy, class ConvergenceCriterion> 
+auto NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion>::getBeta(const Size size) -> Scalar
 {
 	if      constexpr (UpdateStrategy == NLCGUpdateStrategy::HESTENES_STIEFEL) { return BasicLinalg::inner(m_gkp1.get(), m_yk.get(), size) /  BasicLinalg::inner(m_dk.get(), m_yk.get(), size); }
 	else if constexpr (UpdateStrategy == NLCGUpdateStrategy::FLETCHER_REEVES)  { return BasicLinalg::squaredNorm(m_gkp1.get(), size)       /  BasicLinalg::squaredNorm(m_gk.get(), size); }

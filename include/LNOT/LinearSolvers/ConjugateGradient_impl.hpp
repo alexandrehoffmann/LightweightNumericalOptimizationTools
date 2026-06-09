@@ -58,7 +58,7 @@ void ConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB, const S
 	const Scalar relTol2 = m_relTol*m_relTol*m_precSqNormR;
 	const Scalar absTol2 = m_absTol*m_absTol;
 	
-	const FPComparator<Scalar> cmp;
+	constexpr FPComparator<Scalar> cmp;
 	
 	m_info = Info::FAILURE;
 	if (m_out) { fmt::println(m_out, "#Preconditioned CG solver : \n#Iteration residual relative_tol absolute_tol"); }

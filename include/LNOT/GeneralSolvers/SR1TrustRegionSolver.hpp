@@ -4,29 +4,33 @@
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
 #include <LNOT/GeneralSolvers/TrustRegionMethodBase.hpp>
 #include <LNOT/TRSSolvers/TRSSolverBase.hpp>
+#include <LNOT/ConvergenceCriterions/CConvergenceCriterionFor.hpp>
+#include <LNOT/ConvergenceCriterions/L2NormConvergenceCriterion.hpp>
 
 #include <memory>
 
 namespace LNOT
 {
 
-template<typename TRSSolver> class SR1TrustRegionSolver;
+template<typename TRSSolver, typename ConvergenceCriterion> class SR1TrustRegionSolver;
 
-template<typename TRSSolver>
-struct FirstOrderSolverTraits< SR1TrustRegionSolver<TRSSolver> >
+template<typename TRSSolver, typename ConvergenceCriterion>
+struct FirstOrderSolverTraits< SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion> >
 {
 	static_assert(CTRSSolver<TRSSolver>);
 	
 	using Scalar = typename TRSSolver::Scalar;
 	using Size   = typename TRSSolver::Size;
+	
+	static_assert(CConvergenceCriterionFor<ConvergenceCriterion, Scalar>);
 };
 	
-template<typename TRSSolver>
+template<typename TRSSolver, typename ConvergenceCriterion = L2NormConvergenceCriterion>
 class SR1TrustRegionSolver 
-	: public FirstOrderSolverBase< SR1TrustRegionSolver<TRSSolver> >
+	: public FirstOrderSolverBase< SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion> >
 	, public TrustRegionMethodBase<typename TRSSolver::Scalar, typename TRSSolver::Size>
 {
-	using Self = SR1TrustRegionSolver<TRSSolver>;
+	using Self = SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>;
 	using TRM  = TrustRegionMethodBase<typename TRSSolver::Scalar, typename TRSSolver::Size>;
 public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER

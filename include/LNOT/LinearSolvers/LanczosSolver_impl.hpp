@@ -56,7 +56,7 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 	
 	const Scalar precNormR0 = sqrt(BasicLinalg::inner(m_Bv.get(), m_v.get(), size));
 	
-	const FPComparator<Scalar> cmp;
+	constexpr FPComparator<Scalar> cmp;
 	
 	Scalar beta_old{};
 	Scalar l_old{};

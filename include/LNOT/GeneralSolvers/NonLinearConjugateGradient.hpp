@@ -4,27 +4,31 @@
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
 #include <LNOT/GeneralSolvers/NLCGUpdateStrategy.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
+#include <LNOT/ConvergenceCriterions/CConvergenceCriterionFor.hpp>
+#include <LNOT/ConvergenceCriterions/L2NormConvergenceCriterion.hpp>
 
 #include <memory>
 
 namespace LNOT
 {
 
-template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy> class NonLinearConjugateGradient;
+template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy, typename ConvergenceCriterion> class NonLinearConjugateGradient;
 
-template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy> 
-struct FirstOrderSolverTraits< NonLinearConjugateGradient<LineSearch, UpdateStrategy> >
+template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy, typename ConvergenceCriterion> 
+struct FirstOrderSolverTraits< NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion> >
 {
 	static_assert(CLineSearch<LineSearch>);
 	
 	using Scalar = typename LineSearch::Scalar;
 	using Size   = typename LineSearch::Size;
+	
+	static_assert(CConvergenceCriterionFor<ConvergenceCriterion, Scalar>);
 };
 
-template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy = NLCGUpdateStrategy::HESTENES_STIEFEL> 
-class NonLinearConjugateGradient : public FirstOrderSolverBase< NonLinearConjugateGradient<LineSearch, UpdateStrategy> >
+template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy = NLCGUpdateStrategy::HESTENES_STIEFEL, typename ConvergenceCriterion = L2NormConvergenceCriterion> 
+class NonLinearConjugateGradient : public FirstOrderSolverBase< NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion> >
 {
-	using Self = NonLinearConjugateGradient<LineSearch, UpdateStrategy>;
+	using Self = NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion>;
 public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	
