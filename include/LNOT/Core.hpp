@@ -25,3 +25,4 @@
 #include <LNOT/GeneralSolvers/NonLinearConjugateGradient.hpp>
 #include <LNOT/GeneralSolvers/SR1TrustRegionSolver.hpp>
 #include <LNOT/GeneralSolvers/LSR1TrustRegionSolver.hpp>
+#include <LNOT/GeneralSolvers/SequenceOfSolvers.hpp>
