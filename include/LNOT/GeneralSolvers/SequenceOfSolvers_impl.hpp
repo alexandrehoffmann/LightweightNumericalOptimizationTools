@@ -76,7 +76,7 @@ void SequenceOfSolvers<Solvers...>::solveImplRec(BIC::Fixed<size_t, I> i, Oracle
 	
 	if (solver.getInfo() != IthSolverInfo::SUCCESS)
 	{
-		if constexpr (i+1 != nSolvers) { solveImplRec(BIC::next(i), oracle, solveInPlace, x); }
+		if constexpr (i+1 != nSolvers) { solveImplRec(BIC::next(i), oracle, BIC::fixed<bool, false>, x); }
 		else
 		{
 			m_info     = Info::FAILURE;
