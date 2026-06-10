@@ -12,7 +12,7 @@ template<CSolver... Solvers>
 SequenceOfSolvers<Solvers...>::SequenceOfSolvers(const Size maxIt, const Scalar relTol, const Scalar absTol)
 	: Base(maxIt, relTol, absTol)
 {
-	BIC::foreach(BIC::fixed<size_t, 0>, BIC::fixed<size_t, nSolvers>, [&, &solvers = m_solvers](const auto i)
+	BIC::foreach(BIC::fixed<size_t, 0>, BIC::fixed<size_t, nSolvers>, [&maxIt, &relTol, &absTol, &solvers = m_solvers](const auto i)
 	{
 		std::get<i>(solvers).setMaxIt(maxIt / nSolvers);
 		std::get<i>(solvers).setRelTol(relTol);
@@ -24,11 +24,38 @@ template<CSolver... Solvers>
 SequenceOfSolvers<Solvers...>::SequenceOfSolvers(const std::array<Size, nSolvers>& maxIt, const std::array<Scalar, nSolvers>& relTol, const std::array<Scalar, nSolvers>& absTol)
 	: Base(std::reduce(maxIt.begin(), maxIt.end()), std::ranges::min(relTol), std::ranges::min(absTol))
 {
-	BIC::foreach(BIC::fixed<size_t, 0>, BIC::fixed<size_t, nSolvers>, [&, &solvers = m_solvers](const auto i)
+	BIC::foreach(BIC::fixed<size_t, 0>, BIC::fixed<size_t, nSolvers>, [&maxIt, &relTol, &absTol, &solvers = m_solvers](const auto i)
 	{
 		std::get<i>(solvers).setMaxIt(maxIt[i]);
 		std::get<i>(solvers).setRelTol(relTol[i]);
 		std::get<i>(solvers).setAbsTol(absTol[i]);
+	});
+}
+
+template<CSolver... Solvers>
+void SequenceOfSolvers<Solvers...>::setMaxIt(const std::array<Size, nSolvers>& maxIt)
+{
+	BIC::foreach(BIC::fixed<size_t, 0>, BIC::fixed<size_t, nSolvers>, [&maxIt, &solvers = m_solvers](const auto i)
+	{
+		std::get<i>(solvers).setMaxIt(maxIt[i]);
+	});
+}
+
+template<CSolver... Solvers>
+void SequenceOfSolvers<Solvers...>::setRelTol(const std::array<Scalar, nSolvers>& tol)
+{
+	BIC::foreach(BIC::fixed<size_t, 0>, BIC::fixed<size_t, nSolvers>, [&tol, &solvers = m_solvers](const auto i)
+	{
+		std::get<i>(solvers).setRelTol(tol[i]);
+	});
+}
+
+template<CSolver... Solvers>
+void SequenceOfSolvers<Solvers...>::setAbsTol(const std::array<Scalar, nSolvers>& tol)
+{
+	BIC::foreach(BIC::fixed<size_t, 0>, BIC::fixed<size_t, nSolvers>, [&tol, &solvers = m_solvers](const auto i)
+	{
+		std::get<i>(solvers).setAbsTol(tol[i]);
 	});
 }
 

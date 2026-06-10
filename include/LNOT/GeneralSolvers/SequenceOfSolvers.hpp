@@ -73,6 +73,11 @@ public:
 	
 	SequenceOfSolvers(Solvers&&... solver) : m_solvers(std::move(solver)...) {}
 	
+	void setMaxIt  (const std::array<Size  , nSolvers>& maxIt);
+	void setRelTol (const std::array<Scalar, nSolvers>& tol);
+	void setAbsTol (const std::array<Scalar, nSolvers>& tol);
+	void setTol    (const std::array<Scalar, nSolvers>& tol) { setRelTol(tol); setAbsTol(tol); }
+	
 	template<CFirstOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value) { solveImplRec(BIC::fixed<size_t, 0>, oracle, solveInPlace, x); }
 	
