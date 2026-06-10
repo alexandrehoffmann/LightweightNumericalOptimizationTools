@@ -79,7 +79,10 @@ public:
 	void setTol    (const std::array<Scalar, nSolvers>& tol) { setRelTol(tol); setAbsTol(tol); }
 	
 	template<CFirstOrderOracle Oracle, typename ABool> 
-	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value) { solveImplRec(BIC::fixed<size_t, 0>, oracle, solveInPlace, x); }
+	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value and Base::order == 1) { solveImplDetail(oracle, solveInPlace, x); }
+	
+	template<CSecondOrderOracle Oracle, typename ABool> 
+	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value and Base::order == 2) { solveImplDetail(oracle, solveInPlace, x); }
 	
 	template<size_t I> const IthSolver<I>& getSolver() const { return std::get<I>(m_solvers); }
 	template<size_t I>       IthSolver<I>& getSolver()       { return std::get<I>(m_solvers); }
@@ -98,8 +101,8 @@ protected:
 	using Base::m_innerIts;
 	using Base::m_out;
 private:
-	template<size_t I, CFirstOrderOracle Oracle, typename ABool> 
-	void solveImplRec(BIC::Fixed<size_t, I> i, Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
+	template<class Oracle, typename ABool> 
+	void solveImplDetail(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
 
 	std::tuple<Solvers...> m_solvers;
 };

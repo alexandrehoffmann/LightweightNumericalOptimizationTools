@@ -59,39 +59,34 @@ void SequenceOfSolvers<Solvers...>::setAbsTol(const std::array<Scalar, nSolvers>
 	});
 }
 
-template<CSolver... Solvers> template<size_t I, CFirstOrderOracle Oracle, typename ABool> 
-void SequenceOfSolvers<Solvers...>::solveImplRec(BIC::Fixed<size_t, I> i, Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+template<CSolver... Solvers> template<class Oracle, typename ABool>
+void SequenceOfSolvers<Solvers...>::solveImplDetail(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
 {
-	using IthSolverInfo = typename IthSolver<I>::Info;
+	m_info = Info::FAILURE;
+	m_innerIts.clear();
 	
-	IthSolver<I>& solver = std::get<i>(m_solvers);
+	if (m_out) { fmt::println(m_out, "#SequenceOfSolvers\n#Solver #Iterations f(x) residual relative_tol absolute_tol"); }
 	
-	if constexpr (i == 0) { m_innerIts.clear(); }
-	
-	solver.solve(oracle, solveInPlace, x);
-	m_innerIts.push_back(solver.getIterations());
-	
-	if (i == 0 and m_out) { fmt::println(m_out, "#SequenceOfSolvers\n#Solver #Iterations f(x) residual relative_tol absolute_tol"); }
-	if (m_out)            { fmt::println(m_out, "{} {} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", i+1, solver.getIterations(), solver.getValue(), solver.getError(), solver.getRelTol(), solver.getAbsTol()); std::fflush(m_out); }
-	
-	if (solver.getInfo() != IthSolverInfo::SUCCESS)
+	BIC::foreach(BIC::fixed<size_t, 0>, BIC::fixed<size_t, nSolvers>, [this, &oracle, solveInPlace, x](const auto i)
 	{
-		if constexpr (i+1 != nSolvers) { solveImplRec(BIC::next(i), oracle, BIC::fixed<bool, true>, x); }
-		else
+		if (m_info == Info::FAILURE)
 		{
-			m_info     = Info::FAILURE;
+			using IthSolverInfo = typename IthSolver<i>::Info;
+			
+			IthSolver<i>& solver = std::get<i>(m_solvers);
+			
+			solver.solve(oracle, solveInPlace or i != BIC::fixed<size_t, 0>, x);
+			
+			m_innerIts.push_back(solver.getIterations());
+			
+			m_info     = solver.getInfo() == IthSolverInfo::SUCCESS ? Info::SUCCESS : Info::FAILURE;
 			m_nIt      = i;
 			m_fx       = solver.getValue(); 
 			m_residual = solver.getError();
+			
+			if (m_out) { fmt::println(m_out, "{} {} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", i+1, solver.getIterations(), solver.getValue(), solver.getError(), solver.getRelTol(), solver.getAbsTol()); std::fflush(m_out); }
 		}
-	}
-	else
-	{
-		m_info     = Info::SUCCESS;
-		m_nIt      = i;
-		m_fx       = solver.getValue(); 
-		m_residual = solver.getError(); 
-	}
+	});
 }
 	
 } // namespace LNOT
