@@ -170,6 +170,7 @@ set(LNOT_SRC
 	src/LNOT/LineSearches/NoLineSearch.cpp
 	#
 	src/LNOT/GeneralSolvers/NewtonSolver.cpp
+	src/LNOT/GeneralSolvers/GradientDescent.cpp
 	src/LNOT/GeneralSolvers/BFGS.cpp
 	src/LNOT/GeneralSolvers/LBFGS.cpp
 	src/LNOT/GeneralSolvers/NonLinearConjugateGradient.cpp

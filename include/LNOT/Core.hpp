@@ -20,6 +20,7 @@
 
 #include <LNOT/GeneralSolvers/NewtonSolver.hpp>
 #include <LNOT/GeneralSolvers/NewtonTrustRegionSolver.hpp>
+#include <LNOT/GeneralSolvers/GradientDescent.hpp>
 #include <LNOT/GeneralSolvers/BFGS.hpp>
 #include <LNOT/GeneralSolvers/LBFGS.hpp>
 #include <LNOT/GeneralSolvers/NonLinearConjugateGradient.hpp>
