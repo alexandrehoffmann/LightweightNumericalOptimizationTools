@@ -71,8 +71,8 @@ void SequenceOfSolvers<Solvers...>::solveImplRec(BIC::Fixed<size_t, I> i, Oracle
 	solver.solve(oracle, solveInPlace, x);
 	m_innerIts.push_back(solver.getIterations());
 	
-	if (i == 0 and m_out) { fmt::println(m_out, "#SequenceOfSolvers\n#Solver f(x) residual relative_tol absolute_tol"); }
-	if (m_out)            { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", i+1, solver.getValue(), solver.getError(), solver.getRelTol(), solver.getAbsTol()); std::fflush(m_out); }
+	if (i == 0 and m_out) { fmt::println(m_out, "#SequenceOfSolvers\n#Solver #Iterations f(x) residual relative_tol absolute_tol"); }
+	if (m_out)            { fmt::println(m_out, "{} {} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", i+1, solver.getIterations(), solver.getValue(), solver.getError(), solver.getRelTol(), solver.getAbsTol()); std::fflush(m_out); }
 	
 	if (solver.getInfo() != IthSolverInfo::SUCCESS)
 	{
