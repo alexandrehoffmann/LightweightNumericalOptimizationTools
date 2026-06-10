@@ -76,8 +76,11 @@ public:
 	template<CFirstOrderOracle Oracle, typename ABool> 
 	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value) { solveImplRec(BIC::fixed<size_t, 0>, oracle, solveInPlace, x); }
 	
-	template<size_t I> const IthSolver<I>& getSolver(const BIC::Fixed<size_t, I> i) const { return std::get<i>(m_solvers); }
-	template<size_t I>       IthSolver<I>& getSolver(const BIC::Fixed<size_t, I> i)       { return std::get<i>(m_solvers); }
+	template<size_t I> const IthSolver<I>& getSolver() const { return std::get<I>(m_solvers); }
+	template<size_t I>       IthSolver<I>& getSolver()       { return std::get<I>(m_solvers); }
+	
+	template<size_t I> const IthSolver<I>& getSolver(const BIC::Fixed<size_t, I> i) const { return getSolver<i>(); }
+	template<size_t I>       IthSolver<I>& getSolver(const BIC::Fixed<size_t, I> i)       { return getSolver<i>(); }
 protected:
 	using Base::m_maxIt;
 	using Base::m_relTol;
