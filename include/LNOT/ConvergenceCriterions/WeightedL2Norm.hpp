@@ -29,7 +29,7 @@ public:
 	LNOT_DEFINE_CONVERGENCE_CRITERION
 	
 	template<typename ASize>
-	void allocate(const ASize size) requires(isSize<ASize>) { m_weights.resize(size); }
+	void allocate(const ASize size) requires(isSize<ASize>) { m_weights.resize(size, Scalar(1)); }
 
 	constexpr std::span<const Scalar> getWeights() const { return std::span(m_weights.get(), m_size); }
 	
