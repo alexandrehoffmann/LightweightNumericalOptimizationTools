@@ -77,7 +77,7 @@ void BFGS<LineSearch, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABo
 		////
 		const Scalar step_len = m_lineSearch.solve(x, m_fx, m_gk.get(), m_sk.get(), oracle);
 		
-		if (not cmp.isDefPositive(step_len)) { m_info = Info::BREAKDOWN; break; }
+		if (not cmp.isDefPositive(step_len*BasicLinalg::norm(m_sk.get(), size))) { m_info = Info::BREAKDOWN; break; }
 		
 		BasicLinalg::scal(step_len, size, m_sk.get());
 		BasicLinalg::axpy(Scalar(1), m_sk.get(), size, x);
