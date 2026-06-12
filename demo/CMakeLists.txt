@@ -7,6 +7,7 @@ add_executable(demo_PrecondTrustRegionSubproblemSolver demo_PrecondTrustRegionSu
 add_executable(demo_Newton                             demo_Newton.cpp)
 add_executable(demo_QuasiNewton                        demo_QuasiNewton.cpp)
 add_executable(demo_SequenceOfSolvers                  demo_SequenceOfSolvers.cpp)
+add_executable(demo_weightedL2Norm                     demo_weightedL2Norm.cpp)
 
 target_include_directories(demo_LinearSolver                       PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(demo_PrecondLinearSolver                PRIVATE ${PROJECT_SOURCE_DIR}/include)
@@ -15,6 +16,7 @@ target_include_directories(demo_PrecondTrustRegionSubproblemSolver PRIVATE ${PRO
 target_include_directories(demo_Newton                             PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(demo_QuasiNewton                        PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(demo_SequenceOfSolvers                  PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(demo_weightedL2Norm                     PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 target_link_libraries(demo_LinearSolver                       PRIVATE LNOT)
 target_link_libraries(demo_PrecondLinearSolver                PRIVATE LNOT)
@@ -23,4 +25,5 @@ target_link_libraries(demo_PrecondTrustRegionSubproblemSolver PRIVATE LNOT)
 target_link_libraries(demo_Newton                             PRIVATE LNOT)
 target_link_libraries(demo_QuasiNewton                        PRIVATE LNOT)
 target_link_libraries(demo_SequenceOfSolvers                  PRIVATE LNOT)
+target_link_libraries(demo_weightedL2Norm                     PRIVATE LNOT)
 
