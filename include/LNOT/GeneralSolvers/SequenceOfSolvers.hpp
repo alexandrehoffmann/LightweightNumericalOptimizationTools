@@ -57,7 +57,6 @@ using SequenceOfSolversBase = std::conditional_t<std::max({Solvers::order...}) =
 template<CSolver... Solvers>
 class SequenceOfSolvers : public detail::SequenceOfSolversBase<Solvers...>
 {
-	static constexpr inline size_t nSolvers = sizeof...(Solvers);
 public:
 	using Base   = detail::SequenceOfSolversBase<Solvers...>;
 	using Size   = typename Base::Size;
@@ -68,6 +67,8 @@ public:
 	template<typename ASize> using IsSize = typename Base::template IsSize<ASize>; 
 	
 	template<size_t I> using IthSolver = std::tuple_element_t<I, std::tuple<Solvers...>>;
+	
+	static constexpr inline size_t nSolvers = sizeof...(Solvers);
 	
 	SequenceOfSolvers(const Size maxIt = 200000, const Scalar relTol = Base::defaultEps, const Scalar absTol = Base::defaultEps);
 	
