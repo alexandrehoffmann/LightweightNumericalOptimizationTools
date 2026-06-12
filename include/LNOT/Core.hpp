@@ -4,10 +4,10 @@
 #include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
 #include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
 
-#include <LNOT/ConvergenceCriterions/L1NormConvergenceCriterion.hpp>
-#include <LNOT/ConvergenceCriterions/L2NormConvergenceCriterion.hpp>
-#include <LNOT/ConvergenceCriterions/LInfNormConvergenceCriterion.hpp>
-#include <LNOT/ConvergenceCriterions/WeightedL2NormConvergenceCriterion.hpp>
+#include <LNOT/ConvergenceCriterions/L1Norm.hpp>
+#include <LNOT/ConvergenceCriterions/L2Norm.hpp>
+#include <LNOT/ConvergenceCriterions/LInfNorm.hpp>
+#include <LNOT/ConvergenceCriterions/WeightedL2Norm.hpp>
 
 #include <LNOT/LinearSolvers/ConjugateGradient.hpp>
 #include <LNOT/LinearSolvers/LanczosSolver.hpp>

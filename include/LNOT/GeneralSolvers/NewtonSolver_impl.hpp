@@ -68,17 +68,18 @@ void NewtonSolver<LinSolver,LineSearch,ConvergenceCriterion>::solveImpl(Oracle& 
 	
 	m_innerIts.clear();
 	
-	constexpr ConvergenceCriterion criterion;
 	constexpr FPComparator<Scalar> cmp;
 	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
 	
-	m_fx = oracle.getValue();
-	m_residual = criterion.getResidual(m_gk.get(), size);
+	m_criterion.init(m_gk.get(), size);
 	
-	const Scalar relTol = criterion.getRelTol(m_relTol, m_residual);
-	const Scalar absTol = criterion.getAbsTol(m_absTol);
+	m_fx = oracle.getValue();
+	m_residual = m_criterion.getResidual(m_gk.get(), size);
+	
+	const Scalar relTol = m_criterion.getRelTol(m_relTol);
+	const Scalar absTol = m_criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#Newton method\n#Iteration f(x) residual relative_tol absolute_tol"); }
 	
@@ -107,7 +108,7 @@ void NewtonSolver<LinSolver,LineSearch,ConvergenceCriterion>::solveImpl(Oracle& 
 		oracle.getGradient(m_gk.get());
 		
 		m_fx = oracle.getValue();
-		m_residual = criterion.getResidual(m_gk.get(), size);
+		m_residual = m_criterion.getResidual(m_gk.get(), size);
 	}
 }
 

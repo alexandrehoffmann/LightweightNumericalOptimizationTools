@@ -25,8 +25,9 @@ struct FirstOrderSolverTraits< SequenceOfSolvers<Solvers...> >
 	static_assert((std::is_same<typename FirstSolver::Scalar, typename Solvers::Scalar>::value and ...));
 	static_assert((std::is_same<typename FirstSolver::Size,   typename Solvers::Size>::value and ...));
 	
-	using Scalar = typename FirstSolver::Scalar;
-	using Size   = typename FirstSolver::Size;
+	using Scalar    = typename FirstSolver::Scalar;
+	using Size      = typename FirstSolver::Size;
+	using Criterion = typename FirstSolver::Criterion;
 };
 
 template<CSolver... Solvers> requires(std::max({Solvers::order...}) == 2)
@@ -37,8 +38,9 @@ struct SecondOrderSolverTraits< SequenceOfSolvers<Solvers...> >
 	static_assert((std::is_same<typename FirstSolver::Scalar, typename Solvers::Scalar>::value and ...));
 	static_assert((std::is_same<typename FirstSolver::Size,   typename Solvers::Size>::value and ...));
 	
-	using Scalar = typename FirstSolver::Scalar;
-	using Size   = typename FirstSolver::Size;
+	using Scalar    = typename FirstSolver::Scalar;
+	using Size      = typename FirstSolver::Size;
+	using Criterion = typename FirstSolver::Criterion;
 };
 
 namespace detail

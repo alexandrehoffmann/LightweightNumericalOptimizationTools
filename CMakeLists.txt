@@ -83,7 +83,8 @@ set(LNOT_Clang_CXX_COMPILE_OPTIONS
 	-Wnon-virtual-dtor
 	-Wold-style-cast
 	-Woverloaded-virtual
-	-Wvexing-parse)
+	-Wvexing-parse
+	-Wno-error=pass-failed)
 
 # Set default build type if not specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

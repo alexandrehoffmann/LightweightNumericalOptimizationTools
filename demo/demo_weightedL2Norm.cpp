@@ -75,19 +75,16 @@ int main()
 	
 	// weighted L2 norm needs a scope, which contains the weights used by the norm.
 	// When the scope is destroyed the data are freed
-	using Criterion      = LNOT::WeightedL2NormConvergenceCriterion;
-	using CriterionScope = typename Criterion::Scope<double, unsigned int>;
 	
 	std::FILE* weightedL2Out = std::fopen("newton_with_weighted_l2_norm.log", "w");
 	
-	CriterionScope scope(N);
-	
-	scope.getActiveWeights().front() = 1.0e8; // set the first weight to 10^{8}
-	scope.getActiveWeights().back() = 1.0e-8; // set the last weight to 10^{-8}
+	using Criterion = LNOT::WeightedL2Norm<double>;
 	
 	LNOT::NewtonSolver<CG, BisectLS, Criterion> newtonSolver2;
 	newtonSolver2.setTol(1.0e-5);
 	newtonSolver2.setOutput(weightedL2Out);
+	newtonSolver2.getCriterion().getWeights().front() = 1.0e8; // set the first weight to 10^{8}
+	newtonSolver2.getCriterion().getWeights().back() = 1.0e-8; // set the last weight to 10^{-8}
 	newtonSolver2.solve(func, grad, hessOp, precOp, N, x);
 	
 	fmt::print("Newton with weighted L2 convergence criterion found : {:.2f} in {} iterations with a final error of {} and f(x) = {}\n", fmt::join(x_view, " "), newtonSolver2.getIterations(), newtonSolver2.getError(), newtonSolver2.getValue());

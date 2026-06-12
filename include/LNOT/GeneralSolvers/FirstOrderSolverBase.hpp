@@ -33,8 +33,9 @@ class FirstOrderSolverBase : public CRTPBase<Derived>
 	using DerivedTraits = FirstOrderSolverTraits<Derived>;
 	using CRTP          = CRTPBase<Derived>;
 public:
-	using Scalar = typename DerivedTraits::Scalar; ///<  @brief The scalar type used in computations (e.g., float, double)
-	using Size   = typename DerivedTraits::Size;   ///<  @brief The size type used for indexing and loop counters
+	using Scalar    = typename DerivedTraits::Scalar;    ///<  @brief The scalar type used in computations (e.g., float, double)
+	using Size      = typename DerivedTraits::Size;      ///<  @brief The size type used for indexing and loop counters
+	using Criterion = typename DerivedTraits::Criterion; ///<  @brief The convergence criterion
 	
 	/// @brief Enumeration indicating solver termination status.
 	enum class Info 
@@ -136,6 +137,10 @@ public:
 	
 	Size getInnerIterations(const Size it) const { return m_innerIts[it]; } ///<  @brief  Get number of inner iterations required to compute a step.
 	
+	const Criterion& getCriterion() const { return m_criterion; }
+	
+	Criterion& getCriterion() { return m_criterion; }
+	
 	void setMaxIt  (const Size    maxIt) { m_maxIt  = maxIt; } ///<  @brief Set the maximum number of iterations.
 	void setRelTol (const Scalar& tol)   { m_relTol = tol;   } ///<  @brief Set the convergence relative tolerance.
 	void setAbsTol (const Scalar& tol)   { m_absTol = tol;   } ///<  @brief Set the convergence absolute tolerance.
@@ -155,6 +160,8 @@ protected:
 	Info   m_info;     ///<  @brief Status of the solver after termination
 	Scalar m_fx;       ///<  @brief Function value at last iteration
 	Scalar m_residual; ///<  @brief A norm of the gradient at last iteration
+	
+	Criterion m_criterion; ///<  @brief Convergence criterion for the solver
 	
 	Size m_workCapacity = Size{}; ///<  @brief Maximum size of the arrays allocated by the solver
 	
@@ -180,6 +187,7 @@ protected:
 	using Base::m_info; \
 	using Base::m_fx; \
 	using Base::m_residual; \
+	using Base::m_criterion; \
 	using Base::m_workCapacity; \
 	using Base::m_innerIts; \
 	using Base::m_out; \

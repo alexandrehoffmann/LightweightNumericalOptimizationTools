@@ -51,18 +51,19 @@ void NewtonTrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&
 	
 	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
 	
-	constexpr ConvergenceCriterion criterion;
 	constexpr FPComparator<Scalar> cmp;
 	const     FPComparator<Scalar> cmpTr(m_trsSolver.getRelTolTR(), m_trsSolver.getAbsTolTR());
 	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
 	
-	m_fx = oracle.getValue();
-	m_residual = criterion.getResidual(m_gk.get(), size);
+	m_criterion.init(m_gk.get(), size);
 	
-	const Scalar relTol = criterion.getRelTol(m_relTol, m_residual);
-	const Scalar absTol = criterion.getAbsTol(m_absTol);
+	m_fx = oracle.getValue();
+	m_residual = m_criterion.getResidual(m_gk.get(), size);
+	
+	const Scalar relTol = m_criterion.getRelTol(m_relTol);
+	const Scalar absTol = m_criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#Newton Trust region method\n#Iteration f(x) delta residual relative_tol absolute_tol"); }
 	
@@ -101,7 +102,7 @@ void NewtonTrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&
 			std::copy(m_xTrial.get(), m_xTrial.get() + size, x); 
 			oracle.getGradient(m_gk.get());	
 			m_fx = fxTrial; 
-			m_residual = BasicLinalg::squaredNorm(m_gk.get(), size);
+			m_residual = m_criterion.getResidual(m_gk.get(), size);
 		} 
 		else
 		{

@@ -109,19 +109,20 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion
 	m_innerIts.clear();
 	
 	constexpr FPComparator<Scalar> cmp;
-	constexpr ConvergenceCriterion criterion;
 	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
+	
+	m_criterion.init(m_gk.get(), size);
 	
 	#pragma omp simd
 	for (Size i=0; i!=size; ++i) { m_dk[i] = -m_gk[i]; }
 	
 	m_fx = oracle.getValue();
-	m_residual = criterion.getResidual(m_gk.get(), size);
+	m_residual = m_criterion.getResidual(m_gk.get(), size);
 	
-	const Scalar relTol   = criterion.getRelTol(m_relTol, m_residual);
-	const Scalar absTol   = criterion.getAbsTol(m_absTol);
+	const Scalar relTol   = m_criterion.getRelTol(m_relTol);
+	const Scalar absTol   = m_criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#Non Linear CG method\n#Iteration f(x) residual relative_tol absolute_tol"); }
 	
@@ -143,7 +144,7 @@ void NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion
 		oracle.getGradient(m_gkp1.get());
 		
 		m_fx = oracle.getValue();
-		m_residual = criterion.getResidual(m_gk.get(), size);
+		m_residual = m_criterion.getResidual(m_gk.get(), size);
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_yk[i] = m_gkp1[i] - m_gk[i]; }

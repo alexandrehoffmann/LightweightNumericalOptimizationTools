@@ -12,7 +12,7 @@ namespace LNOT
 
 template<typename T> class ConjugateGradient;
 
-template<std::floating_point T> struct LinearSolverTraits< ConjugateGradient<T> > { using Scalar = T;  using Size = unsigned int; };
+template<typename T> struct LinearSolverTraits< ConjugateGradient<T> > { using Scalar = T;  using Size = unsigned int; };
 
 template<typename T> 
 class ConjugateGradient : public LinearSolverBase< ConjugateGradient<T> >

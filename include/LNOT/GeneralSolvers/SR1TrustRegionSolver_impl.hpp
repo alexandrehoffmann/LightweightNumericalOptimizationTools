@@ -58,18 +58,19 @@ void SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle& or
 	
 	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
 	
-	constexpr ConvergenceCriterion criterion;
 	constexpr FPComparator<Scalar> cmp;
 	const     FPComparator<Scalar> cmpTr(m_trsSolver.getRelTolTR(), m_trsSolver.getAbsTolTR());
 	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
 	
+	m_criterion.init(m_gk.get(), size);
+	
 	m_fx = oracle.getValue();
-	m_residual = criterion.getResidual(m_gk.get(), size); 
+	m_residual = m_criterion.getResidual(m_gk.get(), size); 
 	      
-	const Scalar relTol   = criterion.getRelTol(m_relTol, m_residual);
-	const Scalar absTol   = criterion.getAbsTol(m_absTol);
+	const Scalar relTol   = m_criterion.getRelTol(m_relTol);
+	const Scalar absTol   = m_criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#SR1 Trust region method\n#Iteration f(x) delta residual relative_tol absolute_tol"); }
 	
@@ -119,7 +120,7 @@ void SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle& or
 			std::copy(m_xTrial.get(), m_xTrial.get() + size, x); 
 			std::copy(m_gkp1.get(),   m_gkp1.get()   + size, m_gk.get()); 
 			m_fx = fxTrial; 
-			m_residual = criterion.getResidual(m_gk.get(), size);
+			m_residual = m_criterion.getResidual(m_gk.get(), size);
 		} 
 		else
 		{

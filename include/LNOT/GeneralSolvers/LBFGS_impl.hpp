@@ -52,17 +52,18 @@ void LBFGS<LineSearch, ConvergenceCriterion>::solveImpl(Oracle& oracle, const AB
 	
 	m_innerIts.clear();
 	
-	constexpr ConvergenceCriterion criterion;
 	constexpr FPComparator<Scalar> cmp;
 	
 	oracle.setCurrentPoint(x);
 	oracle.getGradient(m_gk.get());
 	
-	m_fx       = oracle.getValue();
-	m_residual = criterion.getResidual(m_gk.get(), size);
+	m_criterion.init(m_gk.get(), size);
 	
-	const Scalar relTol = criterion.getRelTol(m_relTol, m_residual);
-	const Scalar absTol = criterion.getAbsTol(m_absTol);
+	m_fx       = oracle.getValue();
+	m_residual = m_criterion.getResidual(m_gk.get(), size);
+	
+	const Scalar relTol = m_criterion.getRelTol(m_relTol);
+	const Scalar absTol = m_criterion.getAbsTol(m_absTol);
 	
 	if (m_out != nullptr) { fmt::println(m_out, "#L-BFGS method\n#Iteration f(x) residual relative_tol absolute_tol"); }
 	
@@ -118,7 +119,7 @@ void LBFGS<LineSearch, ConvergenceCriterion>::solveImpl(Oracle& oracle, const AB
 		
 		std::copy(m_gkp1.get(), m_gkp1.get() + size, m_gk.get());
 		m_fx = oracle.getValue();
-		m_residual = criterion.getResidual(m_gk.get(), size);
+		m_residual = m_criterion.getResidual(m_gk.get(), size);
 	}
 }
 	
