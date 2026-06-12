@@ -31,14 +31,14 @@ public:
 	template<typename ASize>
 	void allocate(const ASize size) requires(isSize<ASize>) { m_weights.resize(size, Scalar(1)); }
 
-	constexpr std::span<const Scalar> getWeights() const { return std::span(m_weights.get(), m_size); }
+	constexpr std::span<const Scalar> getWeights() const { return m_weights; }
 	
-	constexpr std::span<Scalar> getWeights() { return std::span(m_weights.get(), m_size); }
+	constexpr std::span<Scalar> getWeights() { return m_weights; }
 
 	constexpr Scalar getTol(const Scalar& tol) const { return tol*tol; }
 	
 	template<typename ASize>
-	constexpr Scalar getResidualImpl(const Scalar* gradient, const ASize size) const requires(isSize<ASize>) { assert(size == m_size); return BasicLinalg::weightedSquaredNorm(gradient, m_weights.get(), size); }
+	constexpr Scalar getResidualImpl(const Scalar* gradient, const ASize size) const requires(isSize<ASize>) { assert(size == m_weights.size()); return BasicLinalg::weightedSquaredNorm(gradient, m_weights.data(), size); }
 protected:
 	std::vector<Scalar> m_weights;
 };
