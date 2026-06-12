@@ -5,7 +5,7 @@
 
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
 
-#include <memory>
+#include <vector>
 #include <span>
 #include <cassert>
 
@@ -29,7 +29,7 @@ public:
 	LNOT_DEFINE_CONVERGENCE_CRITERION
 	
 	template<typename ASize>
-	void allocate(const ASize size) requires(isSize<ASize>);
+	void allocate(const ASize size) requires(isSize<ASize>) { m_weights.resize(size); }
 
 	constexpr std::span<const Scalar> getWeights() const { return std::span(m_weights.get(), m_size); }
 	
@@ -40,13 +40,9 @@ public:
 	template<typename ASize>
 	constexpr Scalar getResidualImpl(const Scalar* gradient, const ASize size) const requires(isSize<ASize>) { assert(size == m_size); return BasicLinalg::weightedSquaredNorm(gradient, m_weights.get(), size); }
 protected:
-	std::unique_ptr<Scalar[]> m_weights;
-	Size                      m_capacity = {};
-	Size                      m_size;
+	std::vector<Scalar> m_weights;
 };
 
 } // namespace LNOT
-
-#include <LNOT/ConvergenceCriterions/WeightedL2Norm_impl.hpp>
 
 #endif // LNOT_WEIGHTED_L2_NORM_HPP
