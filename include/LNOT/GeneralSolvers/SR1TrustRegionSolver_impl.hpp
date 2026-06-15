@@ -67,7 +67,7 @@ void SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle& or
 	m_criterion.init(m_gk.get(), size);
 	
 	m_fx = oracle.getValue();
-	m_residual = m_criterion.getResidual(m_gk.get(), size); 
+	m_residual = m_criterion.getInitialResidual(); 
 	      
 	const Scalar relTol   = m_criterion.getRelTol(m_relTol);
 	const Scalar absTol   = m_criterion.getAbsTol(m_absTol);

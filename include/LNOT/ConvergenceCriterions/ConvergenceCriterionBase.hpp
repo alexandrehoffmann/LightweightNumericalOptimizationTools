@@ -21,6 +21,8 @@ public:
 	template<typename ASize>
 	constexpr void init(const Scalar* grad, const ASize size) requires(isSize<ASize>) { this->derived().allocate(size); m_initialResidual = getResidual(grad, size); }
 	
+	constexpr const Scalar& getInitialResidual() const { return m_initialResidual; }
+	
 	template<typename ASize>
 	constexpr Scalar getResidual(const Scalar* grad, const ASize size) const requires(isSize<ASize>) { return this->derived().getResidualImpl(grad, size); } 
 	
