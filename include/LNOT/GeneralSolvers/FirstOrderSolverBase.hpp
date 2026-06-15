@@ -72,13 +72,21 @@ public:
 	void solve(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,false>, x); }
 	
 	/**
+	 * @brief Solve using a valid FirstOrderOracle in place (uses x as an initial guess).
+	 * @param oracle An oracle object conforming to CFirstOrderOracle.
+	 * @param x Initial guess and output vector for the solution.
+	 */
+	template<CFirstOrderOracle Oracle>
+	void solveInPlace(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,true>, x); }
+	
+	/**
 	 * @brief Solve using a valid FirstOrderOracle with an initial guess.
 	 * @param oracle An oracle object.
 	 * @param x0 Initial guess.
 	 * @param x Output vector for the solution.
 	 */
 	template<CFirstOrderOracle Oracle>
-	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); CRTP::derived().solveImpl(oracle, BIC::fixed<bool,true>, x); }
+	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); solveInPlace(oracle, x); }
 	
 	/**
 	 * @brief Solve using raw function and gradient functors.
@@ -88,7 +96,17 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, typename ASize>
-	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { solve(f, g, size, BIC::fixed<bool,false>, x); }
+	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solve(oracle, x); }
+	
+	/**
+	 * @brief Solve in place using raw function and gradient functors.
+	 * @param f Function functor.
+	 * @param g Gradient functor.
+	 * @param size Problem dimension.
+	 * @param x Initial guess and output vector for the solution.
+	 */
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, typename ASize>
+	void solveInPlace(Function f, Gradient g, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solveInPlace(oracle, x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function and gradient functors.
@@ -99,29 +117,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, typename ASize>
-	void solveWithGuess(Function f, Gradient g, const Scalar* x0, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { std::copy(x0, x0 + size, x); CRTP::derived().solveImpl(f, g, size, BIC::fixed<bool,true>, x);  }
-	
-	/**
-	 * @brief Internal function to create an OracleWrapper from functors and solve with or without an initial guess.
-	 * @param f Function functor.
-	 * @param g Gradient functor.
-	 * @param size Problem dimension.
-	 * @param solveInPlace specify if x should be used as an initial guess
-	 * @param x Output solution vector.
-	 */
-	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, typename ASize, typename ABool> 
-	void solve(Function f, Gradient g, const ASize size, const ABool solveInPlace, Scalar* x) requires (IsSize<ASize>::value and IsBool<ABool>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solve(oracle, solveInPlace, x); }
-	
-	/**
-	 * @brief Solve using a valid FirstOrderOracle with or without an initial guess.
-	 * @param oracle An oracle object.
-	 * @param solveInPlace specify if x should be used as an initial guess
-	 * @param x Output solution vector.
-	 * 
-	 * Delegates to `Derived::solveImpl()`.
-	 */
-	template<CFirstOrderOracle Oracle, typename ABool> 
-	void solve(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value) { CRTP::derived().solveImpl(oracle, solveInPlace, x); }
+	void solveWithGuess(Function f, Gradient g, const Scalar* x0, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solveWithGuess(oracle, x0, x); }
 	
 	// ========================================================================
 	// MONITORING METHODS

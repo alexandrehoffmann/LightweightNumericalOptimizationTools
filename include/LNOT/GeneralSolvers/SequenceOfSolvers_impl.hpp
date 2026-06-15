@@ -75,7 +75,14 @@ void SequenceOfSolvers<Solvers...>::solveImplDetail(Oracle& oracle, const ABool 
 			
 			IthSolver<i>& solver = std::get<i>(m_solvers);
 			
-			solver.solve(oracle, solveInPlace or i != BIC::fixed<size_t, 0>, x);
+			if constexpr (i == 0 and not solveInPlace)
+			{
+				solver.solve(oracle, x);
+			}
+			else
+			{
+				solver.solveInPlace(oracle, x);
+			}
 			
 			m_innerIts.push_back(solver.getIterations());
 			
