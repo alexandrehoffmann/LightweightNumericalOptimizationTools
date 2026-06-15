@@ -59,6 +59,10 @@ template<class T> struct IsLineSearch : BIC::Fixed<bool, std::is_base_of<LineSea
 
 template<class T> concept CLineSearch = IsLineSearch<T>::value;
 
+template<CLineSearch LineSearch> using LineSearch_Size   = typename LineSearch::Size;
+template<CLineSearch LineSearch> using LineSearch_Scalar = typename LineSearch::Scalar;
+template<CLineSearch LineSearch> using LineSearch_Info   = typename LineSearch::Info;
+
 } // 
 
 #endif // LNOT_LINE_SEARCH_BASE_HPP

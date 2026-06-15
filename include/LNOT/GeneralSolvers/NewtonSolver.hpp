@@ -20,15 +20,15 @@ struct SecondOrderSolverTraits< NewtonSolver<LinSolver, LineSearch, ConvergenceC
 	static_assert(CLineSearch<LineSearch>);
 	
 	static_assert(CConvergenceCriterion<ConvergenceCriterion>);
-	static_assert(std::is_same<typename LinSolver::Scalar, typename LineSearch::Scalar>::value and std::is_same<typename LinSolver::Scalar, typename ConvergenceCriterion::Scalar>::value);
-	static_assert(std::is_same<typename LinSolver::Size,   typename LineSearch::Size>::value   and std::is_same<typename LinSolver::Size,   typename ConvergenceCriterion::Size>::value  );
+	static_assert(std::same_as< LinearSolver_Scalar<LinSolver>, LineSearch_Scalar<LineSearch> > and std::same_as< LinearSolver_Scalar<LinSolver>, Criterion_Scalar<ConvergenceCriterion> >);
+	static_assert(std::same_as< LinearSolver_Size<LinSolver>,   LineSearch_Size<LineSearch> >   and std::same_as< LinearSolver_Size<LinSolver>,   Criterion_Size<ConvergenceCriterion> >  );
 	
-	using Scalar    = typename LinSolver::Scalar;
-	using Size      = typename LinSolver::Size;
+	using Scalar    = LinearSolver_Scalar<LinSolver>;
+	using Size      = LinearSolver_Size<LinSolver>;
 	using Criterion = ConvergenceCriterion;
 };
 
-template<typename LinSolver, typename LineSearch, typename ConvergenceCriterion = L2Norm<typename LinSolver::Scalar> >
+template<typename LinSolver, typename LineSearch, typename ConvergenceCriterion = L2Norm<LinearSolver_Scalar<LinSolver>>>
 class NewtonSolver : public SecondOrderSolverBase< NewtonSolver<LinSolver, LineSearch, ConvergenceCriterion> >
 {
 	using Self = NewtonSolver<LinSolver, LineSearch, ConvergenceCriterion>;

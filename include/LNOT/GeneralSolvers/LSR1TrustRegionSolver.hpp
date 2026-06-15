@@ -20,19 +20,19 @@ struct FirstOrderSolverTraits< LSR1TrustRegionSolver<TRSSolver, ConvergenceCrite
 	static_assert(CTRSSolver<TRSSolver>);
 	static_assert(CConvergenceCriterion<ConvergenceCriterion>);
 	
-	static_assert(std::is_same<typename TRSSolver::Scalar, typename ConvergenceCriterion::Scalar>::value);
-	static_assert(std::is_same<typename TRSSolver::Size,   typename ConvergenceCriterion::Size>::value  );
+	static_assert(std::same_as< TRSSolver_Scalar<TRSSolver>, Criterion_Scalar<ConvergenceCriterion> >);
+	static_assert(std::same_as< TRSSolver_Size<TRSSolver>,   Criterion_Size<ConvergenceCriterion> >);
 	
-	using Scalar    = typename TRSSolver::Scalar;
-	using Size      = typename TRSSolver::Size;
+	using Scalar    = TRSSolver_Scalar<TRSSolver>;
+	using Size      = TRSSolver_Size<TRSSolver>;
 	using Criterion = ConvergenceCriterion;
 };
 	
-template<typename TRSSolver, typename ConvergenceCriterion = L2Norm<typename TRSSolver::Scalar> >
+template<typename TRSSolver, typename ConvergenceCriterion = L2Norm<TRSSolver_Scalar<TRSSolver>>>
 class LSR1TrustRegionSolver 
 	: public FirstOrderSolverBase< LSR1TrustRegionSolver<TRSSolver, ConvergenceCriterion> >
-	, public TrustRegionMethodBase<typename TRSSolver::Scalar, typename TRSSolver::Size>
-	, public LimitedMemorySolverBase<typename TRSSolver::Size>
+	, public TrustRegionMethodBase< TRSSolver_Scalar<TRSSolver>, TRSSolver_Size<TRSSolver> >
+	, public LimitedMemorySolverBase< TRSSolver_Size<TRSSolver> >
 {
 	using Self = LSR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>;
 public:

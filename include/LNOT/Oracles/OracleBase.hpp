@@ -150,6 +150,9 @@ template<class T> concept COracle            = IsOracle<T>::value;
 template<class T> concept CFirstOrderOracle  = IsOracle<T>::value and T::hasGradient;
 template<class T> concept CSecondOrderOracle = IsOracle<T>::value and T::hasGradient and T::hasHessianProd;
 
+template<COracle Oracle> using Oracle_Size   = typename Oracle::Size;
+template<COracle Oracle> using Oracle_Scalar = typename Oracle::Scalar;
+
 } // namespace LNOT
 
 #endif // LNOT_ORACLE_BASE_HPP

@@ -192,6 +192,11 @@ template<class T> struct IsFirstOrderSolver : BIC::Fixed<bool, std::is_base_of<F
 
 template<class T> concept CFirstOrderSolver = IsFirstOrderSolver<T>::value;
 
+template<CFirstOrderSolver FirstOrderSolver> using FirstOrderSolver_Size      = typename FirstOrderSolver::Size;
+template<CFirstOrderSolver FirstOrderSolver> using FirstOrderSolver_Scalar    = typename FirstOrderSolver::Scalar;
+template<CFirstOrderSolver FirstOrderSolver> using FirstOrderSolver_Criterion = typename FirstOrderSolver::Criterion;
+template<CFirstOrderSolver FirstOrderSolver> using FirstOrderSolver_Info      = typename FirstOrderSolver::Info;
+
 } // namespace LightOptim
 
 #endif // LNOT_FIRST_ORDER_SOLVER_BASE_HPP

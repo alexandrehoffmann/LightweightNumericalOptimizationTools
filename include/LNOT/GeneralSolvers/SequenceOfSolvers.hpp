@@ -22,8 +22,8 @@ struct FirstOrderSolverTraits< SequenceOfSolvers<Solvers...> >
 {
 	using FirstSolver = std::tuple_element_t<0, std::tuple<Solvers...>>;
 	
-	static_assert((std::is_same<typename FirstSolver::Scalar, typename Solvers::Scalar>::value and ...));
-	static_assert((std::is_same<typename FirstSolver::Size,   typename Solvers::Size>::value and ...));
+	static_assert((std::same_as<typename FirstSolver::Scalar, typename Solvers::Scalar> and ...));
+	static_assert((std::same_as<typename FirstSolver::Size,   typename Solvers::Size>   and ...));
 	
 	using Scalar    = typename FirstSolver::Scalar;
 	using Size      = typename FirstSolver::Size;
@@ -35,8 +35,8 @@ struct SecondOrderSolverTraits< SequenceOfSolvers<Solvers...> >
 {
 	using FirstSolver = std::tuple_element_t<0, std::tuple<Solvers...>>;
 	
-	static_assert((std::is_same<typename FirstSolver::Scalar, typename Solvers::Scalar>::value and ...));
-	static_assert((std::is_same<typename FirstSolver::Size,   typename Solvers::Size>::value and ...));
+	static_assert((std::same_as<typename FirstSolver::Scalar, typename Solvers::Scalar> and ...));
+	static_assert((std::same_as<typename FirstSolver::Size,   typename Solvers::Size>   and ...));
 	
 	using Scalar    = typename FirstSolver::Scalar;
 	using Size      = typename FirstSolver::Size;

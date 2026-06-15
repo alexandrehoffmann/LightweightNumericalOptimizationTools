@@ -19,15 +19,15 @@ struct FirstOrderSolverTraits< NonLinearConjugateGradient<LineSearch, UpdateStra
 	static_assert(CLineSearch<LineSearch>);
 	static_assert(CConvergenceCriterion<ConvergenceCriterion>);
 	
-	static_assert(std::is_same<typename LineSearch::Scalar, typename ConvergenceCriterion::Scalar>::value);
-	static_assert(std::is_same<typename LineSearch::Size,   typename ConvergenceCriterion::Size>::value  );
+	static_assert(std::same_as< LineSearch_Scalar<LineSearch>, Criterion_Scalar<ConvergenceCriterion> >);
+	static_assert(std::same_as< LineSearch_Size<LineSearch>,   Criterion_Size<ConvergenceCriterion> >);
 	
-	using Scalar    = typename LineSearch::Scalar;
-	using Size      = typename LineSearch::Size;
+	using Scalar    = LineSearch_Scalar<LineSearch>;
+	using Size      = LineSearch_Size<LineSearch>;
 	using Criterion = ConvergenceCriterion;
 };
 
-template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy = NLCGUpdateStrategy::HESTENES_STIEFEL, typename ConvergenceCriterion = L2Norm<typename LineSearch::Scalar> > 
+template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy = NLCGUpdateStrategy::HESTENES_STIEFEL, typename ConvergenceCriterion = L2Norm<LineSearch_Scalar<LineSearch>>> 
 class NonLinearConjugateGradient : public FirstOrderSolverBase< NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion> >
 {
 	using Self = NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion>;

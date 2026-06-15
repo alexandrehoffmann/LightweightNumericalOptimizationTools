@@ -19,18 +19,18 @@ struct FirstOrderSolverTraits< LBFGS<LineSearch, ConvergenceCriterion> >
 	static_assert(CLineSearch<LineSearch>);
 	static_assert(CConvergenceCriterion<ConvergenceCriterion>);
 	
-	static_assert(std::is_same<typename LineSearch::Scalar, typename ConvergenceCriterion::Scalar>::value);
-	static_assert(std::is_same<typename LineSearch::Size,   typename ConvergenceCriterion::Size>::value  );
+	static_assert(std::same_as< LineSearch_Scalar<LineSearch>, Criterion_Scalar<ConvergenceCriterion> >);
+	static_assert(std::same_as< LineSearch_Size<LineSearch>,   Criterion_Size<ConvergenceCriterion> >);
 	
-	using Scalar    = typename LineSearch::Scalar;
-	using Size      = typename LineSearch::Size;
+	using Scalar    = LineSearch_Scalar<LineSearch>;
+	using Size      = LineSearch_Size<LineSearch>;
 	using Criterion = ConvergenceCriterion;
 };
 
-template<typename LineSearch, typename ConvergenceCriterion = L2Norm<typename LineSearch::Scalar> >
+template<typename LineSearch, typename ConvergenceCriterion = L2Norm<LineSearch_Scalar<LineSearch>>>
 class LBFGS 
 	: public FirstOrderSolverBase< LBFGS<LineSearch, ConvergenceCriterion> >
-	, public LimitedMemorySolverBase<typename LineSearch::Size>
+	, public LimitedMemorySolverBase< LineSearch_Size<LineSearch> >
 {
 	using Self = LBFGS<LineSearch, ConvergenceCriterion>;
 public:
