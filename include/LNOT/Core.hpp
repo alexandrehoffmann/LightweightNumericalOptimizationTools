@@ -1,3 +1,4 @@
+#include <LNOT/Traits.hpp>
 #include <LNOT/FloatingPoint/NumTraits.hpp>
 
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>

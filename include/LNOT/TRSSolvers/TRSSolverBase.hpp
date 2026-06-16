@@ -109,10 +109,6 @@ template<class T> struct IsTRSSolver : BIC::Fixed<bool, std::is_base_of<TRSSolve
 
 template<class T> concept CTRSSolver = IsTRSSolver<T>::value;
 	
-template<CTRSSolver TRSSolver> using TRSSolver_Size   = typename TRSSolver::Size;
-template<CTRSSolver TRSSolver> using TRSSolver_Scalar = typename TRSSolver::Scalar;
-template<CTRSSolver TRSSolver> using TRSSolver_Info   = typename TRSSolver::Info;
-	
 } // namespace LNOT
 
 #endif // LNOT_TRS_SOLVER_BASE_HPP

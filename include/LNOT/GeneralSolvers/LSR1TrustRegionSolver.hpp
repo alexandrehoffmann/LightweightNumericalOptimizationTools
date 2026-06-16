@@ -6,6 +6,7 @@
 #include <LNOT/GeneralSolvers/LimitedMemorySolverBase.hpp>
 #include <LNOT/TRSSolvers/TRSSolverBase.hpp>
 #include <LNOT/ConvergenceCriterions/L2Norm.hpp>
+#include <LNOT/Traits.hpp>
 
 #include <memory>
 
@@ -20,19 +21,19 @@ struct FirstOrderSolverTraits< LSR1TrustRegionSolver<TRSSolver, ConvergenceCrite
 	static_assert(CTRSSolver<TRSSolver>);
 	static_assert(CConvergenceCriterion<ConvergenceCriterion>);
 	
-	static_assert(std::same_as< TRSSolver_Scalar<TRSSolver>, Criterion_Scalar<ConvergenceCriterion> >);
-	static_assert(std::same_as< TRSSolver_Size<TRSSolver>,   Criterion_Size<ConvergenceCriterion> >);
+	static_assert(std::same_as< ScalarFor<TRSSolver>, ScalarFor<ConvergenceCriterion> >);
+	static_assert(std::same_as< SizeFor<TRSSolver>,   SizeFor<ConvergenceCriterion> >);
 	
-	using Scalar    = TRSSolver_Scalar<TRSSolver>;
-	using Size      = TRSSolver_Size<TRSSolver>;
+	using Scalar    = ScalarFor<TRSSolver>;
+	using Size      = SizeFor<TRSSolver>;
 	using Criterion = ConvergenceCriterion;
 };
 	
-template<typename TRSSolver, typename ConvergenceCriterion = L2Norm<TRSSolver_Scalar<TRSSolver>>>
+template<typename TRSSolver, typename ConvergenceCriterion = L2Norm<ScalarFor<TRSSolver>>>
 class LSR1TrustRegionSolver 
 	: public FirstOrderSolverBase< LSR1TrustRegionSolver<TRSSolver, ConvergenceCriterion> >
-	, public TrustRegionMethodBase< TRSSolver_Scalar<TRSSolver>, TRSSolver_Size<TRSSolver> >
-	, public LimitedMemorySolverBase< TRSSolver_Size<TRSSolver> >
+	, public TrustRegionMethodBase< ScalarFor<TRSSolver>, SizeFor<TRSSolver> >
+	, public LimitedMemorySolverBase< SizeFor<TRSSolver> >
 {
 	using Self = LSR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>;
 public:

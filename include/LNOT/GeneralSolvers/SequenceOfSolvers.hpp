@@ -3,6 +3,7 @@
 
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
 #include <LNOT/GeneralSolvers/SecondOrderSolverBase.hpp>
+#include <LNOT/Traits.hpp>
 
 #include <BIC/Core.hpp>
 

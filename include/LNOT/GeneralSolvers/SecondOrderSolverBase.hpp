@@ -231,12 +231,6 @@ template<class T> struct IsSecondOrderSolver : std::bool_constant< std::is_base_
 
 template<class T> concept CSecondOrderSolver = IsSecondOrderSolver<T>::value;
 
-template<CSecondOrderSolver SecondOrderSolver> using SecondOrderSolver_Size      = typename SecondOrderSolver::Size;
-template<CSecondOrderSolver SecondOrderSolver> using SecondOrderSolver_Scalar    = typename SecondOrderSolver::Scalar;
-template<CSecondOrderSolver SecondOrderSolver> using SecondOrderSolver_Criterion = typename SecondOrderSolver::Criterion;
-template<CSecondOrderSolver SecondOrderSolver> using SecondOrderSolver_Info      = typename SecondOrderSolver::Info;
-
-
 } // namespace LightOptim
 
 #endif // LNOT_SECOND_ORDER_SOLVER_BASE_HPP

@@ -44,9 +44,6 @@ template<class T> struct IsConvergenceCriterion : BIC::Fixed<bool, std::is_base_
 
 template<class T> concept CConvergenceCriterion = IsConvergenceCriterion<T>::value;
 
-template<CConvergenceCriterion Criterion> using Criterion_Size   = typename Criterion::Size;
-template<CConvergenceCriterion Criterion> using Criterion_Scalar = typename Criterion::Scalar;
-
 } // namespace LNOT
 
 #endif // LNOT_CONVERGENCE_CRITERION_BASE_HPP

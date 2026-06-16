@@ -4,6 +4,7 @@
 #include <LNOT/GeneralSolvers/FirstOrderSolverBase.hpp>
 #include <LNOT/LineSearches/LineSearchBase.hpp>
 #include <LNOT/ConvergenceCriterions/L2Norm.hpp>
+#include <LNOT/Traits.hpp>
 
 #include <memory>
 
@@ -18,15 +19,15 @@ struct FirstOrderSolverTraits< GradientDescent<LineSearch, ConvergenceCriterion>
 	static_assert(CLineSearch<LineSearch>);
 	static_assert(CConvergenceCriterion<ConvergenceCriterion>);
 	
-	static_assert(std::same_as< LineSearch_Scalar<LineSearch>, Criterion_Scalar<ConvergenceCriterion> >);
-	static_assert(std::same_as< LineSearch_Size<LineSearch>,   Criterion_Size<ConvergenceCriterion> >);
+	static_assert(std::same_as< ScalarFor<LineSearch>, ScalarFor<ConvergenceCriterion> >);
+	static_assert(std::same_as< SizeFor<LineSearch>,   SizeFor<ConvergenceCriterion> >);
 	
-	using Scalar    = LineSearch_Scalar<LineSearch>;
-	using Size      = LineSearch_Size<LineSearch>;
+	using Scalar    = ScalarFor<LineSearch>;
+	using Size      = SizeFor<LineSearch>;
 	using Criterion = ConvergenceCriterion;
 };
 
-template<typename LineSearch, typename ConvergenceCriterion = L2Norm<LineSearch_Scalar<LineSearch>>>
+template<typename LineSearch, typename ConvergenceCriterion = L2Norm<ScalarFor<LineSearch>>>
 class GradientDescent : public FirstOrderSolverBase< GradientDescent<LineSearch, ConvergenceCriterion> >
 {
 	using Self = GradientDescent<LineSearch, ConvergenceCriterion>;

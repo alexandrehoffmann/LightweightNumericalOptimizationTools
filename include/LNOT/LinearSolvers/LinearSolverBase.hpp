@@ -169,10 +169,6 @@ template<class T> struct IsLinearSolver : BIC::Fixed<bool, std::is_base_of<Linea
 
 template<class T> concept CLinearSolver = IsLinearSolver<T>::value;
 
-template<CLinearSolver LinearSolver> using LinearSolver_Size   = typename LinearSolver::Size;
-template<CLinearSolver LinearSolver> using LinearSolver_Scalar = typename LinearSolver::Scalar;
-template<CLinearSolver LinearSolver> using LinearSolver_Info   = typename LinearSolver::Info;
-
 } // namespace LNOT
 
 #endif // LNOT_LINEAR_SOLVER_BASE_HPP
