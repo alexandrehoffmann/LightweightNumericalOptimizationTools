@@ -63,7 +63,7 @@ auto BisectionLineSearch<T>::solveImpl(const Scalar* x, const Scalar& fx, const 
 		oracle.setCurrentPoint(m_newX.get());
 		oracle.getGradient(m_newGrad.get());
 		
-		if (oracle.isFeasible() and cmp.isApproxEq(alpha_max, alpha_min)) { break; } // (alpha_min, alpha_max) is empty
+		if (oracle.isFeasible() and cmp.isApproxEq(alpha_max, alpha_min)) { alpha = alpha_min; break; } // (alpha_min, alpha_max) is empty
 		
 		const Scalar fx_new = oracle.getValue();
 		const Scalar new_sDotGrad = BasicLinalg::inner(s, m_newGrad.get(), size);

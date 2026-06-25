@@ -26,7 +26,7 @@ public:
 	template<typename ASize>
 	constexpr Scalar getResidual(const Scalar* grad, const ASize size) const requires(isSize<ASize>) { return this->derived().getResidualImpl(grad, size); } 
 	
-	constexpr Scalar getAbsTol(const Scalar& tol) const { return this->derived().getTol(tol); }
+	constexpr std::convertible_to<Scalar> auto getAbsTol(const Scalar& tol) const { return this->derived().getTol(tol); }
 	
 	constexpr Scalar getRelTol(const Scalar& tol) const { return m_initialResidual*this->derived().getTol(tol); }
 private:

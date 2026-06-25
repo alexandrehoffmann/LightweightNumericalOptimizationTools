@@ -27,7 +27,7 @@ public:
 	template<typename ASize>
 	constexpr void allocate(const ASize /* size */) requires(isSize<ASize>) {}
 
-	constexpr Scalar getTol(const Scalar& tol) const { return tol; }
+	constexpr const Scalar& getTol(const Scalar& tol) const { return tol; }
 	
 	template<typename ASize>
 	constexpr Scalar getResidualImpl(const Scalar* gradient, const ASize size) const requires(isSize<ASize>) { return BasicLinalg::l1Norm(gradient, size); }
