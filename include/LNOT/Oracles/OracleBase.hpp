@@ -144,9 +144,9 @@ public:
 	using Base::hasHessianProd; \
 	using Base::hasApplyPrecond; \
 
-template<class Oracle> concept COracle            = std::derived_from<Oracle, OracleBase<Oracle>>;
-template<class Oracle> concept CFirstOrderOracle  = COracle<Oracle> and Oracle::hasGradient;
-template<class Oracle> concept CSecondOrderOracle = COracle<Oracle> and Oracle::hasGradient and Oracle::hasHessianProd;
+template<class Oracle> concept COracle            = std::derived_from<std::decay_t<Oracle>, OracleBase<std::decay_t<Oracle>>>;
+template<class Oracle> concept CFirstOrderOracle  = COracle<Oracle> and std::decay_t<Oracle>::hasGradient;
+template<class Oracle> concept CSecondOrderOracle = COracle<Oracle> and std::decay_t<Oracle>::hasGradient and std::decay_t<Oracle>::hasHessianProd;
 
 } // namespace LNOT
 

@@ -49,24 +49,50 @@ public:
 	LNOT_DEFINE_ORACLE
 
 	OracleWrapper() = delete;
+	
 	OracleWrapper(const Size nDims, const Function& func) requires (not hasGradient and not hasHessianProd and not hasApplyPrecond) 
 		: m_nDims(nDims)
 		, m_function(func) {}
+		
+	OracleWrapper(const Size nDims, Function&& func) requires (not hasGradient and not hasHessianProd and not hasApplyPrecond) 
+		: m_nDims(nDims)
+		, m_function(std::move(func)) {}
+		
 	OracleWrapper(const Size nDims, const Function& func, const Gradient& grad) requires (hasGradient and not hasHessianProd and not hasApplyPrecond) 
 		: m_nDims(nDims)
 		, m_function(func)
 		, m_gradient(grad) {}
+		
+	OracleWrapper(const Size nDims, Function&& func, Gradient&& grad) requires (hasGradient and not hasHessianProd and not hasApplyPrecond) 
+		: m_nDims(nDims)
+		, m_function(std::move(func))
+		, m_gradient(std::move(grad)) {}
+		
 	OracleWrapper(const Size nDims, const Function& func, const Gradient& grad, const HessianOp& hessOp) requires (hasGradient and hasHessianProd and not hasApplyPrecond) 
 		: m_nDims(nDims)
 		, m_function(func)
 		, m_gradient(grad)
 		, m_hessianOp(hessOp) {}
+		
+	OracleWrapper(const Size nDims, Function&& func, Gradient&& grad, HessianOp&& hessOp) requires (hasGradient and hasHessianProd and not hasApplyPrecond) 
+		: m_nDims(nDims)
+		, m_function(std::move(func))
+		, m_gradient(std::move(grad))
+		, m_hessianOp(std::move(hessOp)) {}
+		
 	OracleWrapper(const Size nDims, const Function& func, const Gradient& grad, const HessianOp& hessOp, const PrecondOp& precOp) requires (hasGradient and hasHessianProd and hasApplyPrecond) 
 		: m_nDims(nDims)
 		, m_function(func)
 		, m_gradient(grad)
 		, m_hessianOp(hessOp)
 		, m_precondOp(precOp) {}
+		
+	OracleWrapper(const Size nDims, Function&& func, Gradient&& grad, HessianOp&& hessOp, PrecondOp&& precOp) requires (hasGradient and hasHessianProd and hasApplyPrecond) 
+		: m_nDims(nDims)
+		, m_function(std::move(func))
+		, m_gradient(std::move(grad))
+		, m_hessianOp(std::move(hessOp))
+		, m_precondOp(std::move(precOp)) {}
 	
 	Size getNDimsImpl() const { return m_nDims; }
 
