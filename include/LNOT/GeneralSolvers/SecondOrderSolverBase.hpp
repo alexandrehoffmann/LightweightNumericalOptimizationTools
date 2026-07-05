@@ -10,6 +10,8 @@
 #include <cmath>
 
 #include <vector>
+#include <span>
+#include <ranges>
 #include <algorithm>
 
 namespace LNOT
