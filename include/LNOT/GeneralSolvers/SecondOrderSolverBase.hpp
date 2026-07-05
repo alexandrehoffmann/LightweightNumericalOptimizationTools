@@ -123,7 +123,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize>
-	void solve(Function f, Gradient g, HessianOp H, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp> oracle(size, std::move(f), std::move(g), std::move(H)); return solve(oracle, x); }
+	void solve(Function&& f, Gradient&& g, HessianOp&& H, const ASize size, Scalar* x) requires (isSize<ASize>) { return solve(makeOracle<Scalar>(size, std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H)), x); }
 
 	/**
 	 * @brief Solve using raw function, gradient and Hessian product functors.
@@ -133,7 +133,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp>
-	void solve(Function f, Gradient g, HessianOp H, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp> oracle(Size(x.size()), std::move(f), std::move(g), std::move(H)); return solve(oracle, x); }
+	void solve(Function&& f, Gradient&& g, HessianOp&& H, const std::span<Scalar> x) { return solve(makeOracle<Scalar>(Size(x.size()), std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H)), x); }
 	
 	/**
 	 * @brief Solve in place using raw function, gradient and Hessian product functors.
@@ -144,7 +144,7 @@ public:
 	 * @param x Initial guess and output vector for the solution.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize>
-	void solveInPlace(Function f, Gradient g, HessianOp H, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp> oracle(size, std::move(f), std::move(g), std::move(H)); return solveInPlace(oracle, x); }
+	void solveInPlace(Function&& f, Gradient&& g, HessianOp&& H, const ASize size, Scalar* x) requires (isSize<ASize>) { return solveInPlace(makeOracle<Scalar>(size, std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H)), x); }
 
 	/**
 	 * @brief Solve in place using raw function, gradient and Hessian product functors.
@@ -154,7 +154,7 @@ public:
 	 * @param x Initial guess and output vector for the solution.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp>
-	void solveInPlace(Function f, Gradient g, HessianOp H, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp> oracle(Size(x.size()), std::move(f), std::move(g), std::move(H)); return solveInPlace(oracle, x); }
+	void solveInPlace(Function&& f, Gradient&& g, HessianOp&& H, const std::span<Scalar> x) { return solveInPlace(makeOracle<Scalar>(Size(x.size()), std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H)), x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function, gradient and Hessian product functors.
@@ -166,7 +166,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize>
-	void solveWithGuess(Function f, Gradient g, HessianOp H, const Scalar* x0, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp> oracle(size, std::move(f), std::move(g), std::move(H)); return solveWithGuess(oracle, x0, x); }
+	void solveWithGuess(Function&& f, Gradient&& g, HessianOp&& H, const Scalar* x0, const ASize size, Scalar* x) requires (isSize<ASize>) { return solveWithGuess(makeOracle<Scalar>(size, std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H)), x0, x); }
 
 	/**
 	 * @brief Solve with initial guess using raw function, gradient and Hessian product functors.
@@ -177,7 +177,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, std::ranges::input_range InitialGuess>
-	void solveWithGuess(Function f, Gradient g, HessianOp H, InitialGuess&& x0, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp> oracle(Size(x.size()), std::move(f), std::move(g), std::move(H)); return solveWithGuess(oracle, std::forward<InitialGuess>(x0), x); }
+	void solveWithGuess(Function&& f, Gradient&& g, HessianOp&& H, InitialGuess&& x0, const std::span<Scalar> x) { return solveWithGuess(makeOracle<Scalar>(Size(x.size()), std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H)), std::forward<InitialGuess>(x0), x); }
 	
 	/**
 	 * @brief Solve using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -189,7 +189,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize>
-	void solve(Function f, Gradient g, HessianOp H, PrecondOp invB, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp,PrecondOp> oracle(size, std::move(f), std::move(g), std::move(H), std::move(invB)); return solve(oracle, x); }
+	void solve(Function&& f, Gradient&& g, HessianOp&& H, PrecondOp&& invB, const ASize size, Scalar* x) requires (isSize<ASize>) { return solve(makeOracle<Scalar>(size, std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H), std::forward<PrecondOp>(invB)), x); }
 
 	/**
 	 * @brief Solve using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -200,7 +200,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp>
-	void solve(Function f, Gradient g, HessianOp H, PrecondOp invB, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp,PrecondOp> oracle(Size(x.size()), std::move(f), std::move(g), std::move(H), std::move(invB)); return solve(oracle, x); }
+	void solve(Function&& f, Gradient&& g, HessianOp&& H, PrecondOp&& invB, const std::span<Scalar> x) { return solve(makeOracle<Scalar>(Size(x.size()), std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H), std::forward<PrecondOp>(invB)), x); }
 	
 	/**
 	 * @brief Solve in place using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -212,7 +212,7 @@ public:
 	 * @param x Initial guess and output vector for the solution.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize>
-	void solveInPlace(Function f, Gradient g, HessianOp H, PrecondOp invB, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp,PrecondOp> oracle(size, std::move(f), std::move(g), std::move(H), std::move(invB)); return solveInPlace(oracle, x); }
+	void solveInPlace(Function&& f, Gradient&& g, HessianOp&& H, PrecondOp&& invB, const ASize size, Scalar* x) requires (isSize<ASize>) { return solveInPlace(makeOracle<Scalar>(size, std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H), std::forward<PrecondOp>(invB)), x); }
 
 	/**
 	 * @brief Solve in place using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -223,7 +223,7 @@ public:
 	 * @param x Initial guess and output vector for the solution.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp>
-	void solveInPlace(Function f, Gradient g, HessianOp H, PrecondOp invB, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp,PrecondOp> oracle(Size(x.size()), std::move(f), std::move(g), std::move(H), std::move(invB)); return solveInPlace(oracle, x); }
+	void solveInPlace(Function&& f, Gradient&& g, HessianOp&& H, PrecondOp&& invB, const std::span<Scalar> x) { return solveInPlace(makeOracle<Scalar>(Size(x.size()), std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H), std::forward<PrecondOp>(invB)), x); }
 	
 	/**
 	 * @brief Solve with an initial guess using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -236,7 +236,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize>
-	void solveWithGuess(Function f, Gradient g, HessianOp H, PrecondOp invB, const Scalar* x0, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp,PrecondOp> oracle(size, std::move(f), std::move(g), std::move(H), std::move(invB)); return solveWithGuess(oracle, x0, x); }
+	void solveWithGuess(Function&& f, Gradient&& g, HessianOp&& H, PrecondOp&& invB, const Scalar* x0, const ASize size, Scalar* x) requires (isSize<ASize>) { return solveWithGuess(makeOracle<Scalar>(size, std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H), std::forward<PrecondOp>(invB)), x0, x); }
 
 	/**
 	 * @brief Solve with an initial guess using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -248,7 +248,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, std::ranges::input_range InitialGuess>
-	void solveWithGuess(Function f, Gradient g, HessianOp H, PrecondOp invB, InitialGuess&& x0, Scalar* x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp,PrecondOp> oracle(Size(x.size()), std::move(f), std::move(g), std::move(H), std::move(invB)); return solveWithGuess(oracle, std::forward<InitialGuess>(x0), x); }
+	void solveWithGuess(Function&& f, Gradient&& g, HessianOp&& H, PrecondOp&& invB, InitialGuess&& x0, const std::span<Scalar> x) { return solveWithGuess(makeOracle<Scalar>(Size(x.size()), std::forward<Function>(f), std::forward<Gradient>(g), std::forward<HessianOp>(H), std::forward<PrecondOp>(invB)), std::forward<InitialGuess>(x0), x); }
 
 	// ===================================================================
 	// MONITORING METHODS

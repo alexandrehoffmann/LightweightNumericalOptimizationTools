@@ -117,6 +117,19 @@ private:
 	PrecondOp m_precondOp;
 };
 
+
+template<typename T, typename S, class Function>
+auto  makeOracle(const S size, Function&& function) { return OracleWrapper<T, S, std::decay_t<Function>>(size, std::forward<Function>(function)); }
+
+template<typename T, typename S, class Function, class Gradient>
+auto makeOracle(const S size, Function&& function, Gradient&& gradient) { return OracleWrapper<T, S, std::decay_t<Function>, std::decay_t<Gradient>>(size, std::forward<Function>(function), std::forward<Gradient>(gradient)); }
+
+template<typename T, typename S, class Function, class Gradient, class Hessian>
+auto makeOracle(const S size, Function&& function, Gradient&& gradient, Hessian&& hessian) { return OracleWrapper<T, S, std::decay_t<Function>, std::decay_t<Gradient>, std::decay_t<Hessian>>(size, std::forward<Function>(function), std::forward<Gradient>(gradient), std::forward<Hessian>(hessian)); }
+
+template<typename T, typename S, class Function, class Gradient, class Hessian, class PrecondOp>
+auto makeOracle(const S size, Function&& function, Gradient&& gradient, Hessian&& hessian, PrecondOp&& precond) { return OracleWrapper<T, S, std::decay_t<Function>, std::decay_t<Gradient>, std::decay_t<Hessian>, std::decay_t<PrecondOp>>(size, std::forward<Function>(function), std::forward<Gradient>(gradient), std::forward<Hessian>(hessian), std::forward<PrecondOp>(precond)); }
+
 } // namespace LNOT
 
 #endif // LNOT_ORACLE_WRAPPER_HPP

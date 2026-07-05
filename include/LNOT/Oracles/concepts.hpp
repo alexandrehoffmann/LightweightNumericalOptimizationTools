@@ -5,13 +5,13 @@ namespace LNOT
 {
 
 template<typename Function, typename Scalar>
-concept CFunction = std::regular_invocable<Function, const Scalar*> and std::same_as<std::invoke_result_t<Function, const Scalar*>, Scalar>;
+concept CFunction = std::invocable<Function, const Scalar*> and std::same_as<std::invoke_result_t<Function, const Scalar*>, Scalar>;
 
 template<typename Function, typename Scalar>
-concept CGradient = std::regular_invocable<Function, const Scalar*, Scalar*> and std::same_as<std::invoke_result_t<Function, const Scalar*, Scalar*>, void>;
+concept CGradient = std::invocable<Function, const Scalar*, Scalar*>;
 
 template<typename Function, typename Scalar>
-concept CHessianOp = std::regular_invocable<Function, const Scalar*, const Scalar*, Scalar*> and std::same_as<std::invoke_result_t<Function, const Scalar*, const Scalar*, Scalar*>, void>;
+concept CHessianOp = std::invocable<Function, const Scalar*, const Scalar*, Scalar*>;
 
 } // namespace LNOT
 
