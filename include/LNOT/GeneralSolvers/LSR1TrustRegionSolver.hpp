@@ -42,7 +42,7 @@ public:
 	LNOT_DEFINE_LIMITED_MEMORY_SOLVER
 	
 	template<CFirstOrderOracle Oracle, typename ABool> 
-	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>);
+	void solveImpl(Oracle&& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>);
 	
 	const TRSSolver& getSubproblemSolver() const { return m_trsSolver; }
 	      TRSSolver& getSubproblemSolver()       { return m_trsSolver; }

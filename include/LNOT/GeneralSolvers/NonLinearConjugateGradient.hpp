@@ -36,7 +36,7 @@ public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	
 	template<CFirstOrderOracle Oracle, typename ABool> 
-	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>);
+	void solveImpl(Oracle&& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>);
 	
 	Scalar getBeta(const Size size);
 	

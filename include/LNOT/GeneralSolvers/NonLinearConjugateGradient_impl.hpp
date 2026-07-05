@@ -5,6 +5,7 @@
 #include <LNOT/LineSearches/BisectionLineSearch.hpp>
 #include <LNOT/LineSearches/BacktrackingLineSearch.hpp>
 #include <LNOT/LineSearches/NoLineSearch.hpp>
+#include <LNOT/Traits.hpp>
 
 namespace LNOT
 {
@@ -89,11 +90,9 @@ extern template class NonLinearConjugateGradient<NoLineSearch<long double>, NLCG
 //// method implementations ////
 
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy, class ConvergenceCriterion>  template<CFirstOrderOracle Oracle, typename ABool>
-void NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
-{
-	using Oracle_Size = typename Oracle::Size;
-	
-	const Oracle_Size size = oracle.getNDims();
+void NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion>::solveImpl(Oracle&& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
+{	
+	const SizeFor<Oracle> size = oracle.getNDims();
 	
 	if (not m_dk or m_workCapacity < size)
 	{

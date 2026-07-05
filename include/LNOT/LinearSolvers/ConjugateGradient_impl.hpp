@@ -76,13 +76,14 @@ void ConjugateGradient<T>::solveImpl(const HesOp& H, const PrecOp& invB, const S
 		
 		invB(m_r.get(), m_z.get());
 		
-		const Scalar precSqNormNewR = BasicLinalg::inner(m_r.get(), m_z.get(), size);
+		Scalar precSqNormNewR = BasicLinalg::inner(m_r.get(), m_z.get(), size);
+		
 		const Scalar beta = precSqNormNewR / m_precSqNormR;
 		
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_p[i] = m_z[i] + beta*m_p[i]; } 
 		
-		m_precSqNormR = precSqNormNewR;
+		m_precSqNormR = std::move(precSqNormNewR);
 	}
 }
 

@@ -26,11 +26,9 @@ extern template class GradientDescent< NoLineSearch<long double> >;
 //// method implementations ////
 
 template<typename LineSearch, typename ConvergenceCriterion> template<CFirstOrderOracle Oracle, typename ABool> 
-void GradientDescent<LineSearch, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
-{
-	using Oracle_Size = typename Oracle::Size;
-	
-	const Oracle_Size size = oracle.getNDims();
+void GradientDescent<LineSearch, ConvergenceCriterion>::solveImpl(Oracle&& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
+{	
+	const SizeFor<Oracle> size = oracle.getNDims();
 	
 	if (not m_gk or m_workCapacity < size)
 	{

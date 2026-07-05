@@ -92,19 +92,21 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 		BasicLinalg::axpbypz(-alpha, m_Bv.get(), -beta_old, m_Bv_old.get(), size, m_w.get());
 		// m_w = \beta_{k}Bv_{k+1}
 		invB(m_w.get(), m_v.get());
-		const Scalar beta    = sqrt(BasicLinalg::inner(m_w.get(), m_v.get(), size));
+		
+		Scalar beta = sqrt(BasicLinalg::inner(m_w.get(), m_v.get(), size));
+		
 		const Scalar invBeta = Scalar(1) / beta;
 		BasicLinalg::scal(invBeta, size, m_v.get());
 		std::copy(m_Bv.get(), m_Bv.get() + size, m_Bv_old.get());
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Bv[i] = invBeta*m_w[i]; }
 		// prepare next solve
-		const Scalar l = invD*beta;
+		Scalar l = invD*beta;
 		
-		eta     *= -l;
-		beta_old = beta;
-		l_old    = l;
-		m_precNormR  = std::abs(eta); 
+		eta        *= -l;
+		beta_old    = std::move(beta);
+		l_old       = std::move(l);
+		m_precNormR = std::abs(eta); 
 	}
 }
 	

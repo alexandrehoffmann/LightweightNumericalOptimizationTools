@@ -23,7 +23,7 @@ extern template class SR1TrustRegionSolver< LanczosTRSSolver<long double> >;
 //// method implementations ////
 
 template<typename TRSSolver, typename ConvergenceCriterion> template<CFirstOrderOracle Oracle, typename ABool> 
-void SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
+void SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
 {
 	using AdlMath::sqrt;
 	using AdlMath::floor;
@@ -31,11 +31,9 @@ void SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle& or
 	using AdlMath::abs;
 	using AdlMath::pow;
 	
-	using Oracle_Size = typename Oracle::Size;
-	
 	const Scalar sr1DropTol = sqrt( NumTraits<Scalar>::epsilon );
 		
-	const Oracle_Size size = oracle.getNDims();
+	const SizeFor<Oracle> size = oracle.getNDims();
 	
 	if (not m_gk or m_workCapacity < size)
 	{
