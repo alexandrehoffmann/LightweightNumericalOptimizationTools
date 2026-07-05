@@ -69,6 +69,14 @@ public:
 	 */
 	template<CSecondOrderOracle Oracle>
 	void solve(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,false>, x); }
+
+	/**
+	 * @brief Solve using a valid SecondOrderOracle (no initial guess).
+	 * @param oracle An oracle object conforming to CSecondOrderOracle.
+	 * @param x Output vector for the solution.
+	 */
+	template<CSecondOrderOracle Oracle>
+	void solve(Oracle& oracle, const std::span<Scalar> x) { assert(x.size() == oracle.getNDims()); solve(oracle, x.data()); }
 		
 	/**
 	 * @brief Solve using a valid SecondOrderOracle in place (uses x as an initial guess).
@@ -77,6 +85,14 @@ public:
 	 */
 	template<CSecondOrderOracle Oracle>
 	void solveInPlace(Oracle& oracle, Scalar* x) { CRTP::derived().solveImpl(oracle, BIC::fixed<bool,true>, x); }
+
+	/**
+	 * @brief Solve using a valid SecondOrderOracle in place (uses x as an initial guess).
+	 * @param oracle An oracle object conforming to CSecondOrderOracle.
+	 * @param x Initial guess and output vector for the solution.
+	 */
+	template<CSecondOrderOracle Oracle>
+	void solveInPlace(Oracle& oracle, const std::span<Scalar> x) { assert(x.size() == oracle.getNDims()); solveInPlace(oracle, x.data()); }
 	
 	/**
 	 * @brief Solve using a valid SecondOrderOracle with an initial guess.
@@ -86,6 +102,15 @@ public:
 	 */
 	template<CSecondOrderOracle Oracle>
 	void solveWithGuess(Oracle& oracle, const Scalar* x0, Scalar* x) { std::copy(x0, x0 + oracle.getNDims(), x); solveInPlace(oracle, x); }
+
+	/**
+	 * @brief Solve using a valid SecondOrderOracle with an initial guess.
+	 * @param oracle An oracle object.
+	 * @param x0 Initial guess.
+	 * @param x Output vector for the solution.
+	 */
+	template<CSecondOrderOracle Oracle, std::ranges::input_range InitialGuess>
+	void solveWithGuess(Oracle& oracle, InitialGuess&& x0, const std::span<Scalar> x) { std::ranges::copy(x0, x.begin()); solveInPlace(oracle, x); }
 	
 	/**
 	 * @brief Solve using raw function, gradient and Hessian product functors.
@@ -97,6 +122,16 @@ public:
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize>
 	void solve(Function f, Gradient g, HessianOp H, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp> oracle(size, f, g, H); return solve(oracle, x); }
+
+	/**
+	 * @brief Solve using raw function, gradient and Hessian product functors.
+	 * @param f Function functor.
+	 * @param g Gradient functor.
+	 * @param H Hessian-product functor.
+	 * @param x Output solution vector.
+	 */
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp>
+	void solve(Function f, Gradient g, HessianOp H, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp> oracle(Size(x.size()), f, g, H); return solve(oracle, x); }
 	
 	/**
 	 * @brief Solve in place using raw function, gradient and Hessian product functors.
@@ -108,6 +143,16 @@ public:
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize>
 	void solveInPlace(Function f, Gradient g, HessianOp H, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp> oracle(size, f, g, H); return solveInPlace(oracle, x); }
+
+	/**
+	 * @brief Solve in place using raw function, gradient and Hessian product functors.
+	 * @param f Function functor.
+	 * @param g Gradient functor.
+	 * @param H Hessian-product functor.
+	 * @param x Initial guess and output vector for the solution.
+	 */
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp>
+	void solveInPlace(Function f, Gradient g, HessianOp H, const std::span<Scalar> x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp> oracle(Size(x.size()), f, g, H); return solveInPlace(oracle, x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function, gradient and Hessian product functors.
@@ -120,6 +165,17 @@ public:
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, typename ASize>
 	void solveWithGuess(Function f, Gradient g, HessianOp H, const Scalar* x0, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp> oracle(size, f, g, H); return solveWithGuess(oracle, x0, x); }
+
+	/**
+	 * @brief Solve with initial guess using raw function, gradient and Hessian product functors.
+	 * @param f Function functor.
+	 * @param g Gradient functor.
+	 * @param H Hessian-product functor.
+	 * @param x0 Initial guess.
+	 * @param x Output solution vector.
+	 */
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, std::ranges::input_range InitialGuess>
+	void solveWithGuess(Function f, Gradient g, HessianOp H, InitialGuess&& x0, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp> oracle(Size(x.size()), f, g, H); return solveWithGuess(oracle, std::forward<InitialGuess>(x0), x); }
 	
 	/**
 	 * @brief Solve using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -132,6 +188,17 @@ public:
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize>
 	void solve(Function f, Gradient g, HessianOp H, PrecondOp invB, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp,PrecondOp> oracle(size, f, g, H, invB); return solve(oracle, x); }
+
+	/**
+	 * @brief Solve using raw function, gradient, Hessian product and preconditioner operator functors.
+	 * @param f Function functor.
+	 * @param g Gradient functor.
+	 * @param H Hessian-product functor.
+	 * @param invB Preconditioner functor.
+	 * @param x Output solution vector.
+	 */
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp>
+	void solve(Function f, Gradient g, HessianOp H, PrecondOp invB, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp,PrecondOp> oracle(Size(x.size()), f, g, H, invB); return solve(oracle, x); }
 	
 	/**
 	 * @brief Solve in place using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -144,6 +211,17 @@ public:
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize>
 	void solveInPlace(Function f, Gradient g, HessianOp H, PrecondOp invB, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp,PrecondOp> oracle(size, f, g, H, invB); return solveInPlace(oracle, x); }
+
+	/**
+	 * @brief Solve in place using raw function, gradient, Hessian product and preconditioner operator functors.
+	 * @param f Function functor.
+	 * @param g Gradient functor.
+	 * @param H Hessian-product functor.
+	 * @param invB Preconditioner functor.
+	 * @param x Initial guess and output vector for the solution.
+	 */
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp>
+	void solveInPlace(Function f, Gradient g, HessianOp H, PrecondOp invB, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp,PrecondOp> oracle(Size(x.size()), f, g, H, invB); return solveInPlace(oracle, x); }
 	
 	/**
 	 * @brief Solve with an initial guess using raw function, gradient, Hessian product and preconditioner operator functors.
@@ -157,7 +235,19 @@ public:
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, typename ASize>
 	void solveWithGuess(Function f, Gradient g, HessianOp H, PrecondOp invB, const Scalar* x0, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient,HessianOp,PrecondOp> oracle(size, f, g, H, invB); return solveWithGuess(oracle, x0, x); }
-	
+
+	/**
+	 * @brief Solve with an initial guess using raw function, gradient, Hessian product and preconditioner operator functors.
+	 * @param f Function functor.
+	 * @param g Gradient functor.
+	 * @param H Hessian-product functor.
+	 * @param invB Preconditioner functor.
+	 * @param x0 Initial guess.
+	 * @param x Output solution vector.
+	 */
+	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp, CHessianOp<Scalar> PrecondOp, std::ranges::input_range InitialGuess>
+	void solveWithGuess(Function f, Gradient g, HessianOp H, PrecondOp invB, InitialGuess&& x0, Scalar* x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp,PrecondOp> oracle(Size(x.size()), f, g, H, invB); return solveWithGuess(oracle, std::forward<InitialGuess>(x0), x); }
+
 	// ===================================================================
 	// MONITORING METHODS
 	// ===================================================================
