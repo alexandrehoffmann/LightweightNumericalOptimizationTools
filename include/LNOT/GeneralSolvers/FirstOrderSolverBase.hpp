@@ -151,7 +151,7 @@ public:
 	 * @param x Initial guess and output vector for the solution.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient>
-	void solveInPlace(Function f, Gradient g, const std::span<Scalar> x) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(Size(x.size()), f, g); solveInPlace(oracle, x); }
+	void solveInPlace(Function f, Gradient g, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient> oracle(Size(x.size()), f, g); solveInPlace(oracle, x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function and gradient functors.
@@ -172,7 +172,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, std::ranges::input_range InitialGuess>
-	void solveWithGuess(Function f, Gradient g, const InitialGuess&& x0, const std::span<Scalar> x) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(Size(x.size()), f, g); solveWithGuess(oracle, std::forward<InitialGuess>(x0), x); }
+	void solveWithGuess(Function f, Gradient g, const InitialGuess&& x0, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient> oracle(Size(x.size()), f, g); solveWithGuess(oracle, std::forward<InitialGuess>(x0), x); }
 	
 	// ========================================================================
 	// MONITORING METHODS
