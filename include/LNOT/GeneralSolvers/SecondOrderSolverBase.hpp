@@ -154,7 +154,7 @@ public:
 	 * @param x Initial guess and output vector for the solution.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, CHessianOp<Scalar> HessianOp>
-	void solveInPlace(Function f, Gradient g, HessianOp H, const std::span<Scalar> x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp> oracle(Size(x.size()), f, g, H); return solveInPlace(oracle, x); }
+	void solveInPlace(Function f, Gradient g, HessianOp H, const std::span<Scalar> x) { OracleWrapper<Scalar,Size,Function,Gradient,HessianOp> oracle(Size(x.size()), f, g, H); return solveInPlace(oracle, x); }
 	
 	/**
 	 * @brief Solve with initial guess using raw function, gradient and Hessian product functors.
