@@ -30,7 +30,7 @@ public:
 	LanczosTRSSolverBase(const Size maxIt = 200000, const Scalar tol = NumTraits<Scalar>::epsilon, const Size maxItTr = 200000, const Scalar tolTr = AdlMath::sqrt(NumTraits<Scalar>::epsilon));
 	
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	Scalar solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value);
+	Scalar solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires(areHessianOps<HesOp,PrecOp> and isSize<ASize>);
 	
 	Scalar getErrorImpl        () const { return m_precNormR;             }
 	Scalar getSquaredErrorImpl () const { return m_precNormR*m_precNormR; }
@@ -62,10 +62,10 @@ private:
 	inline Scalar* getBv(const Size i) const requires(storeLanczosVectors) { return this->derived().getBvImpl(i); }
 	
 	template<typename ASize>
-	inline void addBvNext(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(IsSize<ASize>::value) { this->derived().addBvNextImpl(scale, unscaledBvNext, size); } 
+	inline void addBvNext(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(isSize<ASize>) { this->derived().addBvNextImpl(scale, unscaledBvNext, size); } 
 	
 	template<typename ASize>
-	inline void reOrthonormalize(const ASize size, Scalar* unscaledBvNext) requires(IsSize<ASize>::value) { this->derived().reOrthonormalizeImpl(size, unscaledBvNext); } 
+	inline void reOrthonormalize(const ASize size, Scalar* unscaledBvNext) requires(isSize<ASize>) { this->derived().reOrthonormalizeImpl(size, unscaledBvNext); } 
 	
 	Size m_maxItTr;
 

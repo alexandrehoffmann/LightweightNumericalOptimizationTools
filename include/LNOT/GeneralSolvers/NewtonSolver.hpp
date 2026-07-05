@@ -37,7 +37,7 @@ public:
 	LNOT_DEFINE_SECOND_ORDER_SOLVER
 	
 	template<CSecondOrderOracle Oracle, typename ABool> 
-	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
+	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>);
 	
 	const LinSolver& getLinearSolver() const { return m_linsSolver; }
 	      LinSolver& getLinearSolver()       { return m_linsSolver; }

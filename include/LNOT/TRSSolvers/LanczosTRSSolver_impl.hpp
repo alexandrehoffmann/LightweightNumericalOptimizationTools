@@ -31,7 +31,7 @@ void LanczosTRSSolver<T>::resizeWorkSpace(const Size newSize)
 }
 
 template<typename T> template<typename ASize>
-void LanczosTRSSolver<T>::addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(IsSize<ASize>::value)
+void LanczosTRSSolver<T>::addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(isSize<ASize>)
 {
 	std::move(m_Bv_curr.get(), m_Bv_curr.get() + size, m_Bv_prev.get());
 	

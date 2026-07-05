@@ -31,19 +31,19 @@ public:
 	
 	using IdOp = IdentityPreconditionerOp<Scalar>;
 	
-	template<typename HesOp>                  struct IsHessianOp   : BIC::Fixed<bool, std::is_invocable<HesOp, const Scalar*, Scalar*>::value > {}; ///<  @brief Trait to check if a type is a valid Hessian operator.
-	template<typename HesOp, typename PrecOp> struct AreHessianOps : BIC::Fixed<bool, IsHessianOp<HesOp>::value and IsHessianOp<PrecOp>::value> {}; ///<  @brief Trait to check if two types are both valid Hessian operators.
-	template<typename ASize>                  struct IsSize        : BIC::Fixed<bool, std::is_same<Size, BIC::Mutable<ASize>>::value > {};          ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`.
+	template<typename HesOp>                  static constexpr bool isHessianOp   = std::invocable<HesOp, const Scalar*, Scalar*>;
+	template<typename HesOp, typename PrecOp> static constexpr bool areHessianOps = isHessianOp<HesOp> and isHessianOp<PrecOp>;
+	template<typename ASize>                  static constexpr bool isSize        = std::same_as<Size, BIC::Mutable<ASize>>;
 	
 	static constexpr Scalar defaultEps = NumTraits<Scalar>::epsilon; ///<  @brief Default value for relative and absolute tolerance of the solver.  
 	
 	TRSSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar relTolTr = AdlMath::sqrt(defaultEps), const Scalar absTol = defaultEps, const Scalar absTolTr = AdlMath::sqrt(defaultEps)) : m_maxIt(maxIt), m_relTol(relTol), m_relTolTr(relTolTr), m_absTol(absTol), m_absTolTr(absTolTr) {}
 	
 	template<typename Op, typename ASize> 
-	Scalar solve(const Op& H, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (IsHessianOp<Op>::value and IsSize<ASize>::value) { IdOp I(size); return this->derived().solveImpl(H, I, g, size, delta, x); }
+	Scalar solve(const Op& H, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { IdOp I(size); return this->derived().solveImpl(H, I, g, size, delta, x); }
 	
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	Scalar solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (AreHessianOps<HesOp, PrecOp>::value and IsSize<ASize>::value) { return this->derived().solveImpl(H, invB, g, size, delta, x); }
+	Scalar solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (areHessianOps<HesOp, PrecOp> and isSize<ASize>) { return this->derived().solveImpl(H, invB, g, size, delta, x); }
 
 	Scalar getError        () const { return this->derived().getErrorImpl();        }
 	Scalar getSquaredError () const { return this->derived().getSquaredErrorImpl(); }
@@ -90,8 +90,8 @@ protected:
 	using Scalar = typename Base::Scalar; \
 	using Info   = typename Base::Info; \
 	\
-	template<typename HesOp, typename PrecOp> using AreHessianOps = typename Base::template AreHessianOps<HesOp,PrecOp>; \
-	template<typename ASize>                  using IsSize        = typename Base::template IsSize<ASize>; \
+	template<typename HesOp, typename PrecOp> static constexpr bool areHessianOps = Base::template areHessianOps<HesOp,PrecOp>; \
+	template<typename ASize>                  static constexpr bool isSize        = Base::template isSize<ASize>; \
 
 #define LNOT_TRS_SOLVER_ATTRIBUTE \
 	using Base::m_maxIt; \
@@ -105,9 +105,7 @@ protected:
 	using Base::m_workCapacity; \
 	using Base::m_out; \
 
-template<class T> struct IsTRSSolver : BIC::Fixed<bool, std::is_base_of<TRSSolverBase<T>, T>::value > {};
-
-template<class T> concept CTRSSolver = IsTRSSolver<T>::value;
+template<class Solver> concept CTRSSolver = std::derived_from<Solver, TRSSolverBase<Solver>>;
 	
 } // namespace LNOT
 

@@ -23,7 +23,7 @@ extern template class NewtonTrustRegionSolver< LanczosTRSSolver<long double> >;
 //// method implementations ////
 
 template<typename TRSSolver, typename ConvergenceCriterion> template<CSecondOrderOracle Oracle, typename ABool> 
-void NewtonTrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+void NewtonTrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
 {
 	using AdlMath::sqrt;
 	using AdlMath::floor;

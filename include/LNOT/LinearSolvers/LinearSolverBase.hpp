@@ -48,7 +48,7 @@ public:
 	
 	using IdOp = IdentityPreconditionerOp<Scalar>;
 	
-	template<typename HesOp> static constexpr bool isHessianOp = std::invocable<HesOp, const Scalar*, Scalar*> and std::same_as<std::invoke_result_t<HesOp, const Scalar*, Scalar*>, void>;
+	template<typename HesOp> static constexpr bool isHessianOp = std::invocable<HesOp, const Scalar*, Scalar*>;
 	template<typename ASize> static constexpr bool isSize      = std::same_as<Size, BIC::Mutable<ASize>>;
 	template<typename ABool> static constexpr bool isBool      = std::same_as<bool, BIC::Mutable<ABool>>;
 	
@@ -164,10 +164,7 @@ protected:
 	using Base::m_workCapacity; \
 	using Base::m_out; \
 
-
-template<class T> struct IsLinearSolver : BIC::Fixed<bool, std::is_base_of<LinearSolverBase<T>, T>::value > {};
-
-template<class T> concept CLinearSolver = IsLinearSolver<T>::value;
+template<class Solver> concept CLinearSolver = std::derived_from<Solver, LinearSolverBase<Solver>>;
 
 } // namespace LNOT
 

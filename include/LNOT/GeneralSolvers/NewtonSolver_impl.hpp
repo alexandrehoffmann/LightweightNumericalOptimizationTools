@@ -49,7 +49,7 @@ extern template class NewtonSolver<LanczosSolver<long double>,     NoLineSearch<
 //// method implementations ////
 
 template<typename LinSolver, typename LineSearch, typename ConvergenceCriterion> template<CSecondOrderOracle Oracle, typename ABool> 
-void NewtonSolver<LinSolver,LineSearch,ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+void NewtonSolver<LinSolver,LineSearch,ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
 {
 	using Oracle_Size = typename Oracle::Size;
 	

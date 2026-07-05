@@ -47,8 +47,8 @@ public:
 		BREAKDOWN ///<  Numerical breakdown (e.g., division by zero)
 	};
 	
-	template<typename ABool> struct IsBool : BIC::Fixed<bool, std::is_same<bool, BIC::Mutable<ABool> >::value >  {}; ///<  @brief Trait to check if a type is either a `bool` or a `BIC::Fixed<bool, VALUE>`	
-	template<typename ASize> struct IsSize : BIC::Fixed<bool, std::is_same<Size,  BIC::Mutable<ASize> >::value > {}; ///<  @brief Trait to check if a type is either a `Size` or a `BIC::Fixed<Size, VALUE>`	
+	template<typename ASize> static constexpr bool isSize = std::same_as<Size, BIC::Mutable<ASize>>;
+	template<typename ABool> static constexpr bool isBool = std::same_as<bool, BIC::Mutable<ABool>>;
 	
 	static inline constexpr Size order = 1;
 	
@@ -123,7 +123,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, typename ASize>
-	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solve(oracle, x); }
+	void solve(Function f, Gradient g, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solve(oracle, x); }
 
 	/**
 	 * @brief Solve using raw function and gradient functors.
@@ -142,7 +142,7 @@ public:
 	 * @param x Initial guess and output vector for the solution.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, typename ASize>
-	void solveInPlace(Function f, Gradient g, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solveInPlace(oracle, x); }
+	void solveInPlace(Function f, Gradient g, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solveInPlace(oracle, x); }
 
 	/**
 	 * @brief Solve in place using raw function and gradient functors.
@@ -162,7 +162,7 @@ public:
 	 * @param x Output solution vector.
 	 */
 	template<CFunction<Scalar> Function, CGradient<Scalar> Gradient, typename ASize>
-	void solveWithGuess(Function f, Gradient g, const Scalar* x0, const ASize size, Scalar* x) requires (IsSize<ASize>::value) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solveWithGuess(oracle, x0, x); }
+	void solveWithGuess(Function f, Gradient g, const Scalar* x0, const ASize size, Scalar* x) requires (isSize<ASize>) { OracleWrapper<Scalar,ASize,Function,Gradient> oracle(size, f, g); solveWithGuess(oracle, x0, x); }
 
 	/**
 	 * @brief Solve with initial guess using raw function and gradient functors.
@@ -227,8 +227,8 @@ protected:
 	using Scalar = typename Base::Scalar; \
 	using Info   = typename Base::Info; \
 	\
-	template<typename ABool> using IsBool = typename Base::template IsBool<ABool>; \
-	template<typename ASize> using IsSize = typename Base::template IsSize<ASize>; \
+	template<typename ASize> static constexpr bool isSize = Base::template isSize<ASize>; \
+	template<typename ABool> static constexpr bool isBool = Base::template isBool<ABool>; \
 
 #define LNOT_FIRST_ORDER_SOLVER_ATTRIBUTE \
 	using Base::m_maxIt; \
@@ -243,9 +243,7 @@ protected:
 	using Base::m_innerIts; \
 	using Base::m_out; \
 
-template<class T> struct IsFirstOrderSolver : BIC::Fixed<bool, std::is_base_of<FirstOrderSolverBase<T>, T>::value > {}; ///<  @brief Trait to determine if a type derives from FirstOrderSolverBase.
-
-template<class T> concept CFirstOrderSolver = IsFirstOrderSolver<T>::value;
+template<class Solver> concept CFirstOrderSolver = std::derived_from<Solver, FirstOrderSolverBase<Solver>>;
 
 } // namespace LightOptim
 

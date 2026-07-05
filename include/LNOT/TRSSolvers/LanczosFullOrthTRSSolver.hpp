@@ -47,10 +47,10 @@ private:
 	inline const Scalar* getBvImpl(const Size i) const { return m_BV.data() + i*m_vecSize; }
 	
 	template<typename ASize>
-	void addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(IsSize<ASize>::value);
+	void addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(isSize<ASize>);
 	
 	template<typename ASize>
-	void reOrthonormalizeImpl(const ASize size, Scalar* unscaledBvNext) requires(IsSize<ASize>::value);
+	void reOrthonormalizeImpl(const ASize size, Scalar* unscaledBvNext) requires(isSize<ASize>);
 
 	std::vector<Scalar> m_BV;
 	Size                m_prev = {};

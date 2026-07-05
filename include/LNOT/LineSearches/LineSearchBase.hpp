@@ -55,9 +55,7 @@ protected:
 	using Base::m_workCapacity; \
 	using Base::m_out; \
 
-template<class T> struct IsLineSearch : BIC::Fixed<bool, std::is_base_of<LineSearchBase<T>, T>::value > {};
-
-template<class T> concept CLineSearch = IsLineSearch<T>::value;
+template<class LineSearch> concept CLineSearch = std::derived_from<LineSearch, LineSearchBase<LineSearch>>;
 
 } // 
 

@@ -27,7 +27,7 @@ extern template class LBFGS< NoLineSearch<long double> >;
 //// method implementations ////
 
 template<typename LineSearch, typename ConvergenceCriterion> template<CFirstOrderOracle Oracle, typename ABool> 
-void LBFGS<LineSearch, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+void LBFGS<LineSearch, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
 {
 	using Oracle_Size         = typename Oracle::Size;
 	using CircularBuffer_Size = typename CircularBuffer<Scalar>::size_type;

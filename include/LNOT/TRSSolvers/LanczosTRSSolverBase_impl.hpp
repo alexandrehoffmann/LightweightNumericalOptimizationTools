@@ -30,7 +30,7 @@ void LanczosTRSSolverBase<Derived>::allocateLanczosWorkSpace()
 }
 
 template<class Derived> template<typename HesOp, typename PrecOp, typename ASize> 
-auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) -> Scalar requires(AreHessianOps<HesOp,PrecOp>::value and IsSize<ASize>::value)
+auto LanczosTRSSolverBase<Derived>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) -> Scalar requires(areHessianOps<HesOp,PrecOp> and isSize<ASize>)
 {
 	using AdlMath::abs;
 	using AdlMath::sqrt;

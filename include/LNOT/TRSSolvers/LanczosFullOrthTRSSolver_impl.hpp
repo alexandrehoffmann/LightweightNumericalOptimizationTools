@@ -33,7 +33,7 @@ void LanczosFullOrthTRSSolver<T,nPass>::resizeWorkSpace(const Size newSize)
 }
 
 template<typename T, size_t nPass> template<typename ASize>
-void LanczosFullOrthTRSSolver<T,nPass>::addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(IsSize<ASize>::value)
+void LanczosFullOrthTRSSolver<T,nPass>::addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(isSize<ASize>)
 {
 	assert(size == m_vecSize);
 	
@@ -48,7 +48,7 @@ void LanczosFullOrthTRSSolver<T,nPass>::addBvNextImpl(const Scalar scale, const 
 }
 
 template<typename T, size_t nPass> template<typename ASize>
-void LanczosFullOrthTRSSolver<T,nPass>::reOrthonormalizeImpl(const ASize size, Scalar* unscaledBvNext) requires(IsSize<ASize>::value)
+void LanczosFullOrthTRSSolver<T,nPass>::reOrthonormalizeImpl(const ASize size, Scalar* unscaledBvNext) requires(isSize<ASize>)
 {
 	assert(size == m_vecSize);
 	

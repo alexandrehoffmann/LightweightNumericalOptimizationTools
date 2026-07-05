@@ -35,7 +35,7 @@ public:
 	LNOT_DEFINE_FIRST_ORDER_SOLVER
 	
 	template<CFirstOrderOracle Oracle, typename ABool> 
-	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value);
+	void solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>);
 	
 	const LineSearch& getLinesearch() const { return m_lineSearch; }
 	      LineSearch& getLinesearch()       { return m_lineSearch; }

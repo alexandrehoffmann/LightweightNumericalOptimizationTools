@@ -89,7 +89,7 @@ extern template class NonLinearConjugateGradient<NoLineSearch<long double>, NLCG
 //// method implementations ////
 
 template<typename LineSearch, NLCGUpdateStrategy UpdateStrategy, class ConvergenceCriterion>  template<CFirstOrderOracle Oracle, typename ABool>
-void NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(IsBool<ABool>::value)
+void NonLinearConjugateGradient<LineSearch, UpdateStrategy, ConvergenceCriterion>::solveImpl(Oracle& oracle, const ABool solveInPlace, Scalar* x) requires(isBool<ABool>)
 {
 	using Oracle_Size = typename Oracle::Size;
 	

@@ -41,10 +41,10 @@ private:
 	inline const Scalar* getBvPrevImpl() const { return m_Bv_prev.get(); }
 	
 	template<typename ASize>
-	void addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(IsSize<ASize>::value);
+	void addBvNextImpl(const Scalar scale, const Scalar* unscaledBvNext, const ASize size) requires(isSize<ASize>);
 	
 	template<typename ASize>
-	inline void reOrthonormalizeImpl(const ASize /* size */, Scalar* /* unscaledBvNext */ ) requires(IsSize<ASize>::value) {}
+	inline void reOrthonormalizeImpl(const ASize /* size */, Scalar* /* unscaledBvNext */ ) requires(isSize<ASize>) {}
 
 	std::unique_ptr<Scalar[]> m_Bv_curr;
 	std::unique_ptr<Scalar[]> m_Bv_prev;
