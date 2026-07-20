@@ -42,9 +42,6 @@ void NewtonTrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&
 	}
 	if (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	const auto Hk    = [&oracle] (const Scalar* d, Scalar* Hd)    -> void { oracle.getHessianProd(d, Hd);  };
-	const auto invBk = [&oracle] (const Scalar* d, Scalar* invBd) -> void { oracle.applyPrecond(d, invBd); };
-	
 	m_innerIts.clear();
 	
 	Scalar delta = pow(Scalar(10.0), floor(log10(sqrt(Scalar(size)))));
@@ -71,7 +68,7 @@ void NewtonTrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&
 		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, delta, m_residual, relTol, absTol); std::fflush(m_out); }
 		if (m_residual < relTol or m_residual < absTol) { m_info = Info::SUCCESS; break; }
 		
-		const Scalar normS = m_trsSolver.solve(Hk, invBk, m_gk.get(), size, delta, m_sk.get()); 
+		const Scalar normS = m_trsSolver.solve(oracle.getHessianOp(), oracle.getPrecondOp(), m_gk.get(), size, delta, m_sk.get()); 
 		
 		m_innerIts.push_back(m_trsSolver.getIterations());
 		

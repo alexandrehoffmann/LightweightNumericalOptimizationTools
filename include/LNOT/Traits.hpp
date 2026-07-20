@@ -9,17 +9,17 @@ namespace LNOT
 namespace detail
 {
 
-template<typename T> concept CWithScalar    = requires { typename std::decay_t<T>::Scalar;    };
-template<typename T> concept CWithSize      = requires { typename std::decay_t<T>::Size;      };
-template<typename T> concept CWithCriterion = requires { typename std::decay_t<T>::Criterion; };
-template<typename T> concept CWithInfo      = requires { typename std::decay_t<T>::Info;      };
+template<typename T> concept CWithScalar    = requires { typename std::remove_cvref_t<T>::Scalar;    };
+template<typename T> concept CWithSize      = requires { typename std::remove_cvref_t<T>::Size;      };
+template<typename T> concept CWithCriterion = requires { typename std::remove_cvref_t<T>::Criterion; };
+template<typename T> concept CWithInfo      = requires { typename std::remove_cvref_t<T>::Info;      };
 
 } // namespace detail
 
-template<detail::CWithScalar T>    using ScalarFor    = typename std::decay_t<T>::Scalar;
-template<detail::CWithSize T>      using SizeFor      = typename std::decay_t<T>::Size;
-template<detail::CWithCriterion T> using CriterionFor = typename std::decay_t<T>::Criterion;
-template<detail::CWithCriterion T> using InfoFor      = typename std::decay_t<T>::Info;
+template<detail::CWithScalar T>    using ScalarFor    = typename std::remove_cvref_t<T>::Scalar;
+template<detail::CWithSize T>      using SizeFor      = typename std::remove_cvref_t<T>::Size;
+template<detail::CWithCriterion T> using CriterionFor = typename std::remove_cvref_t<T>::Criterion;
+template<detail::CWithCriterion T> using InfoFor      = typename std::remove_cvref_t<T>::Info;
 
 } // namespace LNOT
 

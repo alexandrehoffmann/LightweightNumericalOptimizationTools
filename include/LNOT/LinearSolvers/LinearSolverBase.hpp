@@ -6,7 +6,8 @@
 #include <type_traits>
 #include <algorithm>
 
-#include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
+#include <LNOT/BasicLinalg/CLinearOp.hpp>
+#include <LNOT/BasicLinalg/IdentityOp.hpp>
 #include <LNOT/FloatingPoint/NumTraits.hpp>
 #include <LNOT/CRTPBase.hpp>
 
@@ -46,9 +47,7 @@ public:
 		BREAKDOWN           ///<  Numerical breakdown (e.g., division by zero)
 	};
 	
-	using IdOp = IdentityPreconditionerOp<Scalar>;
-	
-	template<typename HesOp> static constexpr bool isHessianOp = std::invocable<HesOp, const Scalar*, Scalar*>;
+	template<typename HesOp> static constexpr bool isHessianOp = CLinearOp<HesOp, Scalar>;
 	template<typename ASize> static constexpr bool isSize      = std::same_as<Size, BIC::Mutable<ASize>>;
 	template<typename ABool> static constexpr bool isBool      = std::same_as<bool, BIC::Mutable<ABool>>;
 	
@@ -70,7 +69,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename Op, typename ASize> 
-	void solve(const Op& H, const Scalar* g, const ASize size, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { IdOp I(size); solve(H, I, g, size, x); }
+	void solve(Op&& H, const Scalar* g, const ASize size, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { solve(std::forward<Op>(H), IdentityOp(size), g, size, x); }
 	
 	/**
 	 * @brief Solve the preconditioned linear system Hx = -g using the provided Hessian operator.
@@ -81,7 +80,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	void solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { this->derived().solveImpl(H, invB, g, size, BIC::fixed<bool, false>, x); }
+	void solve(HesOp&& H, PrecOp&& invB, const Scalar* g, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { this->derived().solveImpl(std::forward<HesOp>(H), std::forward<PrecOp>(invB), g, size, BIC::fixed<bool, false>, x); }
 	
 	/**
 	 * @brief Solve the system with an initial guess.
@@ -92,7 +91,7 @@ public:
 	 * @param x Solution vector (output).
 	 */
 	template<typename Op, typename ASize> 
-	void solveWithGuess(const Op& H, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { IdOp I(size); solveWithGuess(H, I, g, x0, size, x);  }
+	void solveWithGuess(Op&& H, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { solveWithGuess(std::forward<Op>(H), IdentityOp(size), g, x0, size, x);  }
 	
 	/**
 	 * @brief Solve the preconditioned system with an initial guess.
@@ -104,7 +103,7 @@ public:
 	 * @param x Solution vector (output).
 	 */	
 	template<typename HesOp, typename PrecOp, typename ASize>  
-	void solveWithGuess(const HesOp& H, const PrecOp& invB, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { std::copy(x0, x0 + size, x); this->derived().solveImpl(H, invB, g, size, BIC::fixed<bool, true>, x);  }
+	void solveWithGuess(HesOp&& H, PrecOp&& invB, const Scalar* g, const Scalar* x0, const ASize size, Scalar* x) requires (isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>) { std::copy(x0, x0 + size, x); this->derived().solveImpl(std::forward<HesOp>(H), std::forward<PrecOp>(invB), g, size, BIC::fixed<bool, true>, x);  }
 	
 	Scalar getError() const { return this->derived().getErrorImpl(); } ///<  @brief Get the final error after solving. Delegates to `Derived::getError()`.
 	

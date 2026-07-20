@@ -44,7 +44,7 @@ int main()
 	double x[N];
 	std::span<const double> x_view(x, N);
 	
-	LNOT::SymmetricDenseMatrixOp<double> Aop(A, N);
+	LNOT::SymmetricDenseMatrixOp<const double> Aop(A, N);
 	LNOT::DiagonalPreconditionerOp<double> Bop(A, N);
 	
 	LNOT::LanczosTRSSolver<double> lanczosTrs;
@@ -57,7 +57,7 @@ int main()
 	double r[N];
 	std::span<const double> r_view(r, N);
 	
-	Aop(x, r);
+	Aop.eval(x, r);
 	for (unsigned int i=0; i!=N; ++i) { r[i] += lanczosTrs.getLambda()*A[i*N + i]*x[i] + b[i];  }
 	
 	fmt::print("KKT : \n");
@@ -65,7 +65,7 @@ int main()
 	fmt::print("  * |x|_B <= Delta ? {}\n", LNOT::BasicLinalg::weightedNorm(x, diagA, N) <= delta + lanczosTrs.getRelTolTR());
 	fmt::print("  * lambda >= 0 ? {}\n", lanczosTrs.getLambda() >= 0);
 	fmt::print("  * lambda*(|x| - Delta) = {:10.2e}\n", lanczosTrs.getLambda()*(LNOT::BasicLinalg::weightedNorm(x, diagA, N) - delta));
-	Aop(x, r); 
+	Aop.eval(x, r); 
 	fmt::print("Predicted model reduction : {}\n", lanczosTrs.getModelReduction());
 	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));
 	
@@ -76,7 +76,7 @@ int main()
 	fmt::print("\n");
 	fmt::print("Lanczos Trust Region with full orthonormalization found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), lanczosFullOrthTrs.getIterations(), lanczosFullOrthTrs.getError());
 	
-	Aop(x, r);
+	Aop.eval(x, r);
 	for (unsigned int i=0; i!=N; ++i) { r[i] += lanczosFullOrthTrs.getLambda()*A[i*N + i]*x[i] + b[i];  }
 	
 	fmt::print("KKT : \n");
@@ -84,7 +84,7 @@ int main()
 	fmt::print("  * |x|_B <= Delta ? {}\n", LNOT::BasicLinalg::weightedNorm(x, diagA, N) <= delta + lanczosFullOrthTrs.getRelTolTR());
 	fmt::print("  * lambda >= 0 ? {}\n", lanczosFullOrthTrs.getLambda() >= 0);
 	fmt::print("  * lambda*(|x| - Delta) = {:10.2e}\n", lanczosFullOrthTrs.getLambda()*(LNOT::BasicLinalg::weightedNorm(x, diagA, N) - delta));
-	Aop(x, r); 
+	Aop.eval(x, r); 
 	fmt::print("Predicted model reduction : {}\n", lanczosFullOrthTrs.getModelReduction());
 	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));
 	
@@ -95,7 +95,7 @@ int main()
 	fmt::print("\n");
 	fmt::print("Truncated CG found : {:.2f} in {} iterations with a final error of {:10.2e}\n", fmt::join(x_view, " "), tcg.getIterations(), tcg.getError());
 	fmt::print("|x| <= Delta ? {}\n", LNOT::BasicLinalg::norm(x, N) <= delta + tcg.getRelTolTR());
-	Aop(x, r); 
+	Aop.eval(x, r); 
 	fmt::print("Predicted model reduction : {}\n", tcg.getModelReduction());
 	fmt::print("Actual model reduction    : {}\n", 0.5*LNOT::BasicLinalg::inner(x, r, N) + LNOT::BasicLinalg::inner(x, b, N));
 	

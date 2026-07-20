@@ -3,7 +3,6 @@
 
 #include <LNOT/LinearSolvers/LanczosSolver.hpp>
 #include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
-#include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
 #include <LNOT/BasicLinalg/BasicLinalg.hpp>
 #include <LNOT/FloatingPoint/FPComparator.hpp>
 
@@ -36,12 +35,12 @@ void LanczosSolver<T>::resizeWorkSpace(const Size newSize)
 }
 
 template<typename T> template<typename HesOp, typename PrecOp, typename ASize, typename Bool>
-void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, Bool solveInPlace, Scalar* x) requires(isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>)
+void LanczosSolver<T>::solveImpl(HesOp&& H, PrecOp&& invB, const Scalar* g, const ASize size, Bool solveInPlace, Scalar* x) requires(isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>)
 {
 	resizeWorkSpace(size);
 	if constexpr (solveInPlace)
 	{
-		H(x, m_Bv.get());
+		H.eval(x, m_Bv.get());
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i] - m_Bv[i]; } // r = -b - Hx
 	}
@@ -52,7 +51,7 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 		for (Size i=0; i!=size; ++i) { m_Bv[i] = -g[i]; } 
 	}
 	std::fill(m_Bv_old.get(), m_Bv_old.get() + size, 0);
-	invB(m_Bv.get(), m_v.get());
+	invB.eval(m_Bv.get(), m_v.get());
 	
 	const Scalar precNormR0 = sqrt(BasicLinalg::inner(m_Bv.get(), m_v.get(), size));
 	
@@ -78,7 +77,7 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_precNormR, relTol, m_absTol); std::fflush(m_out); }
 		if (m_precNormR < relTol or m_precNormR < m_absTol) { m_info = Info::SUCCESS; break; }
 		
-		H(m_v.get(), m_w.get()); 
+		H.eval(m_v.get(), m_w.get()); 
 		// m_w = Hv_{k}
 		const Scalar alpha = BasicLinalg::inner(m_v.get(), m_w.get(), size);
 		// solve T_k h_k = -\|r_0\|e_1
@@ -91,7 +90,7 @@ void LanczosSolver<T>::solveImpl(const HesOp& H, const PrecOp& invB, const Scala
 		// resume Lanczos iteration
 		BasicLinalg::axpbypz(-alpha, m_Bv.get(), -beta_old, m_Bv_old.get(), size, m_w.get());
 		// m_w = \beta_{k}Bv_{k+1}
-		invB(m_w.get(), m_v.get());
+		invB.eval(m_w.get(), m_v.get());
 		
 		Scalar beta = sqrt(BasicLinalg::inner(m_w.get(), m_v.get(), size));
 		

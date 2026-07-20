@@ -2,9 +2,6 @@
 #define LNOT_LANCZOS_FULL_ORTH_TRS_SOLVER_IMPL_HPP
 
 #include <LNOT/TRSSolvers/LanczosFullOrthTRSSolver.hpp>
-#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
-#include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
-#include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
 
 #include <cassert>
 

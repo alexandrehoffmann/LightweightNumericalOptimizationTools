@@ -24,7 +24,7 @@ public:
 	void resizeWorkSpace(const Size newSize);  ///<  @brief reallocate internal memory if `newSize` > `Base::m_workCapacity`.
 	
 	template<typename HesOp, typename PrecOp, typename ASize, typename Bool>
-	void solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Bool solveInPlace, Scalar* x) requires(isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>);
+	void solveImpl(HesOp&& H, PrecOp&& invB, const Scalar* g, const ASize size, const Bool solveInPlace, Scalar* x) requires(isHessianOp<HesOp> and isHessianOp<PrecOp> and isSize<ASize>);
 
 	Scalar getErrorImpl() const { return m_precNormR;             }
 	

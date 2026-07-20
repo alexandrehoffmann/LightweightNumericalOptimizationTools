@@ -3,6 +3,8 @@
 
 #include <LNOT/GeneralSolvers/LSR1TrustRegionSolver.hpp>
 #include <LNOT/Containers/CircularBuffer.hpp>
+#include <LNOT/BasicLinalg/CLinearOp.hpp>
+#include <LNOT/BasicLinalg/LinearOpWrapper.hpp>
 #include <LNOT/TRSSolvers/TruncatedConjugateGradient.hpp>
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
 
@@ -53,7 +55,7 @@ void LSR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&& 
 	std::vector<bool>      isVectorKept(m_memory);
 	
 	Size curr_idx{};
-	auto BkOp = [this, &curr_idx, &invRho, &isVectorKept, size](const Scalar* d, Scalar* Bd) -> void
+	CLinearOp<Scalar> auto BkOp = wrappFunctor<Scalar>([this, &curr_idx, &invRho, &isVectorKept, size](const Scalar* d, Scalar* Bd) -> void
 	{
 		// from https://home.cs.colorado.edu/~richard/lu_dissertation.pdf
 		const Size prev_idx = (curr_idx == 0) ? m_memory-1 : curr_idx-1;
@@ -72,7 +74,7 @@ void LSR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&& 
 			const Scalar alpha = BasicLinalg::inner(pi, d, size) / invRho_i;
 			BasicLinalg::axpy(alpha, pi, size, Bd);
 		}});
-	};
+	});
 
 	m_innerIts.clear();
 		
@@ -106,7 +108,7 @@ void LSR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&& 
 			const Scalar* si = m_S.get() + i*size;
 			const Scalar* yi = m_Y.get() + i*size;
 			Scalar* pi = m_P.get() + i*size;
-			BkOp(si, pi);
+			BkOp.eval(si, pi);
 			#pragma omp simd
 			for (Size k=0; k!=size; ++k) { pi[k] = yi[k] - pi[k]; }
 			

@@ -7,7 +7,8 @@
 #include <type_traits>
 #include <algorithm>
 
-#include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
+#include <LNOT/BasicLinalg/CLinearOp.hpp>
+#include <LNOT/BasicLinalg/IdentityOp.hpp>
 #include <LNOT/FloatingPoint/NumTraits.hpp>
 #include <LNOT/CRTPBase.hpp>
 #include <LNOT/misc/AdlMath.hpp>
@@ -29,9 +30,7 @@ public:
 	
 	enum class Info {SUCCESS, FAILURE, BREAKDOWN}; ///<  @brief Enumeration indicating solver termination status.
 	
-	using IdOp = IdentityPreconditionerOp<Scalar>;
-	
-	template<typename HesOp>                  static constexpr bool isHessianOp   = std::invocable<HesOp, const Scalar*, Scalar*>;
+	template<typename HesOp>                  static constexpr bool isHessianOp   = CLinearOp<HesOp, Scalar>;
 	template<typename HesOp, typename PrecOp> static constexpr bool areHessianOps = isHessianOp<HesOp> and isHessianOp<PrecOp>;
 	template<typename ASize>                  static constexpr bool isSize        = std::same_as<Size, BIC::Mutable<ASize>>;
 	
@@ -40,10 +39,10 @@ public:
 	TRSSolverBase(const Size maxIt = 200000, const Scalar relTol = defaultEps, const Scalar relTolTr = AdlMath::sqrt(defaultEps), const Scalar absTol = defaultEps, const Scalar absTolTr = AdlMath::sqrt(defaultEps)) : m_maxIt(maxIt), m_relTol(relTol), m_relTolTr(relTolTr), m_absTol(absTol), m_absTolTr(absTolTr) {}
 	
 	template<typename Op, typename ASize> 
-	Scalar solve(const Op& H, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { IdOp I(size); return this->derived().solveImpl(H, I, g, size, delta, x); }
+	Scalar solve(Op&& H, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (isHessianOp<Op> and isSize<ASize>) { return this->derived().solveImpl(std::forward<Op>(H), IdentityOp(size), g, size, delta, x); }
 	
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	Scalar solve(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (areHessianOps<HesOp, PrecOp> and isSize<ASize>) { return this->derived().solveImpl(H, invB, g, size, delta, x); }
+	Scalar solve(HesOp&& H, PrecOp&& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (areHessianOps<HesOp, PrecOp> and isSize<ASize>) { return this->derived().solveImpl(std::forward<HesOp>(H), std::forward<PrecOp>(invB), g, size, delta, x); }
 
 	Scalar getError        () const { return this->derived().getErrorImpl();        }
 	Scalar getSquaredError () const { return this->derived().getSquaredErrorImpl(); }

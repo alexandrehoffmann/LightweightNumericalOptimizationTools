@@ -6,6 +6,7 @@
 #include <LNOT/FloatingPoint/NumTraits.hpp>
 #include <BIC/Core.hpp>
 
+#include <concepts>
 #include <numeric>
 
 namespace LNOT::BasicLinalg
@@ -15,14 +16,14 @@ template<typename Scalar, typename Size>
 void stridedCopy(const Scalar* x, const Size xStride, const Size N, Scalar* y, const Size yStride)
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_scopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
-	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dcopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
+	if constexpr      (std::same_as<Scalar, float>)  { cblas_scopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
+	else if constexpr (std::same_as<Scalar, double>) { cblas_dcopy(blasint(N), x, blasint(xStride), y, blasint(yStride)); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
-		if constexpr      (std::is_same<Scalar, float>::value)       { lnot_stridedCopy_f (x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
-		else if constexpr (std::is_same<Scalar, double>::value)      { lnot_stridedCopy_d (x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
-		else if constexpr (std::is_same<Scalar, long double>::value) { lnot_stridedCopy_ld(x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
+		if constexpr      (std::same_as<Scalar, float>)       { lnot_stridedCopy_f (x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
+		else if constexpr (std::same_as<Scalar, double>)      { lnot_stridedCopy_d (x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
+		else if constexpr (std::same_as<Scalar, long double>) { lnot_stridedCopy_ld(x, lnot_Size(xStride), lnot_Size(N), y, lnot_Size(yStride)); }
 		else
 		{
 			#pragma omp simd 
@@ -40,8 +41,8 @@ template<typename Scalar, typename Size>
 Scalar squaredNorm(const Scalar* x, const Size N) 
 { 
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_sdot(blasint(N), x, 1, x, 1); }
-	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_ddot(blasint(N), x, 1, x, 1); }
+	if constexpr      (std::same_as<Scalar, float>)  { return cblas_sdot(blasint(N), x, 1, x, 1); }
+	else if constexpr (std::same_as<Scalar, double>) { return cblas_ddot(blasint(N), x, 1, x, 1); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
@@ -57,8 +58,8 @@ template<typename Scalar, typename Size>
 Scalar norm(const Scalar* x, const Size N) 
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_snrm2(blasint(N), x, 1); }
-	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_dnrm2(blasint(N), x, 1); }
+	if constexpr      (std::same_as<Scalar, float>)  { return cblas_snrm2(blasint(N), x, 1); }
+	else if constexpr (std::same_as<Scalar, double>) { return cblas_dnrm2(blasint(N), x, 1); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
@@ -72,8 +73,8 @@ template<typename Scalar, typename Size>
 Scalar l1Norm(const Scalar* x, const Size N) 
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_sasum(blasint(N), x, 1); }
-	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_dasum(blasint(N), x, 1); }
+	if constexpr      (std::same_as<Scalar, float>)  { return cblas_sasum(blasint(N), x, 1); }
+	else if constexpr (std::same_as<Scalar, double>) { return cblas_dasum(blasint(N), x, 1); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
@@ -90,8 +91,8 @@ template<typename Scalar, typename Size>
 Scalar lInfNorm(const Scalar* x, const Size N) 
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_isamax(blasint(N), x, 1); }
-	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_idamax(blasint(N), x, 1); }
+	if constexpr      (std::same_as<Scalar, float>)  { return cblas_isamax(blasint(N), x, 1); }
+	else if constexpr (std::same_as<Scalar, double>) { return cblas_idamax(blasint(N), x, 1); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
@@ -117,8 +118,8 @@ template<typename Scalar, typename Size>
 Scalar inner(const Scalar* x, const Scalar* y, const Size N)
 { 
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { return cblas_sdot(blasint(N), x, 1, y, 1); }
-	else if constexpr (std::is_same<Scalar, double>::value) { return cblas_ddot(blasint(N), x, 1, y, 1); }
+	if constexpr      (std::same_as<Scalar, float>)  { return cblas_sdot(blasint(N), x, 1, y, 1); }
+	else if constexpr (std::same_as<Scalar, double>) { return cblas_ddot(blasint(N), x, 1, y, 1); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
@@ -142,8 +143,8 @@ template<typename Scalar, typename Size>
 void axpy(const Scalar alpha, const Scalar* x, const Size N, Scalar* y)
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_saxpy(blasint(N), alpha, x, 1, y, 1); }
-	else if constexpr (std::is_same<Scalar, double>::value) { cblas_daxpy(blasint(N), alpha, x, 1, y, 1); }
+	if constexpr      (std::same_as<Scalar, float>)  { cblas_saxpy(blasint(N), alpha, x, 1, y, 1); }
+	else if constexpr (std::same_as<Scalar, double>) { cblas_daxpy(blasint(N), alpha, x, 1, y, 1); }
 	else
 	{
 #else
@@ -172,8 +173,8 @@ template<typename Scalar, typename Size>
 void scal(const Scalar alpha, const Size N, Scalar* x)
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_sscal(blasint(N), alpha, x, 1); }
-	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dscal(blasint(N), alpha, x, 1); }
+	if constexpr      (std::same_as<Scalar, float>)  { cblas_sscal(blasint(N), alpha, x, 1); }
+	else if constexpr (std::same_as<Scalar, double>) { cblas_dscal(blasint(N), alpha, x, 1); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
@@ -205,31 +206,35 @@ template<typename Scalar, typename Size, typename Bool>
 void symMatrixVectorProd(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* A, const Scalar* x, const Size N, const Bool incrY, Scalar* y)
 {
 #ifdef LNOT_WITH_BLAS
-	if      constexpr (std::is_same<Scalar, float>::value)  { cblas_ssymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
-	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
+	if      constexpr (std::same_as<Scalar, float>)  { cblas_ssymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
+	else if constexpr (std::same_as<Scalar, double>) { cblas_dsymv(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, A, blasint(N), x, 1, blasint(incrY), y, 1); }
 	else
 	{
 #endif // LNOT_WITH_BLAS
 		if (not incrY) { std::fill(y, y + N, 0); }
 		
-		if      constexpr (std::is_same<Scalar, float>::value)       { lnot_symMatrixVectorProd_f (lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
-		else if constexpr (std::is_same<Scalar, double>::value)      { lnot_symMatrixVectorProd_d (lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
-		else if constexpr (std::is_same<Scalar, long double>::value) { lnot_symMatrixVectorProd_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
+		if      constexpr (std::same_as<Scalar, float>)       { lnot_symMatrixVectorProd_f (lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
+		else if constexpr (std::same_as<Scalar, double>)      { lnot_symMatrixVectorProd_d (lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
+		else if constexpr (std::same_as<Scalar, long double>) { lnot_symMatrixVectorProd_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, A, x, lnot_Size(N), y); }
 		else
 		{
-			const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
-			const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N;
+			const bool useRowLikeStride = (layout == StorageOrder::ROW_MAJOR) == (uplo == UpLo::LOWER);
+			
+			const Size iStride = useRowLikeStride ? N : 1;
+			const Size jStride = useRowLikeStride ? 1 : N;
 			
 			for (BIC::Mutable<Size> i=0; i!=N; ++i)
 			{
+				Scalar acc = {};
 				for (BIC::Mutable<Size> j=0; j!=(i+1); ++j)
 				{
-					y[i] = AdlMath::fma(alpha*A[i*iStride + j*jStride], x[j], y[i]);
+					acc = AdlMath::fma(alpha*A[i*iStride + j*jStride], x[j], acc);
 				}
 				for (BIC::Mutable<Size> j=i+1; j!=N; ++j)
 				{
-					y[i] = AdlMath::fma(alpha*A[j*iStride + i*jStride], x[j], y[i]);
+					acc = AdlMath::fma(alpha*A[j*iStride + i*jStride], x[j], acc);
 				}
+				y[i] += acc;
 			}
 		}
 #ifdef LNOT_WITH_BLAS
@@ -241,17 +246,19 @@ template<typename Scalar, typename Size>
 void symRk1Update(const StorageOrder layout, const UpLo uplo, const Scalar alpha, const Scalar* x, const Size N, Scalar* A)
 {
 #ifdef LNOT_WITH_BLAS
-	if      constexpr (std::is_same<Scalar, float>::value)  { cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
-	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+	if      constexpr (std::same_as<Scalar, float>)  { cblas_ssyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
+	else if constexpr (std::same_as<Scalar, double>) { cblas_dsyr(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, A, blasint(N)); }
 #else
-	if      constexpr (std::is_same<Scalar, float>::value)  { lnot_symRk1Update_f(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
-	else if constexpr (std::is_same<Scalar, double>::value) { lnot_symRk1Update_d(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
+	if      constexpr (std::same_as<Scalar, float>)  { lnot_symRk1Update_f(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
+	else if constexpr (std::same_as<Scalar, double>) { lnot_symRk1Update_d(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
 #endif // LNOT_WITH_BLAS
-	else if constexpr (std::is_same<Scalar, long double>::value) { lnot_symRk1Update_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
+	else if constexpr (std::same_as<Scalar, long double>) { lnot_symRk1Update_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, lnot_Size(N), A); }
 	else
 	{
-		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
-		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
+		const bool useRowLikeStride = (layout == StorageOrder::ROW_MAJOR) == (uplo == UpLo::LOWER);
+		
+		const Size iStride = useRowLikeStride ? N : 1;
+		const Size jStride = useRowLikeStride ? 1 : N; 
 	
 		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
@@ -268,17 +275,19 @@ template<typename Scalar, typename Size>
 void symRk2Update(StorageOrder layout, UpLo uplo, const Scalar alpha, const Scalar* x, const Scalar* y, const Size N, Scalar* A)
 {
 #ifdef LNOT_WITH_BLAS
-	if constexpr      (std::is_same<Scalar, float>::value)  { cblas_ssyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); }
-	else if constexpr (std::is_same<Scalar, double>::value) { cblas_dsyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); }
+	if constexpr      (std::same_as<Scalar, float>)  { cblas_ssyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); }
+	else if constexpr (std::same_as<Scalar, double>) { cblas_dsyr2(CBLAS_ORDER(layout), CBLAS_UPLO(uplo), blasint(N), alpha, x, 1, y, 1, A, blasint(N)); }
 #else
-	if constexpr      (std::is_same<Scalar, float>::value)  { lnot_symRk2Update_f(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
-	else if constexpr (std::is_same<Scalar, double>::value) { lnot_symRk2Update_d(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
+	if constexpr      (std::same_as<Scalar, float>)  { lnot_symRk2Update_f(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
+	else if constexpr (std::same_as<Scalar, double>) { lnot_symRk2Update_d(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
 #endif // LNOT_WITH_BLAS
-	else if constexpr (std::is_same<Scalar, long double>::value) { lnot_symRk2Update_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
+	else if constexpr (std::same_as<Scalar, long double>) { lnot_symRk2Update_ld(lnot_mat_StorageOrder(layout), lnot_mat_UpLo(uplo), alpha, x, y, lnot_Size(N), A); }
 	else
 	{
-		const Size iStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? N : 1;
-		const Size jStride = layout == StorageOrder::ROW_MAJOR and uplo == UpLo::LOWER ? 1 : N; 
+		const bool useRowLikeStride = (layout == StorageOrder::ROW_MAJOR) == (uplo == UpLo::LOWER);
+		
+		const Size iStride = useRowLikeStride ? N : 1;
+		const Size jStride = useRowLikeStride ? 1 : N; 
 	
 		for (BIC::Mutable<Size> i=0; i!=N; ++i)
 		{
@@ -299,9 +308,9 @@ namespace Tridiag
 template<typename Scalar, typename Size>
 Scalar norm1(const Scalar* alpha, const Scalar* beta, const Size N)
 {
-	if constexpr      (std::is_same<Scalar, float>::value)       { return lnot_tridiag_norm1_f (alpha, beta, lnot_Size(N)); }
-	else if constexpr (std::is_same<Scalar, double>::value)      { return lnot_tridiag_norm1_d (alpha, beta, lnot_Size(N)); }
-	else if constexpr (std::is_same<Scalar, long double>::value) { return lnot_tridiag_norm1_ld(alpha, beta, lnot_Size(N)); }
+	if constexpr      (std::same_as<Scalar, float>)       { return lnot_tridiag_norm1_f (alpha, beta, lnot_Size(N)); }
+	else if constexpr (std::same_as<Scalar, double>)      { return lnot_tridiag_norm1_d (alpha, beta, lnot_Size(N)); }
+	else if constexpr (std::same_as<Scalar, long double>) { return lnot_tridiag_norm1_ld(alpha, beta, lnot_Size(N)); }
 	else
 	{
 		#pragma omp declare reduction(mymax : Scalar : omp_out = std::max(omp_out, omp_in)) \
@@ -327,9 +336,9 @@ bool compute(const Scalar* alpha, const Scalar* beta, const Size size, const Sca
 {
 	constexpr Scalar epsilon = NumTraits<Scalar>::epsilon;
 	
-	if constexpr (std::is_same<Scalar, float>::value)       { return lnot_tridiag_ldlt_compute_f (alpha, beta, size, shift, epsilon, invDelta, l); }
-	if constexpr (std::is_same<Scalar, double>::value)      { return lnot_tridiag_ldlt_compute_d (alpha, beta, size, shift, epsilon, invDelta, l); }
-	if constexpr (std::is_same<Scalar, long double>::value) { return lnot_tridiag_ldlt_compute_ld(alpha, beta, size, shift, epsilon, invDelta, l); }
+	if constexpr (std::same_as<Scalar, float>)       { return lnot_tridiag_ldlt_compute_f (alpha, beta, size, shift, epsilon, invDelta, l); }
+	if constexpr (std::same_as<Scalar, double>)      { return lnot_tridiag_ldlt_compute_d (alpha, beta, size, shift, epsilon, invDelta, l); }
+	if constexpr (std::same_as<Scalar, long double>) { return lnot_tridiag_ldlt_compute_ld(alpha, beta, size, shift, epsilon, invDelta, l); }
 	else
 	{
 		if ((alpha[0] + shift) < epsilon) { return false; }
@@ -378,9 +387,9 @@ void solveInplaceUpper(const Scalar* l, const Size size, Scalar* x)
 template<typename Scalar, typename Size>
 void solveUnit(const Scalar* invD, const Scalar* l, const Size size, const Scalar b1, Scalar* x)
 {
-	if constexpr      (std::is_same<Scalar, float>::value)       { lnot_tridiag_ldlt_solveUnit_f (invD, l, lnot_Size(size), b1, x); }
-	else if constexpr (std::is_same<Scalar, double>::value)      { lnot_tridiag_ldlt_solveUnit_d (invD, l, lnot_Size(size), b1, x); }
-	else if constexpr (std::is_same<Scalar, long double>::value) { lnot_tridiag_ldlt_solveUnit_ld(invD, l, lnot_Size(size), b1, x); }
+	if constexpr      (std::same_as<Scalar, float>)       { lnot_tridiag_ldlt_solveUnit_f (invD, l, lnot_Size(size), b1, x); }
+	else if constexpr (std::same_as<Scalar, double>)      { lnot_tridiag_ldlt_solveUnit_d (invD, l, lnot_Size(size), b1, x); }
+	else if constexpr (std::same_as<Scalar, long double>) { lnot_tridiag_ldlt_solveUnit_ld(invD, l, lnot_Size(size), b1, x); }
 	else
 	{
 		solveLowerUnit(l, size, b1, x);     // Solve Lz = b

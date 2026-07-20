@@ -1,7 +1,12 @@
 #ifndef LNOT_ORACLE_BASE_HPP
 #define LNOT_ORACLE_BASE_HPP
 
+#include <LNOT/Traits.hpp>
 #include <LNOT/CRTPBase.hpp>
+#include <LNOT/Oracles/concepts.hpp>
+#include <LNOT/Oracles/HessianOpAdaptor.hpp>
+#include <LNOT/Oracles/PrecondOpAdaptor.hpp>
+#include <LNOT/BasicLinalg/IdentityOp.hpp>
 
 #include <BIC/Core.hpp>
 
@@ -35,14 +40,11 @@ template<class Derived> struct OracleTraits;
  * - getValueImpl()
  * It may also implement:
  * - getGradientImpl()
- * - getHessianProdImpl()
- * - applyPrecondImpl()
+ * - getHessianProdImpl() and initHessianProd()
+ * - applyPrecondImpl() and initApplyPrecond()
  * An OracleTraits must be specialized for Derived that defines:
  * - Scalar, the Scalar type used by the Oracle, typically float or double
  * - Size, the Size type, typically int, unsigned int, size_t
- * - hasGradient, a boolean constexpr true, if Derived implements getGradient()
- * - hasHessianProd, a boolean constexpr true, if Derived implements getHessianProd()
- * - hasApplyPrecond, a boolean constexpr true, if Derived implements applyPrecond()
  */
 template<class Derived>
 class OracleBase : public CRTPBase<Derived>
@@ -52,11 +54,6 @@ class OracleBase : public CRTPBase<Derived>
 public:
 	using Size   = typename DerivedTraits::Size;   ///<  @brief Type representing the number of dimensions (variables) of the function.
 	using Scalar = typename DerivedTraits::Scalar; ///<  @brief Scalar type used in evaluations.
-
-	static constexpr bool hasGradient     = DerivedTraits::hasGradient;
-	static constexpr bool hasHessianProd  = DerivedTraits::hasHessianProd;
-	static constexpr bool hasApplyPrecond = DerivedTraits::hasApplyPrecond;
-	
 	/**
 	 * @brief Get the number of dimensions (variables) of the function.
 	 * 
@@ -64,7 +61,7 @@ public:
 	 * 
 	 * @return Number of variables (dimension of the domain).
 	 */
-	Size getNDims() const { return CRTP::derived().getNDimsImpl(); }
+	constexpr std::convertible_to<Size> auto getNDims() const requires(COracleInterface<Derived, Scalar, Size>) { return CRTP::derived().getNDimsImpl(); }
 	
 	/**
 	 * @brief Set the point at which the function will be evaluated.
@@ -74,7 +71,7 @@ public:
 	 * 
 	 * @param x Pointer to an array representing the current point \f$x \in \mathbb{R}^d\f$.
 	 */
-	void setCurrentPoint(const Scalar* x) { CRTP::derived().setCurrentPointImpl(x); }
+	constexpr void setCurrentPoint(const Scalar* x) requires(COracleInterface<Derived, Scalar, Size>) { CRTP::derived().setCurrentPointImpl(x); }
 	
 	/**
 	 * @brief True if the current point is feasible
@@ -83,7 +80,7 @@ public:
 	 * 
 	 * @return true if the current point is feasible.
 	 */
-	 bool isFeasible() const { return CRTP::derived().isFeasibleImpl(); }
+	 constexpr bool isFeasible() const requires(COracleInterface<Derived, Scalar, Size>) { return CRTP::derived().isFeasibleImpl(); }
 	
 	/**
 	 * @brief Get the function value \f$f(x)\f$ at the current point.
@@ -92,7 +89,7 @@ public:
 	 * 
 	 * @return The function value at the current point.
 	 */
-	Scalar getValue() const { return CRTP::derived().getValueImpl(); }
+	constexpr std::convertible_to<Scalar> auto getValue() const requires(COracleInterface<Derived, Scalar, Size>) { return CRTP::derived().getValueImpl(); }
 	
 	/**
 	 * @brief Get the gradient \f$\nabla f(x)\f$ at the current point.
@@ -103,50 +100,23 @@ public:
 	 * 
 	 * @param g Pointer to an array to store the gradient values.
 	 */
-	void getGradient(Scalar* g) const requires (hasGradient) { CRTP::derived().getGradientImpl(g); }
+	constexpr void getGradient(Scalar* g) const requires(CFirstOrderOracleInterface<Derived, Scalar, Size>) { CRTP::derived().getGradientImpl(g); }
 	
-	/**
-	 * @brief Compute the Hessian-vector product \f$\nabla^2 f(x)d\f$.
-	 * 
-	 * Enabled only if `hasHessianProd == true`.
-	 * 
-	 * Delegates to `Derived::getHessianProdImpl(d, Hd)`.
-	 * 
-	 * @param d  Input direction vector.
-	 * @param Hd Output array for the result of the Hessian-vector product.
-	 */
-	void getHessianProd(const Scalar* d, Scalar* Hd) const requires (hasHessianProd) { CRTP::derived().getHessianProdImpl(d, Hd); }
+	constexpr HessianOpAdaptor<Derived> getHessianOp() requires(CSecondOrderOracleInterface<Derived, Scalar, Size>) { return HessianOpAdaptor(CRTP::derived()); }
 	
-	/**
-	 * @brief Approximatively solves \f$B x = y\f$ where \f$B\approx\nabla^2 f(x)\f$.
-	 * 
-	 * Enabled only if `hasHessianProd == true`.
-	 * 
-	 * Delegates to `Derived::hasApplyPrecondImpl(d, invBd)`.
-	 * 
-	 * @param d  Input direction vector.
-	 * @param invBd Output array for the result.
-	 */
-	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (hasApplyPrecond) { CRTP::derived().applyPrecondImpl(d, invBd); }
+	constexpr PrecondOpAdaptor<Derived> getPrecondOp() requires(CPrecondOracleInterface<Derived, Scalar>) { return PrecondOpAdaptor(CRTP::derived()); }
 	
-	/**
-	 * @brief dafault implementation for applyPrecondImpl. Copy d into invBd.
-	 */
-	void applyPrecond(const Scalar* d, Scalar* invBd) const requires (not hasApplyPrecond) { std::copy(d, d + getNDims(), invBd); }
+	constexpr IdentityOp getPrecondOp() const requires(not CPrecondOracleInterface<Derived, Scalar>) { return IdentityOp(getNDims()); }
 };
 
 #define LNOT_DEFINE_ORACLE \
 	using Base   = LNOT::OracleBase<Self>; \
 	using Size   = typename Base::Size; \
 	using Scalar = typename Base::Scalar; \
-	\
-	using Base::hasGradient; \
-	using Base::hasHessianProd; \
-	using Base::hasApplyPrecond; \
 
-template<class Oracle> concept COracle            = std::derived_from<std::decay_t<Oracle>, OracleBase<std::decay_t<Oracle>>>;
-template<class Oracle> concept CFirstOrderOracle  = COracle<Oracle> and std::decay_t<Oracle>::hasGradient;
-template<class Oracle> concept CSecondOrderOracle = COracle<Oracle> and std::decay_t<Oracle>::hasGradient and std::decay_t<Oracle>::hasHessianProd;
+template<class Oracle> concept COracle            = std::derived_from<std::remove_cvref_t<Oracle>, OracleBase<std::remove_cvref_t<Oracle>>>;
+template<class Oracle> concept CFirstOrderOracle  = COracle<Oracle> and CFirstOrderOracleInterface<Oracle, ScalarFor<Oracle>, SizeFor<Oracle>>;
+template<class Oracle> concept CSecondOrderOracle = COracle<Oracle> and CSecondOrderOracleInterface<Oracle, ScalarFor<Oracle>, SizeFor<Oracle>>;
 
 } // namespace LNOT
 

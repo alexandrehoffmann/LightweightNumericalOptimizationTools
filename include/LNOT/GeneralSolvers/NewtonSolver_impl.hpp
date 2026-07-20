@@ -61,9 +61,6 @@ void NewtonSolver<LinSolver,LineSearch,ConvergenceCriterion>::solveImpl(Oracle&&
 	}
 	if (not solveInPlace) { std::fill(x, x + size, 0); }
 	
-	const auto Hk    = [&oracle] (const Scalar* d, Scalar* Hd)    -> void { oracle.getHessianProd(d, Hd);  };
-	const auto invBk = [&oracle] (const Scalar* d, Scalar* invBd) -> void { oracle.applyPrecond(d, invBd); };
-	
 	m_innerIts.clear();
 	
 	constexpr FPComparator<Scalar> cmp;
@@ -87,7 +84,7 @@ void NewtonSolver<LinSolver,LineSearch,ConvergenceCriterion>::solveImpl(Oracle&&
 		if (m_out) { fmt::println(m_out, "{} {:10.2e} {:10.2e} {:10.2e} {:10.2e}", m_nIt, m_fx, m_residual, relTol, absTol); std::fflush(m_out); }
 		if (m_residual < relTol or m_residual < absTol) { m_info = Info::SUCCESS; break; }
 		
-		m_linsSolver.solve(Hk, invBk, m_gk.get(), size, m_sk.get()); 
+		m_linsSolver.solve(oracle.getHessianOp(), oracle.getPrecondOp(), m_gk.get(), size, m_sk.get()); 
 		
 		if (m_linsSolver.getInfo() == LinSolver::Info::NEGATIVE_CURVATURE) 
 		{ 

@@ -50,7 +50,7 @@ void SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&& o
 	std::fill(m_Bk.get(), m_Bk.get() + size*size, 0);
 	for (Size i=0; i!=size; ++i) { m_Bk[i + i*size] = 1; }
 	
-	SymmetricDenseMatrixOp<Scalar> BkOp(m_Bk.get(), size);
+	SymmetricDenseMatrixOp<const Scalar> BkOp(m_Bk.get(), size);
 	
 	m_innerIts.clear();
 	
@@ -87,7 +87,7 @@ void SR1TrustRegionSolver<TRSSolver, ConvergenceCriterion>::solveImpl(Oracle&& o
 		
 		oracle.setCurrentPoint(m_xTrial.get());
 		oracle.getGradient(m_gkp1.get());
-		BkOp(m_sk.get(), m_uk.get());
+		BkOp.eval(m_sk.get(), m_uk.get());
 		#pragma omp simd
 		for (Size i=0; i!=size; ++i) { m_uk[i] = m_gkp1[i] - m_gk[i] - m_uk[i]; } // u_k = y_k - Bks_k
 		

@@ -23,7 +23,7 @@ public:
 	void resizeWorkSpace(const Size newSize);
 	
 	template<typename HesOp, typename PrecOp, typename ASize> 
-	Scalar solveImpl(const HesOp& H, const PrecOp& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (areHessianOps<HesOp,PrecOp> and isSize<ASize>);
+	Scalar solveImpl(HesOp&& H, PrecOp&& invB, const Scalar* g, const ASize size, const Scalar& delta, Scalar* x) requires (areHessianOps<HesOp,PrecOp> and isSize<ASize>);
 	
 	Scalar getErrorImpl() const { return AdlMath::sqrt(m_precSqNormR); }
 	

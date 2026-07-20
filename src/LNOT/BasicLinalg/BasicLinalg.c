@@ -1,6 +1,7 @@
 #include <LNOT/BasicLinalg/BasicLinalg.h>
 
 #include <math.h>
+#include <stdbool.h>
 
 float       lnot_abs_f (const float       v) { return fabsf(v); } 
 double      lnot_abs_d (const double      v) { return fabs (v); } 
@@ -38,8 +39,10 @@ LNOT_IMPLEMENT_STRIDED_COPY(long double, ld)
 		const lnot_Size N, \
 		Scalar* LNOT_RESTRICT y)\
 	{\
-		const lnot_Size iStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? N : 1;\
-		const lnot_Size jStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? 1 : N; \
+		const bool useRowLikeStride = (layout == LNOT_MAT_ROW_MAJOR) == (uplo == LNOT_MAT_LOWER); \
+		\
+		const lnot_Size iStride = useRowLikeStride ? N : 1;\
+		const lnot_Size jStride = useRowLikeStride ? 1 : N; \
 	\
 		for (lnot_Size i=0; i!=N; ++i)\
 		{\
@@ -67,8 +70,10 @@ LNOT_IMPLEMENT_SYM_MATRIX_VECTOR_PROD(long double, ld)
 		const lnot_Size             N, \
 		Scalar* LNOT_RESTRICT       A)\
 	{\
-		const lnot_Size iStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? N : 1;\
-		const lnot_Size jStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? 1 : N; \
+		const bool useRowLikeStride = (layout == LNOT_MAT_ROW_MAJOR) == (uplo == LNOT_MAT_LOWER); \
+		\
+		const lnot_Size iStride = useRowLikeStride ? N : 1;\
+		const lnot_Size jStride = useRowLikeStride ? 1 : N; \
 	\
 		for (lnot_Size i=0; i!=N; ++i)\
 		{\
@@ -95,9 +100,11 @@ LNOT_IMPLEMENT_SYM_RK1_UPDATE(long double, ld)
 		const lnot_Size             N, \
 		Scalar* LNOT_RESTRICT       A)\
 	{\
-		const lnot_Size iStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? N : 1;\
-		const lnot_Size jStride = layout == LNOT_MAT_ROW_MAJOR && uplo == LNOT_MAT_LOWER ? 1 : N; \
-	\
+		const bool useRowLikeStride = (layout == LNOT_MAT_ROW_MAJOR) == (uplo == LNOT_MAT_LOWER); \
+		\
+		const lnot_Size iStride = useRowLikeStride ? N : 1;\
+		const lnot_Size jStride = useRowLikeStride ? 1 : N; \
+		\
 		for (lnot_Size i=0; i!=N; ++i)\
 		{\
 			const Scalar alpha_xi = alpha*x[i];\
@@ -121,7 +128,7 @@ LNOT_IMPLEMENT_SYM_RK2_UPDATE(long double, ld)
 		const lnot_Size N)\
 	{\
 		if (N == 1) { return lnot_abs_##Suffix(alpha[0]); }\
-	\
+		\
 		Scalar res = lnot_abs_##Suffix(alpha[0]) + lnot_abs_##Suffix(beta[0]);\
         _Pragma("omp simd reduction(max:res)")\
 		for (lnot_Size i=1; i!=(lnot_Size)(N-1); ++i)\

@@ -2,10 +2,6 @@
 #define LNOT_LANCZOS_TRS_SOLVER_IMPL_HPP
 
 #include <LNOT/TRSSolvers/LanczosTRSSolver.hpp>
-#include <LNOT/BasicLinalg/SymmetricDenseMatrixOp.hpp>
-#include <LNOT/BasicLinalg/IdentityPreconditionerOp.hpp>
-#include <LNOT/BasicLinalg/DiagonalPreconditionerOp.hpp>
-
 namespace LNOT
 {
 	

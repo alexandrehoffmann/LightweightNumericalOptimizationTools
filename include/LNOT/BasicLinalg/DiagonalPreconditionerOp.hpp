@@ -9,7 +9,7 @@ namespace LNOT
 {
 
 //TODO: add size as a template parameter so it can be a BIC::Fixed
-template<std::floating_point Scalar>
+template<class Scalar>
 class DiagonalPreconditionerOp
 {
 public:	
@@ -19,7 +19,7 @@ public:
 
 	DiagonalPreconditionerOp(const Scalar* A, const Size size) : m_invD(new Scalar[size]), m_size(size) { recompute(A); }
 	
-	void operator() (const Scalar* x, Scalar* invDx) const;
+	void eval(const Scalar* x, Scalar* invDx) const;
 	
 	void recompute(const Scalar* A);
 private:
