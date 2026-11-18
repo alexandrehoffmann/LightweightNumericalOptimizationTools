@@ -1,0 +1,16 @@
+name: lnot-env
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  # Toolchain (GCC 15 for <print> / C++23)
+  - python
+  - cxx-compiler
+  - cmake
+  - make
+  # Testing
+  - gtest
+  # Static analysis / formatting
+  - clang-tools >=19
+  - cppcheck
+  - pre-commit

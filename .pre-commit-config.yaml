@@ -1,0 +1,29 @@
+repos:
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: clang-format
+        language: system
+        types_or: [c++, c]
+        entry: clang-format -i
+
+      - id: clang-tidy
+        name: clang-tidy
+        language: system
+        types_or: [c++, c]
+        entry: bash -c 'clang-tidy -p build
+          --extra-arg=-isystem$CONDA_PREFIX/include
+          --extra-arg=--gcc-install-dir=$(dirname $($CONDA_PREFIX/bin/c++ -print-libgcc-file-name))
+          --extra-arg=-isystem$(dirname $($CONDA_PREFIX/bin/c++ -print-libgcc-file-name))/include
+          "$@"' --
+
+      - id: cppcheck
+        name: cppcheck
+        language: system
+        types_or: [c++, c]
+        entry: cppcheck --error-exitcode=1 --inline-suppr --enable=all --std=c++23
+          --force -Iinclude
+          --suppress=missingIncludeSystem
+          --suppress=checkersReport
+          --suppress=unusedFunction
+          --suppress=unmatchedSuppression
